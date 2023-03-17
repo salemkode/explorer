@@ -1,0 +1,3665 @@
+schema {
+  query: query_root
+  mutation: mutation_root
+  subscription: subscription_root
+}
+
+# whether this query should be cached (Hasura Cloud only)
+directive @cached(
+  # measured in seconds
+  ttl: Int! = 60
+
+  # refresh the cache entry
+  refresh: Boolean! = false
+) on QUERY
+
+# Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
+input Boolean_comparison_exp {
+  _eq: Boolean
+  _gt: Boolean
+  _gte: Boolean
+  _in: [Boolean!]
+  _is_null: Boolean
+  _lt: Boolean
+  _lte: Boolean
+  _neq: Boolean
+  _nin: [Boolean!]
+}
+
+# Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
+input Int_comparison_exp {
+  _eq: Int
+  _gt: Int
+  _gte: Int
+  _in: [Int!]
+  _is_null: Boolean
+  _lt: Int
+  _lte: Int
+  _neq: Int
+  _nin: [Int!]
+}
+
+input SendTransactionRequest {
+  encoded_hex: String!
+  node_internal_id: bigint!
+}
+
+type SendTransactionResult {
+  transaction_hash: String!
+  transmission_error_message: String
+  transmission_success: Boolean!
+  validation_error_message: String
+  validation_success: Boolean!
+}
+
+# Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
+input String_comparison_exp {
+  _eq: String
+  _gt: String
+  _gte: String
+
+  # does the column match the given case-insensitive pattern
+  _ilike: String
+  _in: [String!]
+
+  # does the column match the given POSIX regular expression, case insensitive
+  _iregex: String
+  _is_null: Boolean
+
+  # does the column match the given pattern
+  _like: String
+  _lt: String
+  _lte: String
+  _neq: String
+
+  # does the column NOT match the given case-insensitive pattern
+  _nilike: String
+  _nin: [String!]
+
+  # does the column NOT match the given POSIX regular expression, case insensitive
+  _niregex: String
+
+  # does the column NOT match the given pattern
+  _nlike: String
+
+  # does the column NOT match the given POSIX regular expression, case sensitive
+  _nregex: String
+
+  # does the column NOT match the given SQL regular expression
+  _nsimilar: String
+
+  # does the column match the given POSIX regular expression, case sensitive
+  _regex: String
+
+  # does the column match the given SQL regular expression
+  _similar: String
+}
+
+scalar _text
+
+# A view which maps migration transactions to their index in a particular authchain.
+type authchain_migrations_view {
+  authbase_internal_id: bigint
+  migration_index: bigint
+  migration_transaction_internal_id: bigint
+
+  # This function powers the "transaction.authchains[n].migrations[n].transaction" computed field in migration objects. This is a workaround to improve performance over an equivalent "transaction" standard Hasura relationship. When implemented as a relationship, the Hasura-compiled SQL query requires a full scan of the authchain_migrations_view, which is extremely large and expensive to compute.
+  transaction(
+    # distinct select on columns
+    distinct_on: [transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [transaction_order_by!]
+
+    # filter the rows returned
+    where: transaction_bool_exp
+  ): [transaction!]
+}
+
+# order by aggregate values of table "authchain_migrations_view"
+input authchain_migrations_view_aggregate_order_by {
+  avg: authchain_migrations_view_avg_order_by
+  count: order_by
+  max: authchain_migrations_view_max_order_by
+  min: authchain_migrations_view_min_order_by
+  stddev: authchain_migrations_view_stddev_order_by
+  stddev_pop: authchain_migrations_view_stddev_pop_order_by
+  stddev_samp: authchain_migrations_view_stddev_samp_order_by
+  sum: authchain_migrations_view_sum_order_by
+  var_pop: authchain_migrations_view_var_pop_order_by
+  var_samp: authchain_migrations_view_var_samp_order_by
+  variance: authchain_migrations_view_variance_order_by
+}
+
+# order by avg() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_avg_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# Boolean expression to filter rows from the table "authchain_migrations_view". All fields are combined with a logical 'AND'.
+input authchain_migrations_view_bool_exp {
+  _and: [authchain_migrations_view_bool_exp!]
+  _not: authchain_migrations_view_bool_exp
+  _or: [authchain_migrations_view_bool_exp!]
+  authbase_internal_id: bigint_comparison_exp
+  migration_index: bigint_comparison_exp
+  migration_transaction_internal_id: bigint_comparison_exp
+  transaction: transaction_bool_exp
+}
+
+# order by max() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_max_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# order by min() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_min_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# Ordering options when selecting data from "authchain_migrations_view".
+input authchain_migrations_view_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+  transaction_aggregate: transaction_aggregate_order_by
+}
+
+# select columns of table "authchain_migrations_view"
+enum authchain_migrations_view_select_column {
+  # column name
+  authbase_internal_id
+
+  # column name
+  migration_index
+
+  # column name
+  migration_transaction_internal_id
+}
+
+# order by stddev() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_stddev_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# order by stddev_pop() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_stddev_pop_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# order by stddev_samp() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_stddev_samp_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# Streaming cursor of the table "authchain_migrations_view"
+input authchain_migrations_view_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: authchain_migrations_view_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input authchain_migrations_view_stream_cursor_value_input {
+  authbase_internal_id: bigint
+  migration_index: bigint
+  migration_transaction_internal_id: bigint
+}
+
+# order by sum() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_sum_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# order by var_pop() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_var_pop_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# order by var_samp() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_var_samp_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# order by variance() on columns of table "authchain_migrations_view"
+input authchain_migrations_view_variance_order_by {
+  authbase_internal_id: order_by
+  migration_index: order_by
+  migration_transaction_internal_id: order_by
+}
+
+# A view which contains one row per possible authhead per transaction.
+type authchain_view {
+  authchain_length: Int
+
+  # An object relationship
+  authhead: transaction
+  authhead_transaction_hash: bytea
+
+  # An array relationship
+  migrations(
+    # distinct select on columns
+    distinct_on: [authchain_migrations_view_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [authchain_migrations_view_order_by!]
+
+    # filter the rows returned
+    where: authchain_migrations_view_bool_exp
+  ): [authchain_migrations_view!]!
+  transaction_internal_id: bigint
+  unspent_authhead: Boolean
+}
+
+# order by aggregate values of table "authchain_view"
+input authchain_view_aggregate_order_by {
+  avg: authchain_view_avg_order_by
+  count: order_by
+  max: authchain_view_max_order_by
+  min: authchain_view_min_order_by
+  stddev: authchain_view_stddev_order_by
+  stddev_pop: authchain_view_stddev_pop_order_by
+  stddev_samp: authchain_view_stddev_samp_order_by
+  sum: authchain_view_sum_order_by
+  var_pop: authchain_view_var_pop_order_by
+  var_samp: authchain_view_var_samp_order_by
+  variance: authchain_view_variance_order_by
+}
+
+# order by avg() on columns of table "authchain_view"
+input authchain_view_avg_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# Boolean expression to filter rows from the table "authchain_view". All fields are combined with a logical 'AND'.
+input authchain_view_bool_exp {
+  _and: [authchain_view_bool_exp!]
+  _not: authchain_view_bool_exp
+  _or: [authchain_view_bool_exp!]
+  authchain_length: Int_comparison_exp
+  authhead: transaction_bool_exp
+  authhead_transaction_hash: bytea_comparison_exp
+  migrations: authchain_migrations_view_bool_exp
+  transaction_internal_id: bigint_comparison_exp
+  unspent_authhead: Boolean_comparison_exp
+}
+
+# order by max() on columns of table "authchain_view"
+input authchain_view_max_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# order by min() on columns of table "authchain_view"
+input authchain_view_min_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# Ordering options when selecting data from "authchain_view".
+input authchain_view_order_by {
+  authchain_length: order_by
+  authhead: transaction_order_by
+  authhead_transaction_hash: order_by
+  migrations_aggregate: authchain_migrations_view_aggregate_order_by
+  transaction_internal_id: order_by
+  unspent_authhead: order_by
+}
+
+# select columns of table "authchain_view"
+enum authchain_view_select_column {
+  # column name
+  authchain_length
+
+  # column name
+  authhead_transaction_hash
+
+  # column name
+  transaction_internal_id
+
+  # column name
+  unspent_authhead
+}
+
+# order by stddev() on columns of table "authchain_view"
+input authchain_view_stddev_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# order by stddev_pop() on columns of table "authchain_view"
+input authchain_view_stddev_pop_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# order by stddev_samp() on columns of table "authchain_view"
+input authchain_view_stddev_samp_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# Streaming cursor of the table "authchain_view"
+input authchain_view_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: authchain_view_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input authchain_view_stream_cursor_value_input {
+  authchain_length: Int
+  authhead_transaction_hash: bytea
+  transaction_internal_id: bigint
+  unspent_authhead: Boolean
+}
+
+# order by sum() on columns of table "authchain_view"
+input authchain_view_sum_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# order by var_pop() on columns of table "authchain_view"
+input authchain_view_var_pop_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# order by var_samp() on columns of table "authchain_view"
+input authchain_view_var_samp_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+# order by variance() on columns of table "authchain_view"
+input authchain_view_variance_order_by {
+  authchain_length: order_by
+  transaction_internal_id: order_by
+}
+
+scalar bigint
+
+# Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'.
+input bigint_comparison_exp {
+  _eq: bigint
+  _gt: bigint
+  _gte: bigint
+  _in: [bigint!]
+  _is_null: Boolean
+  _lt: bigint
+  _lte: bigint
+  _neq: bigint
+  _nin: [bigint!]
+}
+
+# A blockchain block.
+type block {
+  # An array relationship
+  accepted_by(
+    # distinct select on columns
+    distinct_on: [node_block_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_block_order_by!]
+
+    # filter the rows returned
+    where: node_block_bool_exp
+  ): [node_block!]!
+
+  # The uint32 packed representation of the difficulty target being used for this block. To be valid, the block hash value must be less than this difficulty target.
+  bits: bigint!
+
+  # Encode a full block using the standard P2P network format, returning the result as a hex-encoded string.
+  encoded_hex: String
+
+  # The total fee in satoshis paid by all transactions in this block.
+  fee_satoshis: bigint
+
+  # The total value in satoshis generated by this block.
+  generated_value_satoshis: bigint
+
+  # The 32-byte, double-sha256 hash of the block header (encoded using the standard P2P network format) in big-endian byte order. This is used as a universal, unique identifier for the block. Big-endian byte order is typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  hash: bytea!
+
+  # Encode a block header using the standard P2P network format, returning the result as a hex-encoded string.
+  header: String
+
+  # The height of this block: the number of blocks mined between this block and its genesis block (block 0).
+  height: bigint!
+
+  # The total number of transaction inputs in this block.
+  input_count: bigint
+
+  # The total value in satoshis of all outputs spent by transaction inputs in this block.
+  input_value_satoshis: bigint
+
+  # A unique, int64 identifier for this block assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: bigint!
+
+  # The 32-byte root hash of the double-sha256 merkle tree of transactions confirmed by this block. Note, the unusual merkle tree construction used by most chains is vulnerable to CVE-2012-2459. The final node in oddly-numbered levels is duplicated, and special care is required to ensure trees contain minimal duplicatation.
+  merkle_root: bytea!
+
+  # The uint32 nonce used for this block. This field allows miners to introduce entropy into the block header, changing the resulting hash during mining.
+  nonce: bigint!
+
+  # The total number of transaction outputs in this block.
+  output_count: bigint
+
+  # The total value in satoshis of all outputs created by transactions in this block.
+  output_value_satoshis: bigint
+
+  # An object relationship
+  previous_block: block
+
+  # The 32-byte, double-sha256 hash of the previous block's header in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  previous_block_hash: bytea!
+
+  # The network-encoded size of this block in bytes including transactions.
+  size_bytes: bigint!
+
+  # The uint32 current Unix timestamp claimed by the miner at the time this block was mined. By consensus, block timestamps must be within ~2 hours of the actual time, but timestamps are not guaranteed to be accurate. Timestamps of later blocks can also be earlier than their parent blocks.
+  timestamp: bigint!
+
+  # The total number of transactions in this block.
+  transaction_count: bigint
+
+  # An array relationship
+  transactions(
+    # distinct select on columns
+    distinct_on: [block_transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [block_transaction_order_by!]
+
+    # filter the rows returned
+    where: block_transaction_bool_exp
+  ): [block_transaction!]!
+
+  # The "version" field of this block; a 4-byte field typically represented as an int32. While originally designed to indicate a block's version, this field has been used for several other purposes. BIP34 ("Height in Coinbase") enforced a minimum version of 2, BIP66 ("Strict DER Signatures") enforced a minimum version of 3, then BIP9 repurposed most bits of the version field for network signaling. In recent years, the version field is also used for the AsicBoost mining optimization.
+  version: bigint!
+}
+
+# Boolean expression to filter rows from the table "block". All fields are combined with a logical 'AND'.
+input block_bool_exp {
+  _and: [block_bool_exp!]
+  _not: block_bool_exp
+  _or: [block_bool_exp!]
+  accepted_by: node_block_bool_exp
+  bits: bigint_comparison_exp
+  encoded_hex: String_comparison_exp
+  fee_satoshis: bigint_comparison_exp
+  generated_value_satoshis: bigint_comparison_exp
+  hash: bytea_comparison_exp
+  header: String_comparison_exp
+  height: bigint_comparison_exp
+  input_count: bigint_comparison_exp
+  input_value_satoshis: bigint_comparison_exp
+  internal_id: bigint_comparison_exp
+  merkle_root: bytea_comparison_exp
+  nonce: bigint_comparison_exp
+  output_count: bigint_comparison_exp
+  output_value_satoshis: bigint_comparison_exp
+  previous_block: block_bool_exp
+  previous_block_hash: bytea_comparison_exp
+  size_bytes: bigint_comparison_exp
+  timestamp: bigint_comparison_exp
+  transaction_count: bigint_comparison_exp
+  transactions: block_transaction_bool_exp
+  version: bigint_comparison_exp
+}
+
+# Ordering options when selecting data from "block".
+input block_order_by {
+  accepted_by_aggregate: node_block_aggregate_order_by
+  bits: order_by
+  encoded_hex: order_by
+  fee_satoshis: order_by
+  generated_value_satoshis: order_by
+  hash: order_by
+  header: order_by
+  height: order_by
+  input_count: order_by
+  input_value_satoshis: order_by
+  internal_id: order_by
+  merkle_root: order_by
+  nonce: order_by
+  output_count: order_by
+  output_value_satoshis: order_by
+  previous_block: block_order_by
+  previous_block_hash: order_by
+  size_bytes: order_by
+  timestamp: order_by
+  transaction_count: order_by
+  transactions_aggregate: block_transaction_aggregate_order_by
+  version: order_by
+}
+
+# select columns of table "block"
+enum block_select_column {
+  # column name
+  bits
+
+  # column name
+  hash
+
+  # column name
+  height
+
+  # column name
+  internal_id
+
+  # column name
+  merkle_root
+
+  # column name
+  nonce
+
+  # column name
+  previous_block_hash
+
+  # column name
+  size_bytes
+
+  # column name
+  timestamp
+
+  # column name
+  version
+}
+
+# Streaming cursor of the table "block"
+input block_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: block_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input block_stream_cursor_value_input {
+  # The uint32 packed representation of the difficulty target being used for this block. To be valid, the block hash value must be less than this difficulty target.
+  bits: bigint
+
+  # The 32-byte, double-sha256 hash of the block header (encoded using the standard P2P network format) in big-endian byte order. This is used as a universal, unique identifier for the block. Big-endian byte order is typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  hash: bytea
+
+  # The height of this block: the number of blocks mined between this block and its genesis block (block 0).
+  height: bigint
+
+  # A unique, int64 identifier for this block assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: bigint
+
+  # The 32-byte root hash of the double-sha256 merkle tree of transactions confirmed by this block. Note, the unusual merkle tree construction used by most chains is vulnerable to CVE-2012-2459. The final node in oddly-numbered levels is duplicated, and special care is required to ensure trees contain minimal duplicatation.
+  merkle_root: bytea
+
+  # The uint32 nonce used for this block. This field allows miners to introduce entropy into the block header, changing the resulting hash during mining.
+  nonce: bigint
+
+  # The 32-byte, double-sha256 hash of the previous block's header in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  previous_block_hash: bytea
+
+  # The network-encoded size of this block in bytes including transactions.
+  size_bytes: bigint
+
+  # The uint32 current Unix timestamp claimed by the miner at the time this block was mined. By consensus, block timestamps must be within ~2 hours of the actual time, but timestamps are not guaranteed to be accurate. Timestamps of later blocks can also be earlier than their parent blocks.
+  timestamp: bigint
+
+  # The "version" field of this block; a 4-byte field typically represented as an int32. While originally designed to indicate a block's version, this field has been used for several other purposes. BIP34 ("Height in Coinbase") enforced a minimum version of 2, BIP66 ("Strict DER Signatures") enforced a minimum version of 3, then BIP9 repurposed most bits of the version field for network signaling. In recent years, the version field is also used for the AsicBoost mining optimization.
+  version: bigint
+}
+
+# A many-to-many relationship between blocks and transactions.
+type block_transaction {
+  # An object relationship
+  block: block!
+
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: bigint!
+
+  # An object relationship
+  transaction: transaction!
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: bigint!
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: bigint!
+}
+
+# order by aggregate values of table "block_transaction"
+input block_transaction_aggregate_order_by {
+  avg: block_transaction_avg_order_by
+  count: order_by
+  max: block_transaction_max_order_by
+  min: block_transaction_min_order_by
+  stddev: block_transaction_stddev_order_by
+  stddev_pop: block_transaction_stddev_pop_order_by
+  stddev_samp: block_transaction_stddev_samp_order_by
+  sum: block_transaction_sum_order_by
+  var_pop: block_transaction_var_pop_order_by
+  var_samp: block_transaction_var_samp_order_by
+  variance: block_transaction_variance_order_by
+}
+
+# order by avg() on columns of table "block_transaction"
+input block_transaction_avg_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# Boolean expression to filter rows from the table "block_transaction". All fields are combined with a logical 'AND'.
+input block_transaction_bool_exp {
+  _and: [block_transaction_bool_exp!]
+  _not: block_transaction_bool_exp
+  _or: [block_transaction_bool_exp!]
+  block: block_bool_exp
+  block_internal_id: bigint_comparison_exp
+  transaction: transaction_bool_exp
+  transaction_index: bigint_comparison_exp
+  transaction_internal_id: bigint_comparison_exp
+}
+
+# order by max() on columns of table "block_transaction"
+input block_transaction_max_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by min() on columns of table "block_transaction"
+input block_transaction_min_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# Ordering options when selecting data from "block_transaction".
+input block_transaction_order_by {
+  block: block_order_by
+  block_internal_id: order_by
+  transaction: transaction_order_by
+  transaction_index: order_by
+  transaction_internal_id: order_by
+}
+
+# select columns of table "block_transaction"
+enum block_transaction_select_column {
+  # column name
+  block_internal_id
+
+  # column name
+  transaction_index
+
+  # column name
+  transaction_internal_id
+}
+
+# order by stddev() on columns of table "block_transaction"
+input block_transaction_stddev_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by stddev_pop() on columns of table "block_transaction"
+input block_transaction_stddev_pop_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by stddev_samp() on columns of table "block_transaction"
+input block_transaction_stddev_samp_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# Streaming cursor of the table "block_transaction"
+input block_transaction_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: block_transaction_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input block_transaction_stream_cursor_value_input {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: bigint
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: bigint
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: bigint
+}
+
+# order by sum() on columns of table "block_transaction"
+input block_transaction_sum_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by var_pop() on columns of table "block_transaction"
+input block_transaction_var_pop_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by var_samp() on columns of table "block_transaction"
+input block_transaction_var_samp_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by variance() on columns of table "block_transaction"
+input block_transaction_variance_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+  block_internal_id: order_by
+
+  # The zero-based index of the referenced transaction in the referenced block. (Transaction ordering is critical for reconstructing a block or its merkle tree.)
+  transaction_index: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+  transaction_internal_id: order_by
+}
+
+scalar bytea
+
+# Boolean expression to compare columns of type "bytea". All fields are combined with logical 'AND'.
+input bytea_comparison_exp {
+  _eq: bytea
+  _gt: bytea
+  _gte: bytea
+  _in: [bytea!]
+  _is_null: Boolean
+  _lt: bytea
+  _lte: bytea
+  _neq: bytea
+  _nin: [bytea!]
+}
+
+# ordering argument of a cursor
+enum cursor_ordering {
+  # ascending ordering of the cursor
+  ASC
+
+  # descending ordering of the cursor
+  DESC
+}
+
+scalar enum_nonfungible_token_capability
+
+# Boolean expression to compare columns of type "enum_nonfungible_token_capability". All fields are combined with logical 'AND'.
+input enum_nonfungible_token_capability_comparison_exp {
+  _eq: enum_nonfungible_token_capability
+  _gt: enum_nonfungible_token_capability
+  _gte: enum_nonfungible_token_capability
+  _in: [enum_nonfungible_token_capability!]
+  _is_null: Boolean
+  _lt: enum_nonfungible_token_capability
+  _lte: enum_nonfungible_token_capability
+  _neq: enum_nonfungible_token_capability
+  _nin: [enum_nonfungible_token_capability!]
+}
+
+# A transaction input.
+type input {
+  # The zero-based index of this input in the transaction.
+  input_index: bigint!
+
+  # An object relationship
+  outpoint: output
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: bigint!
+
+  # An object relationship
+  outpoint_transaction: output
+
+  # The 32-byte, double-sha256 hash of the network-encoded transaction from which this input is spent in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  outpoint_transaction_hash: bytea!
+
+  # If the final instruction of the unlocking bytecode is a push instruction, parse its contents as a P2SH redeem bytecode, extracting the first byte of each instruction into a bytecode pattern (excluding length bytes and pushed data). If the last instruction is not a push, return NULL. Note: this function does not confirm that the spent locking bytecode is P2SH. For correct results, only call this function for inputs which spend P2SH outputs.
+  redeem_bytecode_pattern: String
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: bigint!
+
+  # An object relationship
+  transaction: transaction!
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: bigint!
+
+  # The bytecode used to unlock a transaction output. To spend an output, unlocking bytecode must be included in a transaction input which – when evaluated in the authentication virtual machine with the locking bytecode – completes in valid state.
+  unlocking_bytecode: bytea!
+
+  # Extract the first byte of each instruction for the unlocking bytecode of an input. The resulting pattern excludes the contents of pushed values such that similar bytecode sequences produce the same pattern.
+  unlocking_bytecode_pattern: String
+
+  # The value in satoshis of all outpoints spent by this transaction. Set to null for coinbase transactions.
+  value_satoshis: bigint
+}
+
+# order by aggregate values of table "input"
+input input_aggregate_order_by {
+  avg: input_avg_order_by
+  count: order_by
+  max: input_max_order_by
+  min: input_min_order_by
+  stddev: input_stddev_order_by
+  stddev_pop: input_stddev_pop_order_by
+  stddev_samp: input_stddev_samp_order_by
+  sum: input_sum_order_by
+  var_pop: input_var_pop_order_by
+  var_samp: input_var_samp_order_by
+  variance: input_variance_order_by
+}
+
+# order by avg() on columns of table "input"
+input input_avg_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# Boolean expression to filter rows from the table "input". All fields are combined with a logical 'AND'.
+input input_bool_exp {
+  _and: [input_bool_exp!]
+  _not: input_bool_exp
+  _or: [input_bool_exp!]
+  input_index: bigint_comparison_exp
+  outpoint: output_bool_exp
+  outpoint_index: bigint_comparison_exp
+  outpoint_transaction: output_bool_exp
+  outpoint_transaction_hash: bytea_comparison_exp
+  redeem_bytecode_pattern: String_comparison_exp
+  sequence_number: bigint_comparison_exp
+  transaction: transaction_bool_exp
+  transaction_internal_id: bigint_comparison_exp
+  unlocking_bytecode: bytea_comparison_exp
+  unlocking_bytecode_pattern: String_comparison_exp
+  value_satoshis: bigint_comparison_exp
+}
+
+# order by max() on columns of table "input"
+input input_max_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# order by min() on columns of table "input"
+input input_min_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# Ordering options when selecting data from "input".
+input input_order_by {
+  input_index: order_by
+  outpoint: output_order_by
+  outpoint_index: order_by
+  outpoint_transaction: output_order_by
+  outpoint_transaction_hash: order_by
+  redeem_bytecode_pattern: order_by
+  sequence_number: order_by
+  transaction: transaction_order_by
+  transaction_internal_id: order_by
+  unlocking_bytecode: order_by
+  unlocking_bytecode_pattern: order_by
+  value_satoshis: order_by
+}
+
+# select columns of table "input"
+enum input_select_column {
+  # column name
+  input_index
+
+  # column name
+  outpoint_index
+
+  # column name
+  outpoint_transaction_hash
+
+  # column name
+  sequence_number
+
+  # column name
+  transaction_internal_id
+
+  # column name
+  unlocking_bytecode
+}
+
+# order by stddev() on columns of table "input"
+input input_stddev_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# order by stddev_pop() on columns of table "input"
+input input_stddev_pop_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# order by stddev_samp() on columns of table "input"
+input input_stddev_samp_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# Streaming cursor of the table "input"
+input input_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: input_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input input_stream_cursor_value_input {
+  # The zero-based index of this input in the transaction.
+  input_index: bigint
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: bigint
+
+  # The 32-byte, double-sha256 hash of the network-encoded transaction from which this input is spent in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  outpoint_transaction_hash: bytea
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: bigint
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: bigint
+
+  # The bytecode used to unlock a transaction output. To spend an output, unlocking bytecode must be included in a transaction input which – when evaluated in the authentication virtual machine with the locking bytecode – completes in valid state.
+  unlocking_bytecode: bytea
+}
+
+# order by sum() on columns of table "input"
+input input_sum_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# order by var_pop() on columns of table "input"
+input input_var_pop_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# order by var_samp() on columns of table "input"
+input input_var_samp_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# order by variance() on columns of table "input"
+input input_variance_order_by {
+  # The zero-based index of this input in the transaction.
+  input_index: order_by
+
+  # The zero-based index of the output being spent by this input. (An outpoint is a reference/pointer to a specific output in a previous transaction.)
+  outpoint_index: order_by
+
+  # The uint32 "sequence number" for this input, a complex bitfield which can encode several input properties: sequence age support – whether or not the input can use OP_CHECKSEQUENCEVERIFY; sequence age – the minimum number of blocks or length of time claimed to have passed since this input's source transaction was mined (up to approximately 1 year); locktime support – whether or not the input can use OP_CHECKLOCKTIMEVERIFY.
+  sequence_number: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+  transaction_internal_id: order_by
+}
+
+# mutation root
+type mutation_root {
+  # Send an encoded transaction to the requested node for broadcast to the network.
+  send_transaction(request: SendTransactionRequest!): SendTransactionResult!
+}
+
+# A trusted node which has been connected to this Chaingraph instance.
+type node {
+  # An array relationship
+  accepted_blocks(
+    # distinct select on columns
+    distinct_on: [node_block_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_block_order_by!]
+
+    # filter the rows returned
+    where: node_block_bool_exp
+  ): [node_block!]!
+
+  # The UTC timestamp at which this node was first connected to Chaingraph.
+  first_connected_at: timestamp!
+
+  # A unique, int32 identifier for this node assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: Int!
+
+  # The UTC timestamp at which this node began its most recent connection to Chaingraph.
+  latest_connection_began_at: timestamp!
+
+  # The name configured as a stable identifier for this particular trusted node.
+  name: String!
+
+  # The protocol version reported by this node during the most recent connection handshake.
+  protocol_version: Int!
+
+  # The total number of unconfirmed transactions in the mempool of this node.
+  unconfirmed_transaction_count: bigint
+
+  # An array relationship
+  unconfirmed_transactions(
+    # distinct select on columns
+    distinct_on: [node_transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_transaction_order_by!]
+
+    # filter the rows returned
+    where: node_transaction_bool_exp
+  ): [node_transaction!]!
+
+  # The user agent reported by this node during the most recent connection handshake.
+  user_agent: String!
+}
+
+# A many-to-many relationship between nodes and blocks.
+type node_block {
+  # The UTC timestamp at which the referenced block was accepted by the referenced node. Set to NULL if the true acceptance time is unknown (the block was accepted by this node before Chaingraph began monitoring). In the event of a blockchain reorganization, the record is deleted from node_block and saved to node_block_history.
+  accepted_at: timestamp
+
+  # An object relationship
+  block: block!
+
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: bigint!
+
+  # An object relationship
+  node: node!
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: Int!
+}
+
+# order by aggregate values of table "node_block"
+input node_block_aggregate_order_by {
+  avg: node_block_avg_order_by
+  count: order_by
+  max: node_block_max_order_by
+  min: node_block_min_order_by
+  stddev: node_block_stddev_order_by
+  stddev_pop: node_block_stddev_pop_order_by
+  stddev_samp: node_block_stddev_samp_order_by
+  sum: node_block_sum_order_by
+  var_pop: node_block_var_pop_order_by
+  var_samp: node_block_var_samp_order_by
+  variance: node_block_variance_order_by
+}
+
+# order by avg() on columns of table "node_block"
+input node_block_avg_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# Boolean expression to filter rows from the table "node_block". All fields are combined with a logical 'AND'.
+input node_block_bool_exp {
+  _and: [node_block_bool_exp!]
+  _not: node_block_bool_exp
+  _or: [node_block_bool_exp!]
+  accepted_at: timestamp_comparison_exp
+  block: block_bool_exp
+  block_internal_id: bigint_comparison_exp
+  node: node_bool_exp
+  node_internal_id: Int_comparison_exp
+}
+
+# An archive of deleted node_blocks.
+type node_block_history {
+  # The UTC timestamp at which the referenced block was accepted by the referenced node in the deleted node_block. Set to NULL if the true acceptance time was unknown (the block was accepted by this node before Chaingraph began monitoring).
+  accepted_at: timestamp
+
+  # An object relationship
+  block: block!
+
+  # The internal_id (assigned by Chaingraph) of the block referenced by the deleted node_block.
+  block_internal_id: bigint!
+
+  # The internal_id (assigned by Chaingraph) of this node_block_history record.
+  internal_id: bigint!
+
+  # An object relationship
+  node: node!
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_block.
+  node_internal_id: Int!
+
+  # The UTC timestamp at which the referenced block was removed by the referenced node.
+  removed_at: timestamp!
+}
+
+# Boolean expression to filter rows from the table "node_block_history". All fields are combined with a logical 'AND'.
+input node_block_history_bool_exp {
+  _and: [node_block_history_bool_exp!]
+  _not: node_block_history_bool_exp
+  _or: [node_block_history_bool_exp!]
+  accepted_at: timestamp_comparison_exp
+  block: block_bool_exp
+  block_internal_id: bigint_comparison_exp
+  internal_id: bigint_comparison_exp
+  node: node_bool_exp
+  node_internal_id: Int_comparison_exp
+  removed_at: timestamp_comparison_exp
+}
+
+# Ordering options when selecting data from "node_block_history".
+input node_block_history_order_by {
+  accepted_at: order_by
+  block: block_order_by
+  block_internal_id: order_by
+  internal_id: order_by
+  node: node_order_by
+  node_internal_id: order_by
+  removed_at: order_by
+}
+
+# select columns of table "node_block_history"
+enum node_block_history_select_column {
+  # column name
+  accepted_at
+
+  # column name
+  block_internal_id
+
+  # column name
+  internal_id
+
+  # column name
+  node_internal_id
+
+  # column name
+  removed_at
+}
+
+# Streaming cursor of the table "node_block_history"
+input node_block_history_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: node_block_history_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input node_block_history_stream_cursor_value_input {
+  # The UTC timestamp at which the referenced block was accepted by the referenced node in the deleted node_block. Set to NULL if the true acceptance time was unknown (the block was accepted by this node before Chaingraph began monitoring).
+  accepted_at: timestamp
+
+  # The internal_id (assigned by Chaingraph) of the block referenced by the deleted node_block.
+  block_internal_id: bigint
+
+  # The internal_id (assigned by Chaingraph) of this node_block_history record.
+  internal_id: bigint
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_block.
+  node_internal_id: Int
+
+  # The UTC timestamp at which the referenced block was removed by the referenced node.
+  removed_at: timestamp
+}
+
+# order by max() on columns of table "node_block"
+input node_block_max_order_by {
+  # The UTC timestamp at which the referenced block was accepted by the referenced node. Set to NULL if the true acceptance time is unknown (the block was accepted by this node before Chaingraph began monitoring). In the event of a blockchain reorganization, the record is deleted from node_block and saved to node_block_history.
+  accepted_at: order_by
+
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# order by min() on columns of table "node_block"
+input node_block_min_order_by {
+  # The UTC timestamp at which the referenced block was accepted by the referenced node. Set to NULL if the true acceptance time is unknown (the block was accepted by this node before Chaingraph began monitoring). In the event of a blockchain reorganization, the record is deleted from node_block and saved to node_block_history.
+  accepted_at: order_by
+
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# Ordering options when selecting data from "node_block".
+input node_block_order_by {
+  accepted_at: order_by
+  block: block_order_by
+  block_internal_id: order_by
+  node: node_order_by
+  node_internal_id: order_by
+}
+
+# select columns of table "node_block"
+enum node_block_select_column {
+  # column name
+  accepted_at
+
+  # column name
+  block_internal_id
+
+  # column name
+  node_internal_id
+}
+
+# order by stddev() on columns of table "node_block"
+input node_block_stddev_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# order by stddev_pop() on columns of table "node_block"
+input node_block_stddev_pop_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# order by stddev_samp() on columns of table "node_block"
+input node_block_stddev_samp_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# Streaming cursor of the table "node_block"
+input node_block_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: node_block_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input node_block_stream_cursor_value_input {
+  # The UTC timestamp at which the referenced block was accepted by the referenced node. Set to NULL if the true acceptance time is unknown (the block was accepted by this node before Chaingraph began monitoring). In the event of a blockchain reorganization, the record is deleted from node_block and saved to node_block_history.
+  accepted_at: timestamp
+
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: bigint
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: Int
+}
+
+# order by sum() on columns of table "node_block"
+input node_block_sum_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# order by var_pop() on columns of table "node_block"
+input node_block_var_pop_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# order by var_samp() on columns of table "node_block"
+input node_block_var_samp_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# order by variance() on columns of table "node_block"
+input node_block_variance_order_by {
+  # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+  block_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+  node_internal_id: order_by
+}
+
+# Boolean expression to filter rows from the table "node". All fields are combined with a logical 'AND'.
+input node_bool_exp {
+  _and: [node_bool_exp!]
+  _not: node_bool_exp
+  _or: [node_bool_exp!]
+  accepted_blocks: node_block_bool_exp
+  first_connected_at: timestamp_comparison_exp
+  internal_id: Int_comparison_exp
+  latest_connection_began_at: timestamp_comparison_exp
+  name: String_comparison_exp
+  protocol_version: Int_comparison_exp
+  unconfirmed_transaction_count: bigint_comparison_exp
+  unconfirmed_transactions: node_transaction_bool_exp
+  user_agent: String_comparison_exp
+}
+
+# Ordering options when selecting data from "node".
+input node_order_by {
+  accepted_blocks_aggregate: node_block_aggregate_order_by
+  first_connected_at: order_by
+  internal_id: order_by
+  latest_connection_began_at: order_by
+  name: order_by
+  protocol_version: order_by
+  unconfirmed_transaction_count: order_by
+  unconfirmed_transactions_aggregate: node_transaction_aggregate_order_by
+  user_agent: order_by
+}
+
+# select columns of table "node"
+enum node_select_column {
+  # column name
+  first_connected_at
+
+  # column name
+  internal_id
+
+  # column name
+  latest_connection_began_at
+
+  # column name
+  name
+
+  # column name
+  protocol_version
+
+  # column name
+  user_agent
+}
+
+# Streaming cursor of the table "node"
+input node_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: node_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input node_stream_cursor_value_input {
+  # The UTC timestamp at which this node was first connected to Chaingraph.
+  first_connected_at: timestamp
+
+  # A unique, int32 identifier for this node assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: Int
+
+  # The UTC timestamp at which this node began its most recent connection to Chaingraph.
+  latest_connection_began_at: timestamp
+
+  # The name configured as a stable identifier for this particular trusted node.
+  name: String
+
+  # The protocol version reported by this node during the most recent connection handshake.
+  protocol_version: Int
+
+  # The user agent reported by this node during the most recent connection handshake.
+  user_agent: String
+}
+
+# A many-to-many relationship between nodes and unconfirmed transactions, A.K.A. "mempool". Transactions which are first heard in a block are never recorded as node_transactions, but skip directly to being record by a pair of node_block and block_transaction relationships.
+type node_transaction {
+  # An object relationship
+  node: node!
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: Int!
+
+  # An object relationship
+  transaction: transaction!
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: bigint!
+
+  # The UTC timestamp at which the referenced transaction was validated by the referenced node.
+  validated_at: timestamp
+}
+
+# order by aggregate values of table "node_transaction"
+input node_transaction_aggregate_order_by {
+  avg: node_transaction_avg_order_by
+  count: order_by
+  max: node_transaction_max_order_by
+  min: node_transaction_min_order_by
+  stddev: node_transaction_stddev_order_by
+  stddev_pop: node_transaction_stddev_pop_order_by
+  stddev_samp: node_transaction_stddev_samp_order_by
+  sum: node_transaction_sum_order_by
+  var_pop: node_transaction_var_pop_order_by
+  var_samp: node_transaction_var_samp_order_by
+  variance: node_transaction_variance_order_by
+}
+
+# order by avg() on columns of table "node_transaction"
+input node_transaction_avg_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+}
+
+# Boolean expression to filter rows from the table "node_transaction". All fields are combined with a logical 'AND'.
+input node_transaction_bool_exp {
+  _and: [node_transaction_bool_exp!]
+  _not: node_transaction_bool_exp
+  _or: [node_transaction_bool_exp!]
+  node: node_bool_exp
+  node_internal_id: Int_comparison_exp
+  transaction: transaction_bool_exp
+  transaction_internal_id: bigint_comparison_exp
+  validated_at: timestamp_comparison_exp
+}
+
+# An archive of deleted node_transactions.
+type node_transaction_history {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: bigint!
+
+  # An object relationship
+  node: node!
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: Int!
+
+  # The UTC timestamp at which the referenced transaction was marked as replaced (A.K.A. double-spent) by the referenced node.
+  replaced_at: timestamp
+
+  # An object relationship
+  transaction: transaction!
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: bigint!
+
+  # The UTC timestamp at which the referenced transaction was validated by the referenced node in the deleted node_transaction.
+  validated_at: timestamp
+}
+
+# order by aggregate values of table "node_transaction_history"
+input node_transaction_history_aggregate_order_by {
+  avg: node_transaction_history_avg_order_by
+  count: order_by
+  max: node_transaction_history_max_order_by
+  min: node_transaction_history_min_order_by
+  stddev: node_transaction_history_stddev_order_by
+  stddev_pop: node_transaction_history_stddev_pop_order_by
+  stddev_samp: node_transaction_history_stddev_samp_order_by
+  sum: node_transaction_history_sum_order_by
+  var_pop: node_transaction_history_var_pop_order_by
+  var_samp: node_transaction_history_var_samp_order_by
+  variance: node_transaction_history_variance_order_by
+}
+
+# order by avg() on columns of table "node_transaction_history"
+input node_transaction_history_avg_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+}
+
+# Boolean expression to filter rows from the table "node_transaction_history". All fields are combined with a logical 'AND'.
+input node_transaction_history_bool_exp {
+  _and: [node_transaction_history_bool_exp!]
+  _not: node_transaction_history_bool_exp
+  _or: [node_transaction_history_bool_exp!]
+  internal_id: bigint_comparison_exp
+  node: node_bool_exp
+  node_internal_id: Int_comparison_exp
+  replaced_at: timestamp_comparison_exp
+  transaction: transaction_bool_exp
+  transaction_internal_id: bigint_comparison_exp
+  validated_at: timestamp_comparison_exp
+}
+
+# order by max() on columns of table "node_transaction_history"
+input node_transaction_history_max_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The UTC timestamp at which the referenced transaction was marked as replaced (A.K.A. double-spent) by the referenced node.
+  replaced_at: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+
+  # The UTC timestamp at which the referenced transaction was validated by the referenced node in the deleted node_transaction.
+  validated_at: order_by
+}
+
+# order by min() on columns of table "node_transaction_history"
+input node_transaction_history_min_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The UTC timestamp at which the referenced transaction was marked as replaced (A.K.A. double-spent) by the referenced node.
+  replaced_at: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+
+  # The UTC timestamp at which the referenced transaction was validated by the referenced node in the deleted node_transaction.
+  validated_at: order_by
+}
+
+# Ordering options when selecting data from "node_transaction_history".
+input node_transaction_history_order_by {
+  internal_id: order_by
+  node: node_order_by
+  node_internal_id: order_by
+  replaced_at: order_by
+  transaction: transaction_order_by
+  transaction_internal_id: order_by
+  validated_at: order_by
+}
+
+# select columns of table "node_transaction_history"
+enum node_transaction_history_select_column {
+  # column name
+  internal_id
+
+  # column name
+  node_internal_id
+
+  # column name
+  replaced_at
+
+  # column name
+  transaction_internal_id
+
+  # column name
+  validated_at
+}
+
+# order by stddev() on columns of table "node_transaction_history"
+input node_transaction_history_stddev_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by stddev_pop() on columns of table "node_transaction_history"
+input node_transaction_history_stddev_pop_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by stddev_samp() on columns of table "node_transaction_history"
+input node_transaction_history_stddev_samp_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+}
+
+# Streaming cursor of the table "node_transaction_history"
+input node_transaction_history_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: node_transaction_history_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input node_transaction_history_stream_cursor_value_input {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: bigint
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: Int
+
+  # The UTC timestamp at which the referenced transaction was marked as replaced (A.K.A. double-spent) by the referenced node.
+  replaced_at: timestamp
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: bigint
+
+  # The UTC timestamp at which the referenced transaction was validated by the referenced node in the deleted node_transaction.
+  validated_at: timestamp
+}
+
+# order by sum() on columns of table "node_transaction_history"
+input node_transaction_history_sum_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by var_pop() on columns of table "node_transaction_history"
+input node_transaction_history_var_pop_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by var_samp() on columns of table "node_transaction_history"
+input node_transaction_history_var_samp_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by variance() on columns of table "node_transaction_history"
+input node_transaction_history_variance_order_by {
+  # The internal_id (assigned by Chaingraph) of this node_transaction_history record.
+  internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the node referenced by the deleted node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by the deleted node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by max() on columns of table "node_transaction"
+input node_transaction_max_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+
+  # The UTC timestamp at which the referenced transaction was validated by the referenced node.
+  validated_at: order_by
+}
+
+# order by min() on columns of table "node_transaction"
+input node_transaction_min_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+
+  # The UTC timestamp at which the referenced transaction was validated by the referenced node.
+  validated_at: order_by
+}
+
+# Ordering options when selecting data from "node_transaction".
+input node_transaction_order_by {
+  node: node_order_by
+  node_internal_id: order_by
+  transaction: transaction_order_by
+  transaction_internal_id: order_by
+  validated_at: order_by
+}
+
+# select columns of table "node_transaction"
+enum node_transaction_select_column {
+  # column name
+  node_internal_id
+
+  # column name
+  transaction_internal_id
+
+  # column name
+  validated_at
+}
+
+# order by stddev() on columns of table "node_transaction"
+input node_transaction_stddev_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by stddev_pop() on columns of table "node_transaction"
+input node_transaction_stddev_pop_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by stddev_samp() on columns of table "node_transaction"
+input node_transaction_stddev_samp_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+}
+
+# Streaming cursor of the table "node_transaction"
+input node_transaction_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: node_transaction_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input node_transaction_stream_cursor_value_input {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: Int
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: bigint
+
+  # The UTC timestamp at which the referenced transaction was validated by the referenced node.
+  validated_at: timestamp
+}
+
+# order by sum() on columns of table "node_transaction"
+input node_transaction_sum_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by var_pop() on columns of table "node_transaction"
+input node_transaction_var_pop_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by var_samp() on columns of table "node_transaction"
+input node_transaction_var_samp_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+}
+
+# order by variance() on columns of table "node_transaction"
+input node_transaction_variance_order_by {
+  # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+  node_internal_id: order_by
+
+  # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+  transaction_internal_id: order_by
+}
+
+# column ordering options
+enum order_by {
+  # in ascending order, nulls last
+  asc
+
+  # in ascending order, nulls first
+  asc_nulls_first
+
+  # in ascending order, nulls last
+  asc_nulls_last
+
+  # in descending order, nulls first
+  desc
+
+  # in descending order, nulls first
+  desc_nulls_first
+
+  # in descending order, nulls last
+  desc_nulls_last
+}
+
+# A transaction output.
+type output {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: bigint
+
+  # The bytecode used to encumber this transaction output. To spend the output, unlocking bytecode must be included in a transaction input which – when evaluated before this locking bytecode – completes in a valid state.
+  locking_bytecode: bytea!
+
+  # Extract the first byte of each instruction for the locking bytecode of an output. The resulting pattern excludes the contents of pushed values such that similar bytecode sequences produce the same pattern.
+  locking_bytecode_pattern: String
+
+  # The capability of the non-fungible token (NFT) held in this output: "none", "mutable", or "minting". This field is null if no NFT is present.
+  nonfungible_token_capability: enum_nonfungible_token_capability
+
+  # The commitment contents of the non-fungible token (NFT) held in this output (0 to 40 bytes). This field is null if no NFT is present.
+  nonfungible_token_commitment: bytea
+
+  # The zero-based index of this output in the transaction.
+  output_index: bigint!
+
+  # An array relationship
+  spent_by(
+    # distinct select on columns
+    distinct_on: [input_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [input_order_by!]
+
+    # filter the rows returned
+    where: input_bool_exp
+  ): [input!]!
+
+  # The 32-byte token category to which the token(s) in this output belong. This field is null if no tokens are present.
+  token_category: bytea
+
+  # An object relationship
+  transaction: transaction!
+
+  # The 32-byte, double-sha256 hash of the network-encoded transaction containing this output in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  transaction_hash: bytea!
+
+  # The value of this output in satoshis.
+  value_satoshis: bigint!
+}
+
+# order by aggregate values of table "output"
+input output_aggregate_order_by {
+  avg: output_avg_order_by
+  count: order_by
+  max: output_max_order_by
+  min: output_min_order_by
+  stddev: output_stddev_order_by
+  stddev_pop: output_stddev_pop_order_by
+  stddev_samp: output_stddev_samp_order_by
+  sum: output_sum_order_by
+  var_pop: output_var_pop_order_by
+  var_samp: output_var_samp_order_by
+  variance: output_variance_order_by
+}
+
+# order by avg() on columns of table "output"
+input output_avg_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# Boolean expression to filter rows from the table "output". All fields are combined with a logical 'AND'.
+input output_bool_exp {
+  _and: [output_bool_exp!]
+  _not: output_bool_exp
+  _or: [output_bool_exp!]
+  fungible_token_amount: bigint_comparison_exp
+  locking_bytecode: bytea_comparison_exp
+  locking_bytecode_pattern: String_comparison_exp
+  nonfungible_token_capability: enum_nonfungible_token_capability_comparison_exp
+  nonfungible_token_commitment: bytea_comparison_exp
+  output_index: bigint_comparison_exp
+  spent_by: input_bool_exp
+  token_category: bytea_comparison_exp
+  transaction: transaction_bool_exp
+  transaction_hash: bytea_comparison_exp
+  value_satoshis: bigint_comparison_exp
+}
+
+# order by max() on columns of table "output"
+input output_max_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The capability of the non-fungible token (NFT) held in this output: "none", "mutable", or "minting". This field is null if no NFT is present.
+  nonfungible_token_capability: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# order by min() on columns of table "output"
+input output_min_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The capability of the non-fungible token (NFT) held in this output: "none", "mutable", or "minting". This field is null if no NFT is present.
+  nonfungible_token_capability: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# Ordering options when selecting data from "output".
+input output_order_by {
+  fungible_token_amount: order_by
+  locking_bytecode: order_by
+  locking_bytecode_pattern: order_by
+  nonfungible_token_capability: order_by
+  nonfungible_token_commitment: order_by
+  output_index: order_by
+  spent_by_aggregate: input_aggregate_order_by
+  token_category: order_by
+  transaction: transaction_order_by
+  transaction_hash: order_by
+  value_satoshis: order_by
+}
+
+# select columns of table "output"
+enum output_select_column {
+  # column name
+  fungible_token_amount
+
+  # column name
+  locking_bytecode
+
+  # column name
+  nonfungible_token_capability
+
+  # column name
+  nonfungible_token_commitment
+
+  # column name
+  output_index
+
+  # column name
+  token_category
+
+  # column name
+  transaction_hash
+
+  # column name
+  value_satoshis
+}
+
+# order by stddev() on columns of table "output"
+input output_stddev_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# order by stddev_pop() on columns of table "output"
+input output_stddev_pop_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# order by stddev_samp() on columns of table "output"
+input output_stddev_samp_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# Streaming cursor of the table "output"
+input output_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: output_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input output_stream_cursor_value_input {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: bigint
+
+  # The bytecode used to encumber this transaction output. To spend the output, unlocking bytecode must be included in a transaction input which – when evaluated before this locking bytecode – completes in a valid state.
+  locking_bytecode: bytea
+
+  # The capability of the non-fungible token (NFT) held in this output: "none", "mutable", or "minting". This field is null if no NFT is present.
+  nonfungible_token_capability: enum_nonfungible_token_capability
+
+  # The commitment contents of the non-fungible token (NFT) held in this output (0 to 40 bytes). This field is null if no NFT is present.
+  nonfungible_token_commitment: bytea
+
+  # The zero-based index of this output in the transaction.
+  output_index: bigint
+
+  # The 32-byte token category to which the token(s) in this output belong. This field is null if no tokens are present.
+  token_category: bytea
+
+  # The 32-byte, double-sha256 hash of the network-encoded transaction containing this output in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  transaction_hash: bytea
+
+  # The value of this output in satoshis.
+  value_satoshis: bigint
+}
+
+# order by sum() on columns of table "output"
+input output_sum_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# order by var_pop() on columns of table "output"
+input output_var_pop_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# order by var_samp() on columns of table "output"
+input output_var_samp_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+# order by variance() on columns of table "output"
+input output_variance_order_by {
+  # The number of fungible tokens held in this output (an integer between 1 and 9223372036854775807). This field is null if 0 fungible tokens are present.
+  fungible_token_amount: order_by
+
+  # The zero-based index of this output in the transaction.
+  output_index: order_by
+
+  # The value of this output in satoshis.
+  value_satoshis: order_by
+}
+
+type query_root {
+  # fetch data from the table: "authchain_migrations_view"
+  authchain_migrations_view(
+    # distinct select on columns
+    distinct_on: [authchain_migrations_view_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [authchain_migrations_view_order_by!]
+
+    # filter the rows returned
+    where: authchain_migrations_view_bool_exp
+  ): [authchain_migrations_view!]!
+
+  # fetch data from the table: "authchain_view"
+  authchain_view(
+    # distinct select on columns
+    distinct_on: [authchain_view_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [authchain_view_order_by!]
+
+    # filter the rows returned
+    where: authchain_view_bool_exp
+  ): [authchain_view!]!
+
+  # fetch data from the table: "block"
+  block(
+    # distinct select on columns
+    distinct_on: [block_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [block_order_by!]
+
+    # filter the rows returned
+    where: block_bool_exp
+  ): [block!]!
+
+  # fetch data from the table: "block" using primary key columns
+  block_by_pk(
+    # A unique, int64 identifier for this block assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+    internal_id: bigint!
+  ): block
+
+  # fetch data from the table: "block_transaction"
+  block_transaction(
+    # distinct select on columns
+    distinct_on: [block_transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [block_transaction_order_by!]
+
+    # filter the rows returned
+    where: block_transaction_bool_exp
+  ): [block_transaction!]!
+
+  # fetch data from the table: "block_transaction" using primary key columns
+  block_transaction_by_pk(
+    # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+    block_internal_id: bigint!
+
+    # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+    transaction_internal_id: bigint!
+  ): block_transaction
+
+  # fetch data from the table: "input"
+  input(
+    # distinct select on columns
+    distinct_on: [input_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [input_order_by!]
+
+    # filter the rows returned
+    where: input_bool_exp
+  ): [input!]!
+
+  # fetch data from the table: "input" using primary key columns
+  input_by_pk(
+    # The zero-based index of this input in the transaction.
+    input_index: bigint!
+
+    # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+    transaction_internal_id: bigint!
+  ): input
+
+  # fetch data from the table: "node"
+  node(
+    # distinct select on columns
+    distinct_on: [node_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_order_by!]
+
+    # filter the rows returned
+    where: node_bool_exp
+  ): [node!]!
+
+  # fetch data from the table: "node_block"
+  node_block(
+    # distinct select on columns
+    distinct_on: [node_block_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_block_order_by!]
+
+    # filter the rows returned
+    where: node_block_bool_exp
+  ): [node_block!]!
+
+  # fetch data from the table: "node_block" using primary key columns
+  node_block_by_pk(
+    # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+    block_internal_id: bigint!
+
+    # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+    node_internal_id: Int!
+  ): node_block
+
+  # fetch data from the table: "node_block_history"
+  node_block_history(
+    # distinct select on columns
+    distinct_on: [node_block_history_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_block_history_order_by!]
+
+    # filter the rows returned
+    where: node_block_history_bool_exp
+  ): [node_block_history!]!
+
+  # fetch data from the table: "node_block_history" using primary key columns
+  node_block_history_by_pk(
+    # The internal_id (assigned by Chaingraph) of this node_block_history record.
+    internal_id: bigint!
+  ): node_block_history
+
+  # fetch data from the table: "node" using primary key columns
+  node_by_pk(
+    # A unique, int32 identifier for this node assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+    internal_id: Int!
+  ): node
+
+  # fetch data from the table: "node_transaction"
+  node_transaction(
+    # distinct select on columns
+    distinct_on: [node_transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_transaction_order_by!]
+
+    # filter the rows returned
+    where: node_transaction_bool_exp
+  ): [node_transaction!]!
+
+  # fetch data from the table: "node_transaction" using primary key columns
+  node_transaction_by_pk(
+    # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+    node_internal_id: Int!
+
+    # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+    transaction_internal_id: bigint!
+  ): node_transaction
+
+  # fetch data from the table: "node_transaction_history"
+  node_transaction_history(
+    # distinct select on columns
+    distinct_on: [node_transaction_history_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_transaction_history_order_by!]
+
+    # filter the rows returned
+    where: node_transaction_history_bool_exp
+  ): [node_transaction_history!]!
+
+  # fetch data from the table: "output"
+  output(
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]!
+
+  # fetch data from the table: "output" using primary key columns
+  output_by_pk(
+    # The zero-based index of this output in the transaction.
+    output_index: bigint!
+
+    # The 32-byte, double-sha256 hash of the network-encoded transaction containing this output in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+    transaction_hash: bytea!
+  ): output
+
+  # execute function "search_output" which returns "output"
+  search_output(
+    # input parameters for function "search_output"
+    args: search_output_args!
+
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]!
+
+  # execute function "search_output_prefix" which returns "output"
+  search_output_prefix(
+    # input parameters for function "search_output_prefix"
+    args: search_output_prefix_args!
+
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]!
+
+  # fetch data from the table: "transaction"
+  transaction(
+    # distinct select on columns
+    distinct_on: [transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [transaction_order_by!]
+
+    # filter the rows returned
+    where: transaction_bool_exp
+  ): [transaction!]!
+
+  # fetch data from the table: "transaction" using primary key columns
+  transaction_by_pk(
+    # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+    internal_id: bigint!
+  ): transaction
+}
+
+input search_output_args {
+  locking_bytecode_hex: _text
+}
+
+input search_output_prefix_args {
+  locking_bytecode_prefix_hex: String
+}
+
+type subscription_root {
+  # fetch data from the table: "authchain_migrations_view"
+  authchain_migrations_view(
+    # distinct select on columns
+    distinct_on: [authchain_migrations_view_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [authchain_migrations_view_order_by!]
+
+    # filter the rows returned
+    where: authchain_migrations_view_bool_exp
+  ): [authchain_migrations_view!]!
+
+  # fetch data from the table in a streaming manner: "authchain_migrations_view"
+  authchain_migrations_view_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [authchain_migrations_view_stream_cursor_input]!
+
+    # filter the rows returned
+    where: authchain_migrations_view_bool_exp
+  ): [authchain_migrations_view!]!
+
+  # fetch data from the table: "authchain_view"
+  authchain_view(
+    # distinct select on columns
+    distinct_on: [authchain_view_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [authchain_view_order_by!]
+
+    # filter the rows returned
+    where: authchain_view_bool_exp
+  ): [authchain_view!]!
+
+  # fetch data from the table in a streaming manner: "authchain_view"
+  authchain_view_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [authchain_view_stream_cursor_input]!
+
+    # filter the rows returned
+    where: authchain_view_bool_exp
+  ): [authchain_view!]!
+
+  # fetch data from the table: "block"
+  block(
+    # distinct select on columns
+    distinct_on: [block_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [block_order_by!]
+
+    # filter the rows returned
+    where: block_bool_exp
+  ): [block!]!
+
+  # fetch data from the table: "block" using primary key columns
+  block_by_pk(
+    # A unique, int64 identifier for this block assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+    internal_id: bigint!
+  ): block
+
+  # fetch data from the table in a streaming manner: "block"
+  block_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [block_stream_cursor_input]!
+
+    # filter the rows returned
+    where: block_bool_exp
+  ): [block!]!
+
+  # fetch data from the table: "block_transaction"
+  block_transaction(
+    # distinct select on columns
+    distinct_on: [block_transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [block_transaction_order_by!]
+
+    # filter the rows returned
+    where: block_transaction_bool_exp
+  ): [block_transaction!]!
+
+  # fetch data from the table: "block_transaction" using primary key columns
+  block_transaction_by_pk(
+    # The internal_id (assigned by Chaingraph) of the block referenced by this block_transaction.
+    block_internal_id: bigint!
+
+    # The internal_id (assigned by Chaingraph) of the transaction referenced by this block_transaction.
+    transaction_internal_id: bigint!
+  ): block_transaction
+
+  # fetch data from the table in a streaming manner: "block_transaction"
+  block_transaction_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [block_transaction_stream_cursor_input]!
+
+    # filter the rows returned
+    where: block_transaction_bool_exp
+  ): [block_transaction!]!
+
+  # fetch data from the table: "input"
+  input(
+    # distinct select on columns
+    distinct_on: [input_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [input_order_by!]
+
+    # filter the rows returned
+    where: input_bool_exp
+  ): [input!]!
+
+  # fetch data from the table: "input" using primary key columns
+  input_by_pk(
+    # The zero-based index of this input in the transaction.
+    input_index: bigint!
+
+    # The internal_id (assigned by Chaingraph) of the transaction which includes this input.
+    transaction_internal_id: bigint!
+  ): input
+
+  # fetch data from the table in a streaming manner: "input"
+  input_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [input_stream_cursor_input]!
+
+    # filter the rows returned
+    where: input_bool_exp
+  ): [input!]!
+
+  # fetch data from the table: "node"
+  node(
+    # distinct select on columns
+    distinct_on: [node_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_order_by!]
+
+    # filter the rows returned
+    where: node_bool_exp
+  ): [node!]!
+
+  # fetch data from the table: "node_block"
+  node_block(
+    # distinct select on columns
+    distinct_on: [node_block_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_block_order_by!]
+
+    # filter the rows returned
+    where: node_block_bool_exp
+  ): [node_block!]!
+
+  # fetch data from the table: "node_block" using primary key columns
+  node_block_by_pk(
+    # The internal_id (assigned by Chaingraph) of the block referenced by this node_block.
+    block_internal_id: bigint!
+
+    # The internal_id (assigned by Chaingraph) of the node referenced by this node_block.
+    node_internal_id: Int!
+  ): node_block
+
+  # fetch data from the table: "node_block_history"
+  node_block_history(
+    # distinct select on columns
+    distinct_on: [node_block_history_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_block_history_order_by!]
+
+    # filter the rows returned
+    where: node_block_history_bool_exp
+  ): [node_block_history!]!
+
+  # fetch data from the table: "node_block_history" using primary key columns
+  node_block_history_by_pk(
+    # The internal_id (assigned by Chaingraph) of this node_block_history record.
+    internal_id: bigint!
+  ): node_block_history
+
+  # fetch data from the table in a streaming manner: "node_block_history"
+  node_block_history_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [node_block_history_stream_cursor_input]!
+
+    # filter the rows returned
+    where: node_block_history_bool_exp
+  ): [node_block_history!]!
+
+  # fetch data from the table in a streaming manner: "node_block"
+  node_block_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [node_block_stream_cursor_input]!
+
+    # filter the rows returned
+    where: node_block_bool_exp
+  ): [node_block!]!
+
+  # fetch data from the table: "node" using primary key columns
+  node_by_pk(
+    # A unique, int32 identifier for this node assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+    internal_id: Int!
+  ): node
+
+  # fetch data from the table in a streaming manner: "node"
+  node_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [node_stream_cursor_input]!
+
+    # filter the rows returned
+    where: node_bool_exp
+  ): [node!]!
+
+  # fetch data from the table: "node_transaction"
+  node_transaction(
+    # distinct select on columns
+    distinct_on: [node_transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_transaction_order_by!]
+
+    # filter the rows returned
+    where: node_transaction_bool_exp
+  ): [node_transaction!]!
+
+  # fetch data from the table: "node_transaction" using primary key columns
+  node_transaction_by_pk(
+    # The internal_id (assigned by Chaingraph) of the node referenced by this node_transaction.
+    node_internal_id: Int!
+
+    # The internal_id (assigned by Chaingraph) of the transaction referenced by this node_transaction.
+    transaction_internal_id: bigint!
+  ): node_transaction
+
+  # fetch data from the table: "node_transaction_history"
+  node_transaction_history(
+    # distinct select on columns
+    distinct_on: [node_transaction_history_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_transaction_history_order_by!]
+
+    # filter the rows returned
+    where: node_transaction_history_bool_exp
+  ): [node_transaction_history!]!
+
+  # fetch data from the table in a streaming manner: "node_transaction_history"
+  node_transaction_history_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [node_transaction_history_stream_cursor_input]!
+
+    # filter the rows returned
+    where: node_transaction_history_bool_exp
+  ): [node_transaction_history!]!
+
+  # fetch data from the table in a streaming manner: "node_transaction"
+  node_transaction_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [node_transaction_stream_cursor_input]!
+
+    # filter the rows returned
+    where: node_transaction_bool_exp
+  ): [node_transaction!]!
+
+  # fetch data from the table: "output"
+  output(
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]!
+
+  # fetch data from the table: "output" using primary key columns
+  output_by_pk(
+    # The zero-based index of this output in the transaction.
+    output_index: bigint!
+
+    # The 32-byte, double-sha256 hash of the network-encoded transaction containing this output in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+    transaction_hash: bytea!
+  ): output
+
+  # fetch data from the table in a streaming manner: "output"
+  output_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [output_stream_cursor_input]!
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]!
+
+  # execute function "search_output" which returns "output"
+  search_output(
+    # input parameters for function "search_output"
+    args: search_output_args!
+
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]!
+
+  # execute function "search_output_prefix" which returns "output"
+  search_output_prefix(
+    # input parameters for function "search_output_prefix"
+    args: search_output_prefix_args!
+
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]!
+
+  # fetch data from the table: "transaction"
+  transaction(
+    # distinct select on columns
+    distinct_on: [transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [transaction_order_by!]
+
+    # filter the rows returned
+    where: transaction_bool_exp
+  ): [transaction!]!
+
+  # fetch data from the table: "transaction" using primary key columns
+  transaction_by_pk(
+    # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+    internal_id: bigint!
+  ): transaction
+
+  # fetch data from the table in a streaming manner: "transaction"
+  transaction_stream(
+    # maximum number of rows returned in a single batch
+    batch_size: Int!
+
+    # cursor to stream the results returned by the query
+    cursor: [transaction_stream_cursor_input]!
+
+    # filter the rows returned
+    where: transaction_bool_exp
+  ): [transaction!]!
+}
+
+scalar timestamp
+
+# Boolean expression to compare columns of type "timestamp". All fields are combined with logical 'AND'.
+input timestamp_comparison_exp {
+  _eq: timestamp
+  _gt: timestamp
+  _gte: timestamp
+  _in: [timestamp!]
+  _is_null: Boolean
+  _lt: timestamp
+  _lte: timestamp
+  _neq: timestamp
+  _nin: [timestamp!]
+}
+
+# A transaction.
+type transaction {
+  # An array relationship
+  authchains(
+    # distinct select on columns
+    distinct_on: [authchain_view_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [authchain_view_order_by!]
+
+    # filter the rows returned
+    where: authchain_view_bool_exp
+  ): [authchain_view!]!
+
+  # An array relationship
+  block_inclusions(
+    # distinct select on columns
+    distinct_on: [block_transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [block_transaction_order_by!]
+
+    # filter the rows returned
+    where: block_transaction_bool_exp
+  ): [block_transaction!]!
+
+  # Return all of this transaction's "data carrier" outputs: outputs in which value_satoshis is 0 or locking_bytecode begins with OP_RETURN.
+  data_carrier_outputs(
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]
+
+  # Encode a transaction using the standard P2P network format, returning the result as a hex-encoded string.
+  encoded_hex: String
+
+  # The fee in satoshis paid by this transaction.
+  fee_satoshis: bigint
+
+  # The 32-byte, double-sha256 hash of this transaction (encoded using the standard P2P network format) in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  hash: bytea!
+
+  # Return a transaction's identity output (0th output). Making this a computed field simplifies Hasura queries by returning the identity output as a single object rather than a filtered array of one output.
+  identity_output(
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]
+
+  # The total number of inputs in this transaction.
+  input_count: bigint
+
+  # An array relationship
+  input_outpoint_transactions(
+    # distinct select on columns
+    distinct_on: [input_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [input_order_by!]
+
+    # filter the rows returned
+    where: input_bool_exp
+  ): [input!]!
+
+  # The total value in satoshis of all outputs spent by inputs in this transaction.
+  input_value_satoshis: bigint
+
+  # An array relationship
+  inputs(
+    # distinct select on columns
+    distinct_on: [input_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [input_order_by!]
+
+    # filter the rows returned
+    where: input_bool_exp
+  ): [input!]!
+
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: bigint!
+
+  # A boolean value indicating whether this transaction is a coinbase transaction. A coinbase transaction must be the 0th transaction in a block, it must have one input which spends from the empty outpoint_transaction_hash (0x0000...) and – after BIP34 – includes the block's height in its unlocking_bytecode (A.K.A. "coinbase" field), and it may spend the sum of the block's transaction fees and block reward to its output(s).
+  is_coinbase: Boolean!
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: bigint!
+
+  # An array relationship
+  node_validation_timeline(
+    # distinct select on columns
+    distinct_on: [node_transaction_history_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_transaction_history_order_by!]
+
+    # filter the rows returned
+    where: node_transaction_history_bool_exp
+  ): [node_transaction_history!]!
+
+  # An array relationship
+  node_validations(
+    # distinct select on columns
+    distinct_on: [node_transaction_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [node_transaction_order_by!]
+
+    # filter the rows returned
+    where: node_transaction_bool_exp
+  ): [node_transaction!]!
+
+  # The total number of outputs in this transaction.
+  output_count: bigint
+
+  # The total value in satoshis of all outputs created by this transaction.
+  output_value_satoshis: bigint
+
+  # An array relationship
+  outputs(
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]!
+
+  # Return a transaction's signing output (1th output) or NULL if it does not exist. Making this a computed field simplifies Hasura queries by returning the signing output as a single object rather than a filtered array of one output.
+  signing_output(
+    # distinct select on columns
+    distinct_on: [output_select_column!]
+
+    # limit the number of rows returned
+    limit: Int
+
+    # skip the first n rows. Use only with order_by
+    offset: Int
+
+    # sort the rows by one or more columns
+    order_by: [output_order_by!]
+
+    # filter the rows returned
+    where: output_bool_exp
+  ): [output!]
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: bigint!
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: bigint!
+}
+
+# order by aggregate values of table "transaction"
+input transaction_aggregate_order_by {
+  avg: transaction_avg_order_by
+  count: order_by
+  max: transaction_max_order_by
+  min: transaction_min_order_by
+  stddev: transaction_stddev_order_by
+  stddev_pop: transaction_stddev_pop_order_by
+  stddev_samp: transaction_stddev_samp_order_by
+  sum: transaction_sum_order_by
+  var_pop: transaction_var_pop_order_by
+  var_samp: transaction_var_samp_order_by
+  variance: transaction_variance_order_by
+}
+
+# order by avg() on columns of table "transaction"
+input transaction_avg_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# Boolean expression to filter rows from the table "transaction". All fields are combined with a logical 'AND'.
+input transaction_bool_exp {
+  _and: [transaction_bool_exp!]
+  _not: transaction_bool_exp
+  _or: [transaction_bool_exp!]
+  authchains: authchain_view_bool_exp
+  block_inclusions: block_transaction_bool_exp
+  data_carrier_outputs: output_bool_exp
+  encoded_hex: String_comparison_exp
+  fee_satoshis: bigint_comparison_exp
+  hash: bytea_comparison_exp
+  identity_output: output_bool_exp
+  input_count: bigint_comparison_exp
+  input_outpoint_transactions: input_bool_exp
+  input_value_satoshis: bigint_comparison_exp
+  inputs: input_bool_exp
+  internal_id: bigint_comparison_exp
+  is_coinbase: Boolean_comparison_exp
+  locktime: bigint_comparison_exp
+  node_validation_timeline: node_transaction_history_bool_exp
+  node_validations: node_transaction_bool_exp
+  output_count: bigint_comparison_exp
+  output_value_satoshis: bigint_comparison_exp
+  outputs: output_bool_exp
+  signing_output: output_bool_exp
+  size_bytes: bigint_comparison_exp
+  version: bigint_comparison_exp
+}
+
+# order by max() on columns of table "transaction"
+input transaction_max_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# order by min() on columns of table "transaction"
+input transaction_min_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# Ordering options when selecting data from "transaction".
+input transaction_order_by {
+  authchains_aggregate: authchain_view_aggregate_order_by
+  block_inclusions_aggregate: block_transaction_aggregate_order_by
+  data_carrier_outputs_aggregate: output_aggregate_order_by
+  encoded_hex: order_by
+  fee_satoshis: order_by
+  hash: order_by
+  identity_output_aggregate: output_aggregate_order_by
+  input_count: order_by
+  input_outpoint_transactions_aggregate: input_aggregate_order_by
+  input_value_satoshis: order_by
+  inputs_aggregate: input_aggregate_order_by
+  internal_id: order_by
+  is_coinbase: order_by
+  locktime: order_by
+  node_validation_timeline_aggregate: node_transaction_history_aggregate_order_by
+  node_validations_aggregate: node_transaction_aggregate_order_by
+  output_count: order_by
+  output_value_satoshis: order_by
+  outputs_aggregate: output_aggregate_order_by
+  signing_output_aggregate: output_aggregate_order_by
+  size_bytes: order_by
+  version: order_by
+}
+
+# select columns of table "transaction"
+enum transaction_select_column {
+  # column name
+  hash
+
+  # column name
+  internal_id
+
+  # column name
+  is_coinbase
+
+  # column name
+  locktime
+
+  # column name
+  size_bytes
+
+  # column name
+  version
+}
+
+# order by stddev() on columns of table "transaction"
+input transaction_stddev_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# order by stddev_pop() on columns of table "transaction"
+input transaction_stddev_pop_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# order by stddev_samp() on columns of table "transaction"
+input transaction_stddev_samp_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# Streaming cursor of the table "transaction"
+input transaction_stream_cursor_input {
+  # Stream column input with initial value
+  initial_value: transaction_stream_cursor_value_input!
+
+  # cursor ordering
+  ordering: cursor_ordering
+}
+
+# Initial value of the column from where the streaming should start
+input transaction_stream_cursor_value_input {
+  # The 32-byte, double-sha256 hash of this transaction (encoded using the standard P2P network format) in big-endian byte order. This is the byte order typically seen in block explorers and user interfaces (as opposed to little-endian byte order, which is used in standard P2P network messages).
+  hash: bytea
+
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: bigint
+
+  # A boolean value indicating whether this transaction is a coinbase transaction. A coinbase transaction must be the 0th transaction in a block, it must have one input which spends from the empty outpoint_transaction_hash (0x0000...) and – after BIP34 – includes the block's height in its unlocking_bytecode (A.K.A. "coinbase" field), and it may spend the sum of the block's transaction fees and block reward to its output(s).
+  is_coinbase: Boolean
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: bigint
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: bigint
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: bigint
+}
+
+# order by sum() on columns of table "transaction"
+input transaction_sum_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# order by var_pop() on columns of table "transaction"
+input transaction_var_pop_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# order by var_samp() on columns of table "transaction"
+input transaction_var_samp_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}
+
+# order by variance() on columns of table "transaction"
+input transaction_variance_order_by {
+  # A unique, int64 identifier for this transaction assigned by Chaingraph. This value is not guaranteed to be consistent between Chaingraph instances.
+  internal_id: order_by
+
+  # The uint32 locktime at which this transaction is considered valid. Locktime can be provided as either a timestamp or a block height: values less than 500,000,000 are understood to be a block height (the current block number in the chain, beginning from block 0); values greater than or equal to 500,000,000 are understood to be a UNIX timestamp.
+  locktime: order_by
+
+  # The network-encoded size of this transaction in bytes.
+  size_bytes: order_by
+
+  # The version of this transaction. In the v1 and v2 transaction formats, a 4-byte field typically represented as an int32. (Verson 2 transactions are defined in BIP68.)
+  version: order_by
+}

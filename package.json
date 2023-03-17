@@ -1,0 +1,43 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "dev:g": "graphql-codegen -w",
+    "lint": "eslint . --fix",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^3.2.2",
+    "@graphql-codegen/client-preset": "^2.1.1",
+    "@nuxtjs/eslint-config-typescript": "^12.0.0",
+    "@pinia-plugin-persistedstate/nuxt": "^1.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
+    "@vueuse/core": "^9.13.0",
+    "@vueuse/nuxt": "^9.13.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-plugin-nuxt": "^4.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vue": "^9.9.0",
+    "nuxt": "^3.2.3",
+    "prettier": "^2.8.4",
+    "typescript": "^4.9.5",
+    "vite-plugin-eslint": "^1.8.1"
+  },
+  "dependencies": {
+    "@bitauth/libauth": "^1.19.1",
+    "@nuxtjs/apollo": "^5.0.0-alpha.5",
+    "@nuxtjs/i18n": "^8.0.0-beta.10",
+    "@pinia/nuxt": "^0.4.7",
+    "bignumber.js": "^9.1.1",
+    "pinia": "^2.0.33",
+    "vue-router": "^4.1.6"
+  },
+  "overrides": {
+    "vue": "latest"
+  }
+}
