@@ -1,11 +1,11 @@
 <template>
-  <NuxtLink :to="props.url" class="copy d-flex">
+  <NuxtLink :to="props.url" class="copy">
     {{ text }}
     <img
       v-if="props.text && props.copy"
       src="~/assets/icons/duplicate.svg"
-      width="18"
-      class="copy-icon align-items-center m-1 mx-2"
+      width="16"
+      class="copy-icon align-items-center"
       @click="copy"
     />
     <div class="copy-popup" :class="{ show: showPopup }">copied!</div>
@@ -13,15 +13,17 @@
 </template>
 
 <script setup lang="ts">
+import { shortTx } from "~/module/utils";
+
 const text = computed(() => {
-  if (props.short) {
-    return `${props.text.slice(0, 8)}...${props.text.slice(-5)}`;
+  if (props.short && typeof props.text === "string") {
+    return shortTx(props.text);
   } else {
     return props.text;
   }
 });
 const props = defineProps<{
-  text: string;
+  text: string | number;
   short?: boolean;
   url?: string;
   copy: boolean;
@@ -56,13 +58,13 @@ function fallbackCopyTextToClipboard(text: string): void {
 const copy = async () => {
   window.setTimeout(() => (showPopup.value = false), 1000);
   if (!navigator.clipboard) {
-    fallbackCopyTextToClipboard(props.text);
+    fallbackCopyTextToClipboard("" + props.text);
     showPopup.value = true;
     return;
   }
 
   /* Modern browser */
-  await navigator.clipboard.writeText(props.text);
+  await navigator.clipboard.writeText("" + props.text);
   showPopup.value = true;
 };
 </script>

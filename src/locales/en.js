@@ -148,7 +148,7 @@ export default {
   go_back: "Go Back",
   go_home: "Go Home",
   reload_page: "Reload Page",
-  search_placeholder: "Search by Address / TX (Version) ID",
+  search_placeholder: "Search by Address / TokenId / TX (Version) ID",
   nonslp_transaction: "NON-SLP Transaction",
   slp_invalid_reason: "SLP Invalid Reason",
   this_is_not_a_slp_transaction: "This is not a SLP transaction.",

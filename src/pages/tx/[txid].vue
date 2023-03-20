@@ -1,61 +1,131 @@
+<!-- eslint-disable vue/no-useless-template-attributes -->
 <template>
-  <div v-if="transaction" class="tx-page container">
-    <div class="card p-3 tx-info">
-      <span class="text-body-secondary mb-2">Transaction hash</span>
-      <Copy
-        text="35220b296dd2cff255d7a6fb49824326774e2153714398342580f848b6a24e6d"
-        copy
-      />
-      <span class="text-body-secondary mb-2">Output</span>
-      <span>{{ transaction.transaction.input_value_satoshis }} BCH</span>
-      <span class="text-body-secondary mb-2">Time</span>
-      {{ transaction.timestamp }}
+  <div v-if="transaction" class="tx-page container mx-auto">
+    <div class="column">
+      <ContentWarp :items="infoContent" />
+      <bcmr-info :token-category="route.params.txid as string" />
     </div>
-    <div class="py-2 px-3">
-      <div class="d-flex">
-        <Progress :percentage="50" />
-        <div class="px-3">
-          <div>Transaction status</div>
-          <h4 class="my-2">Confirmed 62 confirmations</h4>
-          <h4 class="my-2">Confirmed 1 of 6 confirmations</h4>
-          <div>Block id {{ numberWithCommas(transaction.blockHeight) }}</div>
+    <div class="column">
+      <TxConfirm :block-height="transaction.blockHeight" />
+      <div class="operation">
+        <div>
+          <span>Inputs</span>
+          <div v-if="transaction.transaction.is_coinbase" class="card my-2 p-2">
+            CoinBase
+          </div>
+          <template v-else>
+            <TxOperation
+              v-for="(input, index) in transaction.transaction.inputs"
+              :key="index"
+              :address="
+                scriptSigToCashAddress(input.unlocking_bytecode.substring(2))
+              "
+              :sat="input.value_satoshis || ''"
+              :token-amount="input.outpoint?.fungible_token_amount?.toString()"
+              :token-category="input.outpoint?.token_category?.substring(2)"
+            />
+          </template>
+        </div>
+        <div>
+          <span>Outputs</span>
+          <TxOperation
+            v-for="(output, index) in transaction.transaction.outputs"
+            :key="index"
+            :address="
+              lockingBytecodeHexToCashAddress(
+                output.locking_bytecode.substring(2)
+              )
+            "
+            :sat="output.value_satoshis || ''"
+            :token-amount="output?.fungible_token_amount?.toString()"
+            :token-category="output?.token_category?.substring(2)"
+          />
         </div>
       </div>
     </div>
-    <pre>{{ transaction }}</pre>
   </div>
-  <div v-else>Loading</div>
+  <div v-else-if="result && result.transaction.length === 0">
+    This transaction is not found
+  </div>
+  <loading-vue v-else />
 </template>
 
 <script setup lang="ts">
-import { useSettingStore } from "~/store";
+import { useAppStore } from "~/store";
 import { GetTxQuery, GetTx } from "~/module/chaingraph";
-import { numberWithCommas } from "~/module/utils";
+import {
+  formatDateString,
+  satToBch,
+  lockingBytecodeHexToCashAddress,
+  scriptSigToCashAddress,
+  calculatePrice,
+} from "~/module/utils";
 
 const route = useRoute();
-const settingStore = useSettingStore();
+const appStore = useAppStore();
 const variables = computed(() => ({
-  network: settingStore.network,
+  network: appStore.network,
   hash: "\\x" + route.params.txid,
 }));
 
 const { result } = useQuery<GetTxQuery>(GetTx, variables);
 const transaction = computed(() => {
-  const blockTransaction = result.value?.block_transaction[0];
-  if (!blockTransaction) return blockTransaction;
+  const transaction = result.value?.transaction[0];
+  const block = transaction?.block_inclusions[0].block;
+  if (!transaction) return transaction;
   return {
-    blockHeight: blockTransaction.block.height,
-    timestamp: blockTransaction.block.timestamp,
-    transaction: blockTransaction.transaction,
+    blockHeight: block ? +block.height : +appStore.lastBlockHeight + 1,
+    timestamp: block ? new Date(+block.timestamp * 1000) : new Date(),
+    transaction,
   };
+});
+
+const infoContent = computed(() => {
+  if (!transaction.value) return [];
+  const satoshis: string | null | undefined =
+    transaction.value.transaction.input_value_satoshis ||
+    transaction.value.transaction.output_value_satoshis;
+  const bchValue = satoshis ? `${satToBch(satoshis)}BCH` : "Unknown";
+  const usdValue = satoshis
+    ? `${calculatePrice(satoshis, appStore.usdPrice || "")}USD`
+    : "Unknown";
+  return [
+    {
+      title: "Transaction hash",
+      text: route.params.txid as string,
+      copy: true,
+    },
+    {
+      title: "Value (BCH)",
+      text: bchValue,
+    },
+    {
+      title: "Value (USD)",
+      text: usdValue,
+    },
+    {
+      title: "Time",
+      text: formatDateString(transaction.value.timestamp),
+    },
+  ];
 });
 </script>
 
-<style scoped>
+<style>
 .tx-page {
   display: grid;
-  grid-template-columns: 30% 70%;
+  grid-template-columns: 1fr 2.5fr;
+  gap: 15px;
+}
+.tx-page .column {
+  overflow-x: hidden;
+}
+.tx-page .column > * {
+  margin-top: 10px;
+}
+.tx-page .operation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 50px;
 }
 </style>

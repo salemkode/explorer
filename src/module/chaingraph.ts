@@ -21,28 +21,45 @@ export const GetBlock = gql`
 
 export const GetTx = gql`
   query GetTx($network: String, $hash: bytea) {
-    block_transaction(
+    transaction(
       where: {
-        transaction: {
-          block_inclusions: {
-            block: { accepted_by: { node: { name: { _regex: $network } } } }
-          }
-          hash: { _eq: $hash }
+        block_inclusions: {
+          block: { accepted_by: { node: { name: { _regex: $network } } } }
         }
+        hash: { _eq: $hash }
       }
     ) {
-      block {
-        height
-        timestamp
+      hash
+      input_value_satoshis
+      output_value_satoshis
+      is_coinbase
+      block_inclusions {
+        block {
+          hash
+          timestamp
+        }
       }
-      transaction {
-        hash
-        input_value_satoshis
-        output_value_satoshis
-        block_inclusions {
-          block {
-            height
-          }
+      inputs {
+        unlocking_bytecode
+        value_satoshis
+        outpoint {
+          token_category
+          fungible_token_amount
+          nonfungible_token_commitment
+          nonfungible_token_capability
+        }
+      }
+      outputs {
+        token_category
+        fungible_token_amount
+        nonfungible_token_commitment
+        nonfungible_token_capability
+        locking_bytecode
+        value_satoshis
+      }
+      block_inclusions {
+        block {
+          height
         }
       }
     }
@@ -60,8 +77,21 @@ export const LastTransaction = gql`
       transactions(limit: 10) {
         transaction {
           hash
-          input_value_satoshis
+          input_count
+          output_count
           output_value_satoshis
+          input_value_satoshis
+          inputs {
+            outpoint {
+              token_category
+              fungible_token_amount
+            }
+          }
+          outputs {
+            token_category
+            fungible_token_amount
+          }
+          size_bytes
         }
       }
     }
@@ -71,13 +101,166 @@ export const LastTransaction = gql`
 export const GetLastBlock = gql`
   subscription GetLastBlock($network: String) {
     node_block(
-      where: { node: { name: { _regex: "mainnet" } } }
+      where: { node: { name: { _regex: $network } } }
       order_by: { block: { height: desc } }
       limit: 1
     ) {
       block {
         height
       }
+    }
+  }
+`;
+
+export const MonitorMempools = gql`
+  subscription MonitorMempools($network: String) {
+    node(where: { name: { _regex: $network } }) {
+      name
+      user_agent
+      unconfirmed_transaction_count
+      unconfirmed_transactions(limit: 5, order_by: { validated_at: desc }) {
+        validated_at
+        transaction {
+          hash
+          input_value_satoshis
+          output_value_satoshis
+          inputs {
+            outpoint {
+              token_category
+              fungible_token_amount
+            }
+          }
+          outputs {
+            token_category
+            fungible_token_amount
+          }
+          size_bytes
+        }
+      }
+    }
+  }
+`;
+
+export const GetTokenAddress = gql`
+  query GetTokenAddress($network: String, $tokenCategory: bytea) {
+    output(
+      where: {
+        token_category: { _eq: $tokenCategory }
+        transaction: {
+          block_inclusions: {
+            block: { accepted_by: { node: { name: { _regex: $network } } } }
+          }
+        }
+        _not: { spent_by: { transaction: { hash: { _gt: "" } } } }
+      }
+    ) {
+      value_satoshis
+      locking_bytecode
+      transaction_hash
+      output_index
+      fungible_token_amount
+      spent_by {
+        transaction {
+          hash
+        }
+      }
+    }
+  }
+`;
+
+export const GetTokenTxs = gql`
+  query GetTokenTxs($network: String, $tokenCategory: bytea) {
+    block_transaction(
+      limit: 10
+      where: {
+        block: { accepted_by: { node: { name: { _regex: $network } } } }
+        transaction: { outputs: { token_category: { _eq: $tokenCategory } } }
+      }
+    ) {
+      block {
+        height
+        timestamp
+      }
+      transaction {
+        hash
+        input_value_satoshis
+        output_value_satoshis
+        is_coinbase
+        inputs {
+          unlocking_bytecode
+          value_satoshis
+
+          outpoint {
+            fungible_token_amount
+            locking_bytecode
+            locking_bytecode_pattern
+            nonfungible_token_capability
+            nonfungible_token_commitment
+            output_index
+            spent_by {
+              outpoint {
+                fungible_token_amount
+              }
+              value_satoshis
+            }
+            token_category
+          }
+        }
+        outputs {
+          locking_bytecode
+          value_satoshis
+          token_category
+          fungible_token_amount
+        }
+        block_inclusions {
+          block {
+            height
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GetToken = gql`
+  query GetToken($network: String, $tokenCategory: bytea) {
+    transaction(
+      where: {
+        block_inclusions: {
+          block: { accepted_by: { node: { name: { _regex: $network } } } }
+        }
+        inputs: {
+          outpoint_transaction_hash: { _eq: $tokenCategory }
+          outpoint_index: { _eq: 0 }
+        }
+      }
+    ) {
+      hash
+      outputs(where: { token_category: { _eq: $tokenCategory } }) {
+        fungible_token_amount
+        nonfungible_token_capability
+        nonfungible_token_commitment
+      }
+    }
+  }
+`;
+
+export const GetTokenChild = gql`
+  query GetTokenChild($network: String, $tokenCategory: bytea) {
+    output(
+      where: {
+        transaction: {
+          block_inclusions: {
+            block: { accepted_by: { node: { name: { _regex: $network } } } }
+          }
+        }
+        token_category: { _eq: $tokenCategory }
+        nonfungible_token_capability: { _eq: "none" }
+      }
+    ) {
+      locking_bytecode
+      nonfungible_token_capability
+      nonfungible_token_commitment
     }
   }
 `;

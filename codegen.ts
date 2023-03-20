@@ -6,6 +6,8 @@ const config: CodegenConfig = {
   config: {
     scalars: {
       bytea: "string",
+      bigint: "string",
+      timestamp: "number",
     },
   },
   generates: {

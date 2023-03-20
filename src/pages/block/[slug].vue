@@ -10,14 +10,14 @@
 
 <script setup lang="ts">
 import { GetBlock, GetBlockQuery } from "~/module/chaingraph";
-import { useSettingStore } from "~~/src/store";
-const settingStore = useSettingStore();
+import { useAppStore } from "~/store";
+const appStore = useAppStore();
 
 const route = useRoute();
 const variables = computed(() => ({
   hash: route.params.slug,
   height: route.params.slug,
-  network: settingStore.network,
+  network: appStore.network,
 }));
 const { data } = useAsyncQuery<GetBlockQuery>(GetBlock, variables);
 </script>

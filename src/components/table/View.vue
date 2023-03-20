@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { tableColumn } from "~/types/table";
+import { tableColumn } from "~/types/index.js";
 const props = defineProps<{
   columns: string[];
   rows: tableColumn[][];

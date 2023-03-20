@@ -1,7 +1,12 @@
 <template>
   <Transition name="slider">
     <div v-if="openFromOtherHomePage" class="search-bar container">
-      <i class="fi fi-rr-search px-3" @click="search" />
+      <img
+        width="18"
+        src="~/assets/icons/search.svg"
+        class="me-2"
+        @click="search"
+      />
       <input
         v-model="searchValue"
         type="text"
