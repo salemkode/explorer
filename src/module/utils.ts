@@ -73,17 +73,12 @@ export const removeAddressPrefix = (address: string) => {
 export const shortTx = (text: string) =>
   `${text.slice(0, 8)}...${text.slice(-5)}`;
 
-export const getTokenType = (
-  genesisSupply: number,
-  totalSupplyNFTs: number
-) => {
-  if (genesisSupply && !totalSupplyNFTs) {
+export const getTokenType = (genesisSupply: number, nftCapability?: string) => {
+  if (genesisSupply) {
     return "Fungible Tokens only";
-  } else if (!genesisSupply && totalSupplyNFTs) {
-    return "NFTs only";
-  } else if (genesisSupply && totalSupplyNFTs) {
-    return "Both Fungible & Non-Fungible tokens";
+  } else if (nftCapability) {
+    return `${nftCapability} NFTs`;
   } else {
-    return "Unknown token type";
+    return "Both Fungible & Non-Fungible tokens";
   }
 };

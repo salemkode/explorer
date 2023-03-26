@@ -71,15 +71,17 @@ const variable = computed(() => ({
   network: appStore.network,
   tokenCategory: "\\x" + category.value,
 }));
-const { result: tokenTransaction } = useQuery<GetTokenQuery>(
-  GetToken,
-  variable
-);
+const { result: tokenTransaction, tokenTransactionLoading } =
+  useQuery<GetTokenQuery>(GetToken, variable);
 const { result: tokenChild, loading: tokenChildLoading } =
   useQuery<GetTokenChildQuery>(GetTokenChild, variable);
 const tokenInfo = computed(() => {
   const genesisTx = tokenTransaction.value?.transaction[0].hash.substring(2);
   const outputs = tokenTransaction.value?.transaction[0].outputs;
+  const nftCapability =
+    tokenTransaction.value?.transaction[0].outputs[0]
+      ?.nonfungible_token_capability || undefined;
+
   const totalSupplyNFTs = tokenChild.value?.output?.length || 0;
   let genesisSupply = 0;
   if (outputs) {
@@ -92,18 +94,18 @@ const tokenInfo = computed(() => {
 
   return [
     {
-      title: "Token Type",
-      text: getTokenType(genesisSupply, totalSupplyNFTs),
-    },
-    {
-      title: "Genesis Supply",
-      text: genesisSupply,
-    },
-    {
       title: "Genesis Transaction",
       text: genesisTx,
       url: `tx/${genesisTx}`,
       copy: true,
+    },
+    {
+      title: "Token Type",
+      text: getTokenType(genesisSupply, nftCapability),
+    },
+    {
+      title: "Genesis Supply",
+      text: genesisSupply,
     },
     {
       title: "Total Supply NFTs",

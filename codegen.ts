@@ -8,6 +8,8 @@ const config: CodegenConfig = {
       bytea: "string",
       bigint: "string",
       timestamp: "number",
+      // eslint-disable-next-line prettier/prettier
+      enum_nonfungible_token_capability: "\"none\" | \"mutable\" | \"minting\"",
     },
   },
   generates: {
