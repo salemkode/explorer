@@ -25,6 +25,18 @@ const status = reactive({
   iconUrl: props.url,
 });
 
+watch(
+  () => props.url,
+  (url) => {
+    if (url) {
+      status.loaded = false;
+      status.error = false;
+      status.iconUrl = url;
+    } else {
+      imageLoadError();
+    }
+  }
+);
 if (!props.url) {
   status.loaded = true;
   imageLoadError();

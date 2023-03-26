@@ -3,7 +3,7 @@
     <LoadingVue v-if="loading" />
     <template v-else-if="bcmrTokenData">
       <bcmr-icon
-        v-if="!!props.hideIcon"
+        v-if="!props.hideIcon"
         :token-category="tokenCategory"
         :url="bcmrTokenData.uris?.icon"
       />
