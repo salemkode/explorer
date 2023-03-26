@@ -1,21 +1,24 @@
 <template>
-  <div v-if="tokenData" class="d-flex card p-3">
-    <bcmr-icon
-      v-if="!!props.hideIcon"
-      :token-category="tokenCategory"
-      :url="tokenData.uris?.icon"
-    />
-    <template v-for="(item, index) in tokenInfo" :key="index">
-      <span class="text-body-secondary mt-2 mb-1" v-text="item.title" />
-      {{ item.text }}
+  <div class="card p-3">
+    <LoadingVue v-if="loading" />
+    <template v-else-if="bcmrTokenData">
+      <bcmr-icon
+        v-if="!!props.hideIcon"
+        :token-category="tokenCategory"
+        :url="bcmrTokenData.uris?.icon"
+      />
+      <template v-for="(item, index) in tokenInfo" :key="index">
+        <span class="text-body-secondary mt-2 mb-1" v-text="item.title" />
+        {{ item.text }}
+      </template>
+      <nuxt-link
+        v-if="$route.path !== `/token/${tokenCategory}`"
+        class="mt-3 text-decoration-none"
+        :to="`/token/${tokenCategory}`"
+      >
+        Open token page
+      </nuxt-link>
     </template>
-    <nuxt-link
-      v-if="$route.path !== `/token/${tokenCategory}`"
-      class="mt-3 text-decoration-none"
-      :to="`/token/${tokenCategory}`"
-    >
-      Open token page
-    </nuxt-link>
   </div>
 </template>
 
@@ -28,27 +31,27 @@ const props = defineProps<{
   hideIcon?: boolean;
 }>();
 
-const bcmrStore = useBcmrStore();
-bcmrStore.addToken(props.tokenCategory);
-const tokenData = computed(() => bcmrStore.tokens.get(props.tokenCategory));
+const { result: bcmrTokenData, loading } = useBcmrStore().getTokenInfo(
+  props.tokenCategory
+);
 const tokenInfo = computed(() => {
-  if (!tokenData.value) return [];
-  const beginTime = tokenData.value.time.begin;
+  if (!bcmrTokenData.value) return [];
+  const beginTime = bcmrTokenData.value.time.begin;
   const beginTimeStr = beginTime
     ? formatDateString(new Date(beginTime))
     : undefined;
   return [
     {
       title: "Token Name",
-      text: tokenData.value?.name,
+      text: bcmrTokenData.value?.name,
     },
     {
       title: "Token description",
-      text: tokenData.value?.description,
+      text: bcmrTokenData.value?.description,
     },
     {
       title: "Token symbol",
-      text: tokenData.value?.token?.symbol,
+      text: bcmrTokenData.value?.token?.symbol,
     },
     {
       title: "Begin TimeStamp",
@@ -56,7 +59,7 @@ const tokenInfo = computed(() => {
     },
     {
       title: "Decimals",
-      text: tokenData.value?.token?.decimals,
+      text: bcmrTokenData.value?.token?.decimals,
     },
   ];
 });

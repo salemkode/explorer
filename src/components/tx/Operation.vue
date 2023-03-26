@@ -29,7 +29,7 @@ const props = defineProps<{
 }>();
 
 watchEffect(() => {
-  if (props.tokenCategory) bcmrStore.addToken(props.tokenCategory);
+  if (props.tokenCategory) useBcmrStore().getTokenInfo(props.tokenCategory);
 });
 </script>
 

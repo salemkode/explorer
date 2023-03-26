@@ -2,7 +2,7 @@
   <div class="token-page container">
     <div class="column">
       <content-warp :items="tokenInfo" />
-      <bcmr-info :token-category="category" />
+      <bcmr-info hide-icon :token-category="category" />
       <h5>Verifying by</h5>
       <ul class="list-group">
         <li
@@ -27,10 +27,17 @@
     <div class="column">
       <div class="card">
         <div class="align-items-center d-flex flex-column p-3 flex-md-row">
-          <bcmr-icon :token-category="category" :url="info?.uris?.icon" />
+          <bcmr-icon
+            :token-category="category"
+            :url="bcmrTokenData?.uris?.icon"
+          />
           <div class="mx-2">
             <h6>
-              {{ info?.name }}
+              {{
+                bcmrTokenDataLoading
+                  ? "Loading token name"
+                  : bcmrTokenData?.name
+              }}
             </h6>
             <Copy copy :text="category" />
           </div>
@@ -54,10 +61,10 @@ import {
 import { getTokenType } from "~/module/utils";
 
 const category = toRef(useRoute().params, "category") as Ref<string>;
-const bcmrStore = useBcmrStore();
 
-bcmrStore.addToken(category.value as string);
-const info = computed(() => bcmrStore.tokens.get(category.value as string));
+const { result: bcmrTokenData, loading: bcmrTokenDataLoading } = toRefs(
+  useBcmrStore().getTokenInfo(category.value)
+);
 
 const appStore = useAppStore();
 const variable = computed(() => ({
