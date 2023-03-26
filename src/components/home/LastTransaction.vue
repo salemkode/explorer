@@ -3,7 +3,12 @@
     <div class="card">
       <h3 class="p-3">Last Transaction</h3>
       <LoadingVue v-if="Loading1 && Loading2" class="my-5 py-5" />
-      <div v-else-if="transactions && !transactions.length">Not found</div>
+      <div
+        v-else-if="transactions && !transactions.length"
+        class="text-center my-5"
+      >
+        Not found
+      </div>
       <TableView
         v-else-if="transactions"
         :rows="transactions"
@@ -41,10 +46,10 @@ const transactions = computed<tableColumn[][] | undefined>(() => {
   const unconfirmedTx =
     nodeUnconfirmedTx.value?.node[0].unconfirmed_transactions || [];
 
-  const lastTransaction = Object.assign(
-    unconfirmedTx,
-    lastBlockTransaction
-  ).slice(0, 8);
+  const lastTransaction = [...unconfirmedTx, ...lastBlockTransaction].slice(
+    0,
+    8
+  );
 
   return lastTransaction.map(({ transaction }) => {
     const value =

@@ -1,7 +1,7 @@
 <template>
   <client-only>
     <div class="card">
-      <h3 class="p-3">Token Transaction</h3>
+      <h3 class="p-3">Token Transactions</h3>
       <LoadingVue v-if="loading" class="my-5 py-5" />
       <div
         v-else-if="transactions && !transactions.length"
