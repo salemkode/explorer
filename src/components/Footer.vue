@@ -32,13 +32,15 @@
 
     <!-- Copy right -->
     <div class="copy-right bg-dark text-white p-3">
-      <div class="container d-flex justify-content-between align-items-center">
-        <p class="mb-0">
+      <div
+        class="container d-flex flex-column flex-md-row justify-content-between"
+      >
+        <p class="mb-0 my-2">
           Bitcoincash Explorer © {{ new Date().getFullYear() }}
           <span class="mx-1">|</span> Made by
           <a class="mr-2" href="https://salemkode.com/">SalemKode</a>
         </p>
-        <a href="https://explorer-flipstarter.salemkode.com/" class="mb-0">
+        <a href="https://explorer-flipstarter.salemkode.com/" class="mb-0 my-2">
           Funded by Bitcoin Cash Community
         </a>
       </div>

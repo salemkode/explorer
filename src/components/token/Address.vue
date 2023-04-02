@@ -1,28 +1,28 @@
 <template>
-  <client-only>
-    <div class="card">
-      <h3 class="p-3">Token Addresses</h3>
-      <LoadingVue v-if="loading" class="my-5 py-5" />
-      <div
-        v-else-if="addressList && !addressList.length"
-        class="m-auto py-5 my-5"
-      >
-        There was an error.
-      </div>
-      <TableView
-        v-else-if="addressList"
-        :rows="addressList"
-        :columns="['address', 'amount']"
-      />
-    </div>
-  </client-only>
+  <TableView
+    title="Token Addresses"
+    :rows="addressList"
+    :columns="['address', 'amount']"
+    :has-prev-page="!!offset"
+    :has-next-page="!!hasNextPage"
+    :loading="loading"
+    :error="error?.message"
+    @next="offset += 8"
+    @previous="offset -= 8"
+  />
 </template>
 
 <script setup lang="ts">
-import { GetTokenAddress, GetTokenAddressQuery } from "@/module/chaingraph";
+import { GetTokenAddress, GetTokenAddressQuery } from "~/module/chaingraph";
 import { useAppStore } from "~/store";
-import { lockingBytecodeHexToCashAddress } from "~/module/utils";
+import {
+  lockingBytecodeHexToCashAddress,
+  removeAddressPrefix,
+} from "~/module/utils";
+import { tableColumn } from "~/types";
 
+const limit = ref(9);
+const offset = ref(0);
 const props = defineProps<{
   category: string;
 }>();
@@ -30,47 +30,68 @@ const appStore = useAppStore();
 const variables = computed(() => ({
   network: appStore.network,
   tokenCategory: "\\x" + props.category,
+  offset: offset.value,
+  limit: limit.value,
 }));
 
-const { result: tokenAddress, loading } = useQuery<GetTokenAddressQuery>(
-  GetTokenAddress,
-  variables
-);
+const {
+  result: tokenAddress,
+  loading,
+  error,
+} = useQuery<GetTokenAddressQuery>(GetTokenAddress, variables);
+const hasNextPage = computed(() => {
+  if (tokenAddress.value) {
+    return tokenAddress.value.output.length === limit.value;
+  }
+  return false;
+});
+
 const addressList = computed(() => {
   const locking_bytecode = new Map<string, number>();
   if (tokenAddress.value) {
-    tokenAddress.value.output
-      .filter((output) => output.spent_by.length === 0)
-      .forEach((item) => {
-        const inMapItem = locking_bytecode.get(item.locking_bytecode);
-        if (inMapItem) {
-          locking_bytecode.set(
-            item.locking_bytecode,
-            inMapItem + Number(item.fungible_token_amount)
-          );
-        } else {
-          locking_bytecode.set(
-            item.locking_bytecode,
-            Number(item.fungible_token_amount)
-          );
-        }
-      });
+    tokenAddress.value.output.forEach((item) => {
+      const inMapItem = locking_bytecode.get(item.locking_bytecode);
+      if (inMapItem) {
+        locking_bytecode.set(
+          item.locking_bytecode,
+          inMapItem + Number(item.fungible_token_amount)
+        );
+      } else {
+        locking_bytecode.set(
+          item.locking_bytecode,
+          Number(item.fungible_token_amount)
+        );
+      }
+    });
+  }
+  let items: tableColumn[][] = Array.from(
+    locking_bytecode,
+    function ([lockingBytecode, amount]) {
+      // TODO: fix type
+      const address = lockingBytecodeHexToCashAddress(
+        lockingBytecode.substring(2)
+      );
+      if (typeof address !== "string") {
+        return [];
+      }
+      return [
+        {
+          text: removeAddressPrefix(address),
+          copy: true,
+          short: true,
+          url: `/address/${address}`,
+        },
+        {
+          text: amount,
+        },
+      ];
+    }
+  ).filter((item) => item.length);
+
+  if (items.length === limit.value) {
+    items = items.slice(0, -1);
   }
 
-  return Array.from(locking_bytecode, function ([lockingBytecode, amount]) {
-    const address = lockingBytecodeHexToCashAddress(
-      lockingBytecode.substring(2)
-    ) as string;
-    return [
-      {
-        text: address,
-        copy: true,
-        url: `/address/${address}`,
-      },
-      {
-        text: amount,
-      },
-    ];
-  });
+  return items;
 });
 </script>

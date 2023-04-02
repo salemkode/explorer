@@ -1,14 +1,15 @@
 <template>
   <div class="icon my-1">
-    <div v-if="!status.loaded" class="spinner-grow" role="status">
-      <span class="sr-only">Loading...</span>
-    </div>
-    <img
-      v-show="status.loaded"
-      :src="status.iconUrl"
-      @load="status.loaded = true"
-      @error="imageLoadError"
-    />
+    <Transition name="fade" mode="out-in">
+      <img
+        :key="status.iconUrl"
+        :src="status.iconUrl"
+        :class="{ small }"
+        alt="icon"
+        @load="status.loaded = true"
+        @error="imageLoadError"
+      />
+    </Transition>
   </div>
 </template>
 
@@ -17,6 +18,7 @@ import { toSvg } from "jdenticon";
 
 const props = defineProps<{
   tokenCategory: string;
+  small?: boolean;
   url?: string;
 }>();
 const status = reactive({
@@ -59,9 +61,15 @@ function imageLoadError() {
 </script>
 
 <style scoped>
-.icon > * {
-  max-width: 80px;
-  max-height: 80px;
+.icon > img {
+  --size-image: 80px;
+  width: var(--size-image);
+  max-width: var(--size-image);
+  max-height: var(--size-image);
+}
+
+.icon > img.small {
+  --size-image: 24px;
 }
 
 .icon .loading {

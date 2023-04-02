@@ -1,21 +1,15 @@
 <template>
-  <client-only>
-    <div class="card">
-      <h3 class="p-3">Token Transactions</h3>
-      <LoadingVue v-if="loading" class="my-5 py-5" />
-      <div
-        v-else-if="transactions && !transactions.length"
-        class="m-auto py-5 my-5"
-      >
-        There was an error.
-      </div>
-      <TableView
-        v-else-if="transactions"
-        :rows="transactions"
-        :columns="['txid', 'block_height', 'block_time']"
-      />
-    </div>
-  </client-only>
+  <TableView
+    title="Token Transactions"
+    :rows="transactions"
+    :columns="['txid', 'amount', 'timestamp']"
+    :has-prev-page="!!offset"
+    :has-next-page="!!hasNextPage"
+    :loading="loading"
+    :error="error?.message"
+    @next="offset += 8"
+    @previous="offset -= 8"
+  />
 </template>
 
 <script setup lang="ts">
@@ -24,6 +18,8 @@ import { tableColumn } from "~/types/index.js";
 import { useAppStore } from "~/store";
 import { formatDateString } from "~/module/utils";
 
+const limit = ref(9);
+const offset = ref(0);
 const props = defineProps<{
   category: string;
 }>();
@@ -31,28 +27,47 @@ const appStore = useAppStore();
 const variables = computed(() => ({
   network: appStore.network,
   tokenCategory: "\\x" + props.category,
+  offset: offset.value,
+  limit: limit.value,
 }));
 
-const { result: transaction, loading } = useQuery<GetTokenTxsQuery>(
-  GetTokenTxs,
-  variables
-);
+const {
+  result: transaction,
+  error,
+  loading,
+} = useQuery<GetTokenTxsQuery>(GetTokenTxs, variables);
+const hasNextPage = computed(() => {
+  if (transaction.value) {
+    return transaction.value.block_transaction.length === limit.value;
+  }
+  return false;
+});
+const transactions = computed<tableColumn[][]>(() => {
+  if (!transaction.value) {
+    return [];
+  }
+  let items = transaction.value?.block_transaction.map(
+    ({ block, transaction }) => [
+      {
+        text: transaction.hash.substring(2),
+        short: true,
+        copy: true,
+        url: `/tx/${transaction.hash.substring(2)}`,
+      },
+      {
+        text: block.height,
+        url: `/block/${block.height}`,
+      },
+      {
+        text: formatDateString(new Date(+block.timestamp * 1000)),
+      },
+    ]
+  );
 
-const transactions = computed<tableColumn[][] | undefined>(() =>
-  transaction.value?.block_transaction.map(({ block, transaction }) => [
-    {
-      text: transaction.hash.substring(2),
-      short: true,
-      copy: true,
-      url: `/tx/${transaction.hash.substring(2)}`,
-    },
-    {
-      text: block.height,
-      url: `/block/${block.height}`,
-    },
-    {
-      text: formatDateString(new Date(+block.timestamp * 1000)),
-    },
-  ])
-);
+  if (items.length === limit.value) {
+    items = items.slice(0, -1);
+  }
+
+  return items;
+});
 </script>

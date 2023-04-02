@@ -2,7 +2,7 @@
   <div class="container">
     <HomeHero />
     <br />
-    <HomeLastTransaction />
+    <HomeUnconfirmedTransaction />
     <br />
   </div>
 </template>

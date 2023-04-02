@@ -1,6 +1,8 @@
 <template>
-  <NuxtLink :to="props.url" class="copy">
-    {{ text }}
+  <span>
+    <NuxtLink :to="props.url" class="copy">
+      {{ text }}
+    </NuxtLink>
     <img
       v-if="props.text && props.copy"
       src="~/assets/icons/duplicate.svg"
@@ -9,7 +11,7 @@
       @click="copy"
     />
     <div class="copy-popup" :class="{ show: showPopup }">copied!</div>
-  </NuxtLink>
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -74,10 +76,10 @@ const copy = async () => {
   font-family: monospace;
   text-decoration: none;
   color: initial;
-  word-break: break-all;
 }
 
 .copy-icon {
+  margin: 0px 2px;
   cursor: pointer;
 }
 

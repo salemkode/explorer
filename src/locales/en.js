@@ -138,6 +138,8 @@ export default {
   inputs: "Inputs",
   outputs: "Outputs",
   vout: "V<sub>out</sub>",
+  capability: "Capability",
+  commitment: "Commitment",
   timestamp: "Timestamp",
   decimals: "Decimals",
   slp_address: "SLP Address",

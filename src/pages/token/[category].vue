@@ -1,88 +1,94 @@
 <template>
-  <div class="token-page container">
-    <div class="column">
-      <content-warp :items="tokenInfo" />
-      <bcmr-info hide-icon :token-category="category" />
-      <h5>Verifying by</h5>
-      <ul class="list-group">
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-        >
-          Bitcoin <img width="18" src="~/assets/icons/verified.svg" alt="" />
-        </li>
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-        >
-          BlockChair
-          <img width="18" src="~/assets/icons/unverified.svg" alt="" />
-        </li>
-        <li
-          class="list-group-item d-flex justify-content-between align-items-center"
-        >
-          Any other provider
-          <img width="18" src="~/assets/icons/verified.svg" alt="" />
-        </li>
-      </ul>
+  <LoadingView v-if="tokenTransactionLoading" />
+  <div v-else class="token-page overflow-hidden container d-md-grid">
+    <TokenId
+      :loading="bcmrToken.value.loading"
+      :identity-snapshot="bcmrToken.value.identity"
+      :category="category"
+      class="d-md-none"
+    />
+    <TokenNav v-model:nav-item="navItem" />
+    <div
+      class="column d-md-block"
+      :class="{
+        'd-none': navItem === 0,
+      }"
+    >
+      <content-warp :items="tokenInfo" :loading="tokenTransactionLoading" />
+      <bcmr-info
+        :loading="bcmrToken.value.loading"
+        :identity-snapshot="bcmrToken.value.identity"
+      />
+      <TokenProvider :category="category" />
     </div>
-    <div class="column">
-      <div class="card">
-        <div class="align-items-center d-flex flex-column p-3 flex-md-row">
-          <bcmr-icon
-            :token-category="category"
-            :url="bcmrTokenData?.uris?.icon"
-          />
-          <div class="mx-2">
-            <h6>
-              {{
-                bcmrTokenDataLoading
-                  ? "Loading token name"
-                  : bcmrTokenData?.name
-              }}
-            </h6>
-            <Copy copy :text="category" />
-          </div>
-        </div>
-      </div>
-      <TokenAddress :category="category" />
+    <div
+      class="column d-md-block"
+      :class="{
+        'd-none': navItem === 1,
+      }"
+    >
+      <TokenId
+        :loading="bcmrToken.value.loading"
+        :identity-snapshot="bcmrToken.value.identity"
+        :category="category"
+        class="d-none d-md-block"
+      />
+      <TokenAddress
+        v-if="
+          !tokenTransaction?.transaction?.at(0)?.outputs.at(0)
+            ?.nonfungible_token_capability
+        "
+        :category="category"
+      />
       <TokenTransaction :category="category" />
-      <TokenChild :token-child="tokenChild" :loading="tokenChildLoading" />
+      <TokenChild
+        :identity-snapshot="bcmrToken.value.identity"
+        :category="category"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useAppStore, useBcmrStore } from "~/store";
-import {
-  GetTokenChild,
-  GetTokenChildQuery,
-  GetToken,
-  GetTokenQuery,
-} from "~/module/chaingraph";
-import { getTokenType } from "~/module/utils";
+import { GetToken, GetTokenQuery } from "~/module/chaingraph";
+import { lockingBytecodeHexToCashAddress } from "~/module/utils";
 
-const category = toRef(useRoute().params, "category") as Ref<string>;
+const route = useRoute();
+const category = computed(() => route.params.category as string);
 
-const { result: bcmrTokenData, loading: bcmrTokenDataLoading } = toRefs(
-  useBcmrStore().getTokenInfo(category.value)
-);
-
+const bcmrStore = useBcmrStore();
 const appStore = useAppStore();
+const navItem = ref(0);
 const variable = computed(() => ({
   network: appStore.network,
   tokenCategory: "\\x" + category.value,
 }));
-const { result: tokenTransaction, tokenTransactionLoading } =
+const { result: tokenTransaction, loading: tokenTransactionLoading } =
   useQuery<GetTokenQuery>(GetToken, variable);
-const { result: tokenChild, loading: tokenChildLoading } =
-  useQuery<GetTokenChildQuery>(GetTokenChild, variable);
-const tokenInfo = computed(() => {
-  const genesisTx = tokenTransaction.value?.transaction[0].hash.substring(2);
-  const outputs = tokenTransaction.value?.transaction[0].outputs;
-  const nftCapability =
-    tokenTransaction.value?.transaction[0].outputs[0]
-      ?.nonfungible_token_capability || undefined;
 
-  const totalSupplyNFTs = tokenChild.value?.output?.length || 0;
+const opreturn = computed(() => {
+  const outputs = tokenTransaction.value?.transaction.at(0)?.outputs;
+  return outputs
+    ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
+    ?.locking_bytecode.substring(2);
+});
+const bcmrToken = computed(() => {
+  const result = bcmrStore.getTokenInfo(category.value, opreturn.value || "");
+
+  return result;
+});
+const tokenInfo = computed(() => {
+  const genesisTx = tokenTransaction.value?.transaction
+    .at(0)
+    ?.hash.substring(2);
+  const outputs = tokenTransaction.value?.transaction?.at(0)?.outputs;
+  const nftCapability = outputs?.at(0)?.nonfungible_token_capability;
+  const address = lockingBytecodeHexToCashAddress(
+    outputs?.at(0)?.locking_bytecode.substring(2) || ""
+  );
+  const ownerAddress = typeof address === "string" ? address : undefined;
+
   let genesisSupply = 0;
   if (outputs) {
     genesisSupply = outputs.reduce(
@@ -96,20 +102,20 @@ const tokenInfo = computed(() => {
     {
       title: "Genesis Transaction",
       text: genesisTx,
-      url: `tx/${genesisTx}`,
+      url: `/tx/${genesisTx}`,
       copy: true,
-    },
-    {
-      title: "Token Type",
-      text: getTokenType(genesisSupply, nftCapability),
     },
     {
       title: "Genesis Supply",
       text: genesisSupply,
     },
     {
-      title: "Total Supply NFTs",
-      text: totalSupplyNFTs,
+      title: "NFT Capability",
+      text: nftCapability ? `${nftCapability} NFTs` : undefined,
+    },
+    {
+      title: "Owner address",
+      text: ownerAddress,
     },
   ];
 });
@@ -117,7 +123,6 @@ const tokenInfo = computed(() => {
 
 <style>
 .token-page {
-  display: grid;
   grid-template-columns: 1fr 2.5fr;
   gap: 15px;
 }

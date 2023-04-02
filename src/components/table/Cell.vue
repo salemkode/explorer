@@ -1,18 +1,22 @@
 <template>
   <td>
-    <Copy
-      v-if="typeof column === 'object'"
-      class="d-flex align-items-center word-brack-all"
-      :short="column.short"
-      :text="column.text"
-      :copy="!!column.copy"
-      :url="column.url"
-    />
-    <!-- Empty value of item -->
-    <pre v-else-if="column === ''" v-text="' '" />
-    <span v-else>
-      {{ column }}
-    </span>
+    <div class="d-flex align-items-center">
+      <bcmr-icon
+        v-if="column.token"
+        :token-category="column.token.category"
+        :url="column.token.url"
+        small
+        class="mb-2 me-2"
+      />
+      <!-- Copyable value of item -->
+      <Copy
+        class="d-flex align-items-center"
+        :short="column.short"
+        :text="column.text"
+        :copy="!!column.copy"
+        :url="column.url"
+      />
+    </div>
   </td>
 </template>
 
@@ -27,5 +31,8 @@ defineProps<{
 <style scoped>
 pre {
   margin: 0;
+}
+td {
+  vertical-align: middle;
 }
 </style>

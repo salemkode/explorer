@@ -1,17 +1,35 @@
 <template>
-  <div class="card p-3 tx-info">
-    <template v-for="(item, index) in items" :key="index">
-      <div v-if="item.text">
-        <div class="text-body-secondary mt-2 mb-1" v-text="item.title" />
-        <Copy :text="item.text" :copy="!!item.copy" />
-      </div>
+  <div class="card p-3">
+    <LoadingSpinner v-if="props.loading" />
+    <template v-else-if="existItems.length">
+      <slot name="header"></slot>
+      <template v-for="(item, index) in existItems" :key="index">
+        <div v-if="!loading && item.text">
+          <div class="text-body-secondary mb-1" v-text="item.title" />
+          <Copy :url="item.url" :text="item.text" :copy="!!item.copy" />
+          <div v-if="existItems.length !== index + 1" class="mb-2" />
+        </div>
+      </template>
+      <slot name="footer"></slot>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { contentWarp } from "@/types";
-defineProps<{
-  items: contentWarp[];
-}>();
+const props = defineProps({
+  items: {
+    type: Array as PropType<contentWarp[]>,
+    required: true,
+  },
+  loading: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+});
+
+const existItems = computed(() => {
+  return props.items.filter((item) => item.text);
+});
 </script>

@@ -53,7 +53,9 @@ const strokeDashoffset = computed(() => {
 
 const hoverStrokeDashoffset = ref(0);
 setInterval(() => {
-  if (!(props.percentage === 100 || hoverStrokeDashoffset.value % -51 === 0)) {
+  if (props.percentage !== 100) {
+    hoverStrokeDashoffset.value -= 51;
+  } else if (hoverStrokeDashoffset.value % -51 !== 0) {
     hoverStrokeDashoffset.value -= 51;
   }
 }, 1000);

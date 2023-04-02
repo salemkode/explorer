@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import {
   hexToBin,
   lockingBytecodeToCashAddress,
@@ -6,7 +7,6 @@ import {
   ripemd160,
   encodeCashAddress,
 } from "@bitauth/libauth";
-import BigNumber from "bignumber.js";
 type num = number | string | BigNumber;
 export const satToBch = (num: num) => {
   const bigNum = BigNumber(num);
@@ -61,7 +61,7 @@ export const scriptSigToCashAddress = (unlocking_bytecode: string) => {
 };
 
 export const removeAddressPrefix = (address: string) => {
-  const regex = /(bitcoincash|bchreg|bchtest):?([q|p][a-z0-9]{41})/i;
+  const regex = /(bitcoincash|bchreg|bchtest):?([a-z0-9]{42})/i;
   const simplifiedAddress = address.match(regex);
 
   if (simplifiedAddress) {
@@ -78,7 +78,7 @@ export const getTokenType = (genesisSupply: number, nftCapability?: string) => {
     return "Fungible Tokens only";
   } else if (nftCapability) {
     return `${nftCapability} NFTs`;
-  } else {
-    return "Both Fungible & Non-Fungible tokens";
   }
 };
+
+export const isServer = process.server;

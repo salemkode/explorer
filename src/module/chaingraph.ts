@@ -63,6 +63,55 @@ export const GetTx = gql`
         }
       }
     }
+    node(where: { name: { _regex: $network } }) {
+      accepted_blocks(limit: 1, order_by: { block: { height: desc } }) {
+        block {
+          hash
+          timestamp
+          height
+        }
+      }
+      unconfirmed_transactions(
+        where: { transaction: { hash: { _eq: $hash } } }
+        order_by: { validated_at: desc }
+      ) {
+        transaction {
+          hash
+          input_value_satoshis
+          output_value_satoshis
+          is_coinbase
+          block_inclusions {
+            block {
+              hash
+              timestamp
+            }
+          }
+          inputs {
+            unlocking_bytecode
+            value_satoshis
+            outpoint {
+              token_category
+              fungible_token_amount
+              nonfungible_token_commitment
+              nonfungible_token_capability
+            }
+          }
+          outputs {
+            token_category
+            fungible_token_amount
+            nonfungible_token_commitment
+            nonfungible_token_capability
+            locking_bytecode
+            value_satoshis
+          }
+          block_inclusions {
+            block {
+              height
+            }
+          }
+        }
+      }
+    }
   }
 `;
 
@@ -113,12 +162,16 @@ export const GetLastBlock = gql`
 `;
 
 export const MonitorMempools = gql`
-  subscription MonitorMempools($network: String) {
+  subscription MonitorMempools($limit: Int, $offset: Int, $network: String) {
     node(where: { name: { _regex: $network } }) {
       name
       user_agent
       unconfirmed_transaction_count
-      unconfirmed_transactions(limit: 5, order_by: { validated_at: desc }) {
+      unconfirmed_transactions(
+        limit: $limit
+        offset: $offset
+        order_by: { validated_at: desc }
+      ) {
         validated_at
         transaction {
           hash
@@ -142,8 +195,16 @@ export const MonitorMempools = gql`
 `;
 
 export const GetTokenAddress = gql`
-  query GetTokenAddress($network: String, $tokenCategory: bytea) {
+  query GetTokenAddress(
+    $limit: Int
+    $offset: Int
+    $network: String
+    $tokenCategory: bytea
+  ) {
     output(
+      limit: $limit
+      offset: $offset
+      order_by: { fungible_token_amount: desc_nulls_last }
       where: {
         token_category: { _eq: $tokenCategory }
         transaction: {
@@ -169,9 +230,16 @@ export const GetTokenAddress = gql`
 `;
 
 export const GetTokenTxs = gql`
-  query GetTokenTxs($network: String, $tokenCategory: bytea) {
+  query GetTokenTxs(
+    $limit: Int
+    $offset: Int
+    $network: String
+    $tokenCategory: bytea
+  ) {
     block_transaction(
-      limit: 10
+      limit: $limit
+      offset: $offset
+      order_by: { block: { height: desc } }
       where: {
         block: { accepted_by: { node: { name: { _regex: $network } } } }
         transaction: { outputs: { token_category: { _eq: $tokenCategory } } }
@@ -189,7 +257,6 @@ export const GetTokenTxs = gql`
         inputs {
           unlocking_bytecode
           value_satoshis
-
           outpoint {
             fungible_token_amount
             locking_bytecode
@@ -236,10 +303,35 @@ export const GetToken = gql`
       }
     ) {
       hash
-      outputs(where: { token_category: { _eq: $tokenCategory } }) {
+      outputs {
         fungible_token_amount
         nonfungible_token_capability
         nonfungible_token_commitment
+        locking_bytecode
+      }
+    }
+  }
+`;
+
+export const GetOpreturn = gql`
+  query GetOpreturn($network: String, $tokenCategory: bytea) {
+    transaction(
+      where: {
+        block_inclusions: {
+          block: { accepted_by: { node: { name: { _regex: $network } } } }
+        }
+        inputs: {
+          outpoint_transaction_hash: { _eq: $tokenCategory }
+          outpoint_index: { _eq: 0 }
+        }
+      }
+    ) {
+      hash
+      outputs {
+        fungible_token_amount
+        nonfungible_token_capability
+        nonfungible_token_commitment
+        locking_bytecode
       }
     }
   }

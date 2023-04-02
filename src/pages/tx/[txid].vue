@@ -2,11 +2,18 @@
 <template>
   <div v-if="transaction" class="tx-page container mx-auto">
     <div class="column">
-      <ContentWarp :items="infoContent" />
-      <bcmr-info :token-category="route.params.txid as string" />
+      <ContentWarp :loading="TxLoading" :items="infoContent" />
+      <bcmr-info
+        :loading="TokenLoading || bcmrToken.value.loading"
+        :identity-snapshot="bcmrToken.value.identity"
+        :token-category="txid as string"
+      />
     </div>
     <div class="column">
-      <TxConfirm :block-height="transaction.blockHeight" />
+      <TxConfirm
+        v-if="transaction.blockHeight"
+        :block-height="transaction.blockHeight"
+      />
       <div class="operation">
         <div>
           <span>Inputs</span>
@@ -23,6 +30,12 @@
               :sat="input.value_satoshis || ''"
               :token-amount="input.outpoint?.fungible_token_amount?.toString()"
               :token-category="input.outpoint?.token_category?.substring(2)"
+              :token-commitment="
+                input.outpoint?.nonfungible_token_commitment?.substring(2)
+              "
+              :token-capability="
+                input.outpoint?.nonfungible_token_capability?.toString()
+              "
             />
           </template>
         </div>
@@ -39,20 +52,29 @@
             :sat="output.value_satoshis || ''"
             :token-amount="output?.fungible_token_amount?.toString()"
             :token-category="output?.token_category?.substring(2)"
+            :token-commitment="
+              output?.nonfungible_token_commitment?.substring(2)
+            "
+            :token-capability="output?.nonfungible_token_capability?.toString()"
           />
         </div>
       </div>
     </div>
   </div>
-  <div v-else-if="result && result.transaction.length === 0">
+  <div v-else-if="Tx && Tx.transaction.length === 0">
     This transaction is not found
   </div>
-  <loading-vue v-else />
+  <LoadingView v-else />
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from "~/store";
-import { GetTxQuery, GetTx } from "~/module/chaingraph";
+import { useAppStore, useBcmrStore } from "~/store";
+import {
+  GetTxQuery,
+  GetTx,
+  GetTokenQuery,
+  GetToken,
+} from "~/module/chaingraph";
 import {
   formatDateString,
   satToBch,
@@ -62,19 +84,58 @@ import {
 } from "~/module/utils";
 
 const route = useRoute();
+const txid = toRef(route.params, "txid");
 const appStore = useAppStore();
 const variables = computed(() => ({
   network: appStore.network,
-  hash: "\\x" + route.params.txid,
+  hash: "\\x" + txid.value,
 }));
 
-const { result } = useQuery<GetTxQuery>(GetTx, variables);
+/* Getting token info */
+const bcmrStore = useBcmrStore();
+const { result: Token, loading: TokenLoading } = useQuery<GetTokenQuery>(
+  GetToken,
+  computed(() => ({
+    network: appStore.network,
+    tokenCategory: "\\x" + txid.value,
+  }))
+);
+const opreturn = computed(() => {
+  const outputs = Token.value?.transaction.at(0)?.outputs;
+  return outputs
+    ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
+    ?.locking_bytecode.substring(2);
+});
+const bcmrToken = computed(() => {
+  const result = bcmrStore.getTokenInfo(
+    txid.value as string,
+    opreturn.value || ""
+  );
+
+  return result;
+});
+
+/* Getting transaction info */
+const { result: Tx, loading: TxLoading } = useQuery<GetTxQuery>(
+  GetTx,
+  variables
+);
 const transaction = computed(() => {
-  const transaction = result.value?.transaction[0];
-  const block = transaction?.block_inclusions[0].block;
+  const node = Tx.value?.node.at(0);
+  const unconfirmedTransactions =
+    node?.unconfirmed_transactions.at(0)?.transaction;
+  let transaction = Tx.value?.transaction.at(0) || unconfirmedTransactions;
+  let block = transaction?.block_inclusions.at(0)?.block;
+  let blockHeight = block ? +block.height : undefined;
+
+  if (unconfirmedTransactions) {
+    transaction = unconfirmedTransactions;
+    block = node.accepted_blocks.at(0)?.block;
+    if (block) blockHeight = +block.height + 1;
+  }
   if (!transaction) return transaction;
   return {
-    blockHeight: block ? +block.height : +appStore.lastBlockHeight + 1,
+    blockHeight, // TODO: fix not work when block not found app store will update last block height
     timestamp: block ? new Date(+block.timestamp * 1000) : new Date(),
     transaction,
   };
@@ -92,7 +153,7 @@ const infoContent = computed(() => {
   return [
     {
       title: "Transaction hash",
-      text: route.params.txid as string,
+      text: txid.value as string,
       copy: true,
     },
     {

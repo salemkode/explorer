@@ -25,7 +25,6 @@
 <script setup lang="ts">
 import { useAppStore } from "~/store";
 import { GetLastBlockSubscription, GetLastBlock } from "~/module/chaingraph";
-import { DefaultProvider } from "mainnet-js";
 
 const appStore = useAppStore();
 const variables = computed(() => ({
@@ -36,10 +35,9 @@ const { result } = useSubscription<GetLastBlockSubscription>(
   variables
 );
 watch(result, () => {
-  appStore.lastBlockHeight = result.value?.node_block[0].block.height || "0";
+  appStore.lastBlockHeight =
+    result.value?.node_block.at(0)?.block.height || "0";
 });
-
-DefaultProvider.servers.testnet = ["wss://chipnet.imaginary.cash:50004"];
 </script>
 
 <style>
@@ -47,5 +45,15 @@ DefaultProvider.servers.testnet = ["wss://chipnet.imaginary.cash:50004"];
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -24,7 +24,6 @@ const openFromOtherHomePage = computed(() => route.fullPath !== "/");
 
 const searchValue = ref("");
 function search() {
-  console.log(searchValue);
   searchValue.value = "";
 }
 
