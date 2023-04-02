@@ -28,7 +28,6 @@ module.exports = {
     "no-new-object": ["warn"],
     "no-array-constructor": ["warn"],
     "no-loop-func": ["warn"],
-    "no-plusplus": ["warn"],
     "no-multi-assign": ["warn"],
     "prefer-rest-params": ["warn"],
     "prefer-spread": ["warn"],
