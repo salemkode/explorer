@@ -11,17 +11,6 @@
           />
           <h5 class="my-0 mx-2">Bitcoin Cash Explorer</h5>
         </router-link>
-        <div class="m-2">
-          <ul class="navbar-nav d-flex">
-            <a
-              href="https://explorer-flipstarter.salemkode.com/en"
-              class="nav-item btn"
-              target="blank"
-            >
-              Contribute to the project
-            </a>
-          </ul>
-        </div>
         <!--
         <div class="m-2">
         <ul class="navbar-nav d-flex">
