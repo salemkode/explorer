@@ -17,7 +17,7 @@
       </div>
       --></nav>
     </header>
-    <RouterView />
+    <NuxtPage />
     <Footer />
   </div>
 </template>
