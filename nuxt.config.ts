@@ -9,6 +9,11 @@ export default defineNuxtConfig({
     head: {
       link: [
         {
+          rel: "icon",
+          sizes: "32x32",
+          href: "/bch.svg",
+        },
+        {
           href: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css",
           rel: "stylesheet",
           integrity:

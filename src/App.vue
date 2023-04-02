@@ -4,11 +4,7 @@
       <nav-search />
       <nav class="container d-flex justify-content-between my-3">
         <router-link class="navbar-brand d-flex align-items-center" to="/">
-          <img
-            src="https://chipnet.bch.ninja/img/logo/bch.svg"
-            width="30"
-            alt=""
-          />
+          <img src="/bch.svg" width="30" alt="" />
           <h5 class="my-0 mx-2">Bitcoin Cash Explorer</h5>
         </router-link>
         <!--
