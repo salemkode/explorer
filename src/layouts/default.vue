@@ -7,17 +7,9 @@
           <img src="/bch.svg" width="30" alt="" />
           <h5 class="my-0 mx-2">Bitcoin Cash Explorer</h5>
         </router-link>
-        <!--
-        <div class="m-2">
-        <ul class="navbar-nav d-flex">
-          <button class="nav-item btn" @click="appStore.toggleNetwork">
-            {{ appStore.network === "mainnet" ? "chipnet" : "mainnet" }}
-          </button>
-        </ul>
-      </div>
-      --></nav>
+      </nav>
     </header>
-    <NuxtPage />
+    <slot />
     <Footer />
   </div>
 </template>
