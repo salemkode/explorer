@@ -36,10 +36,12 @@
     "@nuxtjs/i18n": "^8.0.0-beta.10",
     "@pinia/nuxt": "^0.4.7",
     "bignumber.js": "^9.1.1",
+    "bootstrap": "^5.2.3",
     "jdenticon": "^3.2.0",
     "mainnet-js": "^1.0.17",
     "pinia": "^2.0.33",
     "rollup-plugin-node-polyfills": "^0.2.1",
+    "sass": "^1.61.0",
     "vue-router": "^4.1.6"
   },
   "overrides": {

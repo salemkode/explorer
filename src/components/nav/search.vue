@@ -44,7 +44,7 @@ button:focus {
   display: flex;
   background: var(--bs-dark);
   max-height: 200px;
-  box-shadow: 0 0 0 100vmax;
+  box-shadow: 0 0 0 100vmax var(--bs-dark);
   clip-path: inset(0 -100vmax);
 }
 

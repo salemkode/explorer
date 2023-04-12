@@ -9,9 +9,9 @@
       />
     </template>
     <template #footer>
-      <div v-if="tokenCategory" class="btn btn-success mt-3">
+      <div v-if="tokenCategory" class="btn p-0 mt-3 text-start">
         <nuxt-link
-          class="nav-link text-decoration-none"
+          class="nav-link text-decoration-none text-bold"
           :to="`/token/${tokenCategory}`"
         >
           Open token page

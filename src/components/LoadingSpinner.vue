@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <div class="spinner-grow text-success" />
+    <div class="spinner-grow" />
     <p v-if="text">{{ text }}</p>
   </div>
 </template>

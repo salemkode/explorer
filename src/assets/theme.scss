@@ -1,0 +1,27 @@
+$primary-color: #0d8514;
+$secondary-color: #53b8e8;
+$success-color: #5cb85c;
+$info-color: #4cb0e8;
+$warning-color: #ffc107;
+$danger-color: #dc3545;
+$light-color: #f5f5f5;
+$dark-color: #333333;
+$nav-tabs-link-active-color: #fff;
+$nav-tabs-link-active-bg: $primary-color;
+$nav-tabs-link-active-border-color: $primary-color;
+$nav-pills-link-active-color: #fff;
+$nav-pills-link-active-bg: $primary-color;
+
+// Override Bootstrap's default color variables with your custom colors
+$theme-colors: (
+  "primary": $primary-color,
+  "secondary": $secondary-color,
+  "success": $success-color,
+  "info": $info-color,
+  "warning": $warning-color,
+  "danger": $danger-color,
+  "light": $light-color,
+  "dark": $dark-color,
+);
+
+@import "node_modules/bootstrap/scss/bootstrap";

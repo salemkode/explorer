@@ -6,7 +6,7 @@
       <div
         v-if="registry === true"
         style="width: 18px; height: 18px"
-        class="spinner-grow text-success"
+        class="spinner-grow"
         alt=""
       />
       <img
