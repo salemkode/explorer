@@ -73,6 +73,8 @@ export default {
   transactions_chart: "Transactions Chart",
   txid: "Transaction ID",
   tx: "Transaction",
+  category: "Token category",
+  cash_token: "Cash token",
   token_id: "Token ID",
   token_balance: "Token Balance",
   token: "Token",
