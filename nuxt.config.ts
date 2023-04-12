@@ -50,6 +50,11 @@ export default defineNuxtConfig({
   build: {
     transpile: ["@nuxtjs/apollo"],
   },
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => tag === "qr-code",
+    },
+  },
   vite: {
     build: {
       target: "esnext",
