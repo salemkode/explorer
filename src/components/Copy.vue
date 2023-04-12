@@ -1,5 +1,9 @@
 <template>
-  <span>
+  <span
+    :class="{
+      'text-break': !!props.warp,
+    }"
+  >
     <NuxtLink :to="props.url" class="copy">
       {{ text }}
     </NuxtLink>
@@ -29,6 +33,7 @@ const props = defineProps<{
   short?: boolean;
   url?: string;
   copy: boolean;
+  warp?: boolean;
 }>();
 const showPopup = ref(false);
 
