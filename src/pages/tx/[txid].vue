@@ -25,7 +25,9 @@
               v-for="(input, index) in transaction.transaction.inputs"
               :key="index"
               :address="
-                scriptSigToCashAddress(input.unlocking_bytecode.substring(2))
+                lockingBytecodeHexToCashAddress(
+                  input?.outpoint?.locking_bytecode.substring(2) || ''
+                )
               "
               :sat="input.value_satoshis || ''"
               :token-amount="input.outpoint?.fungible_token_amount?.toString()"
@@ -79,7 +81,6 @@ import {
   formatDateString,
   satToBch,
   lockingBytecodeHexToCashAddress,
-  scriptSigToCashAddress,
   calculatePrice,
 } from "~/module/utils";
 
@@ -107,7 +108,7 @@ const opreturn = computed(() => {
     ?.locking_bytecode.substring(2);
 });
 const bcmrToken = computed(() => {
-  const result = bcmrStore.getTokenInfo(
+  const result = bcmrStore.getTokenOpreturn(
     txid.value as string,
     opreturn.value || ""
   );

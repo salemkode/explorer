@@ -41,7 +41,7 @@ const itemClass =
 const isVerified = (category: string, registry: Registry) => {
   const identities = registry.identities;
   return identities
-    ? !!identities[category]?.find((identity) => identity.token?.category)
-    : false;
+    ? identities[category]?.find((identity) => identity.token?.category)
+    : undefined;
 };
 </script>

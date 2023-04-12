@@ -1,7 +1,7 @@
 import { binToUtf8, utf8ToBin, binToHex, hexToBin } from "@bitauth/libauth";
 import { OpReturnData, sha256 } from "mainnet-js";
 import { defineStore } from "pinia";
-import { Registry } from "~/types";
+import { Registry, tokenCapability } from "~/types";
 
 // TODO: move to app store and create watch for network change
 const providersUrls = {
@@ -12,7 +12,7 @@ export const useBcmrStore = defineStore("bcmr", () => {
   const opreturns = reactive(new Map<string, Registry | boolean>());
   const opreturnsVerified = reactive(new Map<string, boolean>());
   const providers = reactive(new Map<string, Registry | boolean>());
-
+  const loadedProviders = ref(false);
   (async () => {
     const promises = Object.entries(providersUrls).map(async ([name, url]) => {
       try {
@@ -25,13 +25,13 @@ export const useBcmrStore = defineStore("bcmr", () => {
       }
     });
 
-    await Promise.all(promises);
+    await Promise.all(promises).finally(() => (loadedProviders.value = true));
   })();
 
   const validateBCMR = (chunks: Uint8Array[]) => {
     if (
       (chunks.length === 2 || chunks.length === 3) &&
-      binToUtf8(chunks.at(0)) === "BCMR"
+      binToUtf8(chunks[0]) === "BCMR"
     ) {
       return;
     }
@@ -79,7 +79,104 @@ export const useBcmrStore = defineStore("bcmr", () => {
     }
   };
 
-  const getTokenInfo = (tokenCategory: string, opReturnHex: string) => {
+  const getRegistryHasCategory = (category: string) => {
+    const opreturnResult = opreturns.get(category);
+    if (typeof opreturnResult === "object") {
+      return opreturnResult;
+    } else {
+      Array.from(providers).find(([, registry]) => {
+        if (typeof registry === "object") {
+          return registry.identities
+            ? registry.identities[category]
+            : undefined;
+        }
+      });
+    }
+  };
+
+  const getToken = (
+    category: string,
+    nftType?: tokenCapability,
+    nftCommitment?: string
+  ) => {
+    const registry = getRegistryHasCategory(category);
+    let token:
+      | {
+          name: string;
+          description?: string;
+          symbol?: string;
+          icon?: string;
+        }
+      | undefined;
+
+    if (registry) {
+      const identity = getTokenFromRegister(registry, category);
+      if (identity) {
+        if (nftType && nftType !== "minting") {
+          if (!nftCommitment) {
+            return;
+          }
+          const nftTypes = identity.token?.nfts?.parse.types || {};
+          const child = nftTypes[nftCommitment];
+          token = {
+            name: child.name,
+            description: child.description,
+            icon: child.uris ? child.uris["icon"] : undefined,
+            symbol: undefined,
+          };
+        } else {
+          token = {
+            name: identity.name,
+            description: identity.description,
+            symbol: identity.token?.symbol,
+            icon: identity.uris ? identity.uris["icon"] : undefined,
+          };
+        }
+      }
+    }
+
+    return {
+      loading:
+        loadedProviders.value === false || opreturns.get(category) === true,
+      token,
+    };
+  };
+
+  const addToken = (tokenCategory: string, opReturnHex: string) => {
+    if (opreturns.get(tokenCategory) !== undefined) {
+      return;
+    }
+    const authChain = opreturnToAuthChain(opReturnHex);
+    if (typeof authChain !== "string") {
+      (async () => {
+        opreturns.set(tokenCategory, true);
+        const response = await fetch(authChain.url);
+        if (response.status === 200) {
+          opreturns.set(tokenCategory, false);
+          const bcmrContent = await response.text();
+          const hashContent = binToHex(sha256.hash(utf8ToBin(bcmrContent)));
+          opreturnsVerified.set(
+            tokenCategory,
+            hashContent === authChain.contentHash
+          );
+          try {
+            const registry: Registry = JSON.parse(bcmrContent);
+            if (getTokenFromRegister(registry, tokenCategory)) {
+              opreturns.set(tokenCategory, registry);
+            }
+          } catch (error) {
+            console.log("Parsing error: ", error);
+          }
+        }
+      })().finally(() => {
+        // End loading
+        if (opreturns.get(tokenCategory) === true)
+          opreturns.set(tokenCategory, false);
+      });
+    }
+  };
+
+  const getTokenOpreturn = (tokenCategory: string, opReturnHex: string) => {
     const result = computed(() => {
       const registry = opreturns.get(tokenCategory);
       if (registry === true) {
@@ -101,36 +198,7 @@ export const useBcmrStore = defineStore("bcmr", () => {
     if (opreturns.get(tokenCategory) !== undefined) {
       return result;
     }
-
-    const authChain = opreturnToAuthChain(opReturnHex);
-    if (typeof authChain !== "string") {
-      (async () => {
-        opreturns.set(tokenCategory, true);
-        const response = await fetch(authChain.url);
-        if (response.status === 200) {
-          opreturns.set(tokenCategory, false);
-          const bcmrContent = await response.text();
-          const hashContent = binToHex(sha256.hash(utf8ToBin(bcmrContent)));
-          opreturnsVerified.set(
-            tokenCategory,
-            hashContent === authChain.contentHash
-          );
-          try {
-            const registry: Registry = JSON.parse(bcmrContent);
-            if (getTokenFromRegister(registry, tokenCategory)) {
-              opreturns.set(tokenCategory, registry);
-            }
-          } catch (error) {
-            console.log("Parsing error", error);
-          }
-        }
-      })().finally(() => {
-        // End loading
-        if (opreturns.get(tokenCategory) === true)
-          opreturns.set(tokenCategory, false);
-      });
-    }
-
+    addToken(tokenCategory, opReturnHex);
     return result;
   };
 
@@ -138,7 +206,11 @@ export const useBcmrStore = defineStore("bcmr", () => {
     opreturns,
     opreturnsVerified,
     providers,
-    getTokenInfo,
+    loadedProviders,
+    getToken,
+    addToken,
+    getTokenOpreturn,
+    getTokenFromRegister,
     opreturnToAuthChain,
   };
 });

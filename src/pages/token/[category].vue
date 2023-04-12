@@ -1,15 +1,19 @@
 <template>
   <LoadingView v-if="tokenTransactionLoading" />
-  <div v-else class="token-page overflow-hidden container d-md-grid">
+  <div v-else class="token-page overflow-hidden container d-lg-grid">
     <TokenId
       :loading="bcmrToken.value.loading"
       :identity-snapshot="bcmrToken.value.identity"
       :category="category"
-      class="d-md-none"
+      class="d-lg-none"
     />
-    <TokenNav v-model:nav-item="navItem" />
+    <NavPills
+      v-model:select="navItem"
+      :items="['Transaction', 'Token Register']"
+      class="d-lg-none"
+    />
     <div
-      class="column d-md-block"
+      class="column d-lg-block"
       :class="{
         'd-none': navItem === 0,
       }"
@@ -22,7 +26,7 @@
       <TokenProvider :category="category" />
     </div>
     <div
-      class="column d-md-block"
+      class="column d-lg-block"
       :class="{
         'd-none': navItem === 1,
       }"
@@ -31,7 +35,7 @@
         :loading="bcmrToken.value.loading"
         :identity-snapshot="bcmrToken.value.identity"
         :category="category"
-        class="d-none d-md-block"
+        class="d-none d-lg-block"
       />
       <TokenAddress
         v-if="
@@ -74,7 +78,10 @@ const opreturn = computed(() => {
     ?.locking_bytecode.substring(2);
 });
 const bcmrToken = computed(() => {
-  const result = bcmrStore.getTokenInfo(category.value, opreturn.value || "");
+  const result = bcmrStore.getTokenOpreturn(
+    category.value,
+    opreturn.value || ""
+  );
 
   return result;
 });
@@ -98,7 +105,7 @@ const tokenInfo = computed(() => {
     );
   }
 
-  return [
+  const items = [
     {
       title: "Genesis Transaction",
       text: genesisTx,
@@ -110,14 +117,20 @@ const tokenInfo = computed(() => {
       text: genesisSupply,
     },
     {
-      title: "NFT Capability",
-      text: nftCapability ? `${nftCapability} NFTs` : undefined,
-    },
-    {
-      title: "Owner address",
-      text: ownerAddress,
+      title: "Token type",
+      text: nftCapability ? `${nftCapability} NFTs` : "Fungible Tokens",
     },
   ];
+  if (nftCapability && ownerAddress) {
+    items.push({
+      title: "NFT owner",
+      text: ownerAddress,
+      url: `/address/${ownerAddress}`,
+      copy: true,
+    });
+  }
+
+  return items;
 });
 </script>
 

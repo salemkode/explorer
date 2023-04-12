@@ -1,12 +1,13 @@
 import BigNumber from "bignumber.js";
 import {
+  base58AddressToLockingBytecode,
+  cashAddressToLockingBytecode,
+  decodeCashAddressFormatWithoutPrefix,
   hexToBin,
   lockingBytecodeToCashAddress,
-  parseScript,
-  sha256,
-  ripemd160,
-  encodeCashAddress,
 } from "@bitauth/libauth";
+import { binToHex } from "mainnet-js";
+
 type num = number | string | BigNumber;
 export const satToBch = (num: num) => {
   const bigNum = BigNumber(num);
@@ -37,31 +38,21 @@ export const formatDateString = (date: Date) => {
   return dateString;
 };
 
-export function lockingBytecodeHexToCashAddress(hexCode: string) {
+export function lockingBytecodeHexToCashAddress(
+  hexCode: string,
+  prefix: "bchtest" | "bitcoincash" | "bchreg" = "bchtest",
+  tokenSupport = true
+) {
   const bytecode = hexToBin(hexCode);
-  return lockingBytecodeToCashAddress(bytecode, "bchtest", {
-    tokenSupport: true,
+  const address = lockingBytecodeToCashAddress(bytecode, prefix, {
+    tokenSupport,
   });
+
+  return typeof address === "string" ? address : undefined;
 }
 
-export const scriptSigToCashAddress = (unlocking_bytecode: string) => {
-  const parsed = parseScript(unlocking_bytecode);
-  if (parsed.status === true && parsed?.value?.value[1]) {
-    const publicKey = parsed.value.value[1]?.value as string;
-    return encodeCashAddress(
-      "bchtest",
-      "p2pkhWithTokens",
-      ripemd160.hash(sha256.hash(hexToBin(publicKey)))
-    );
-  } else {
-    return {
-      status: false,
-    };
-  }
-};
-
 export const removeAddressPrefix = (address: string) => {
-  const regex = /(bitcoincash|bchreg|bchtest):?([a-z0-9]{42})/i;
+  const regex = /(bitcoincash|bchtest):?([a-z0-9]{42})/i;
   const simplifiedAddress = address.match(regex);
 
   if (simplifiedAddress) {
@@ -73,12 +64,29 @@ export const removeAddressPrefix = (address: string) => {
 export const shortTx = (text: string) =>
   `${text.slice(0, 8)}...${text.slice(-5)}`;
 
-export const getTokenType = (genesisSupply: number, nftCapability?: string) => {
-  if (genesisSupply) {
-    return "Fungible Tokens only";
-  } else if (nftCapability) {
-    return `${nftCapability} NFTs`;
-  }
-};
-
 export const isServer = process.server;
+
+export const addressToLockingBytecodeHex = (address: string) => {
+  let lockingByteCode: Uint8Array | undefined;
+
+  const base58AddressLockingBytecode = base58AddressToLockingBytecode(address);
+  if (typeof base58AddressLockingBytecode !== "string") {
+    lockingByteCode = base58AddressLockingBytecode.bytecode;
+  } else {
+    const decodeCashAddress = decodeCashAddressFormatWithoutPrefix(address);
+    let prefixAddress: string | undefined;
+    if (typeof decodeCashAddress === "object") {
+      prefixAddress = `${decodeCashAddress.prefix}:${address}`;
+    } else {
+      prefixAddress = address;
+    }
+    const cashLockingBytecode = cashAddressToLockingBytecode(
+      prefixAddress || ""
+    );
+    if (typeof cashLockingBytecode !== "string") {
+      lockingByteCode = cashLockingBytecode.bytecode;
+    }
+  }
+
+  return lockingByteCode ? binToHex(lockingByteCode) : undefined;
+};

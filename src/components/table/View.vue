@@ -7,7 +7,7 @@
         <button
           class="border-0 btn p-0"
           :disabled="!props.hasPrevPage"
-          @click="emit('previous')"
+          @click="event('previous')"
         >
           <img
             src="~/assets/icons/angle-small-left.svg"
@@ -21,7 +21,7 @@
         <button
           class="border-0 btn p-0"
           :disabled="!props.hasNextPage"
-          @click="emit('next')"
+          @click="event('next')"
         >
           <img
             src="~/assets/icons/angle-small-right.svg"
@@ -38,7 +38,10 @@
       {{ error }}
     </div>
     <div v-else class="overflow-x-auto text-nowrap">
-      <table class="table table-striped mb-0">
+      <table
+        v-if="loading || !!rows.length"
+        class="table fade show table-striped mb-0"
+      >
         <thead v-if="props.columns">
           <tr>
             <td
@@ -49,7 +52,7 @@
           </tr>
         </thead>
         <Transition name="fade" mode="out-in">
-          <tbody :key="change">
+          <tbody :key="change.count">
             <tr v-for="(row, index) in rows" :key="index">
               <table-cell
                 v-for="(column, columnIndex) in row"
@@ -61,14 +64,23 @@
         </Transition>
       </table>
     </div>
-    <LoadingSpinner v-if="loading" class="py-2 mt-2" />
+    <LoadingSpinner
+      v-if="loading"
+      :class="loading && !rows.length ? 'py-5 my-5' : 'py-2 mt-2'"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { tableColumn } from "~/types/index.js";
-const emit = defineEmits(["next", "previous"]);
-const change = ref(0);
+type emitName = "next" | "previous";
+const emit = defineEmits<{
+  (event: emitName): void;
+}>();
+const change = reactive({
+  count: 0,
+  navigate: false,
+});
 
 const props = defineProps({
   title: {
@@ -98,18 +110,34 @@ const props = defineProps({
     type: Boolean,
   },
 });
-watch(toRef(props, "rows"), () => change.value++);
+
+const event = (emitName: emitName) => {
+  if (change.navigate) return;
+  change.navigate = true;
+  emit(emitName);
+};
+
+watch(toRef(props, "rows"), () => {
+  if (props.rows.length !== 0) {
+    if (change.navigate) {
+      change.count++;
+    } else {
+      change.navigate = false;
+    }
+  }
+});
 </script>
 
 <style scoped>
-/* we will explain what these classes do next! */
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.5s ease;
+.table {
+  animation: fade 0.8s linear;
 }
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>

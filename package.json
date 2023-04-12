@@ -37,6 +37,7 @@
     "@pinia/nuxt": "^0.4.7",
     "bignumber.js": "^9.1.1",
     "bootstrap": "^5.2.3",
+    "electrum-cash": "^2.0.10",
     "jdenticon": "^3.2.0",
     "mainnet-js": "^1.0.17",
     "pinia": "^2.0.33",

@@ -39,35 +39,34 @@ import { IdentitySnapshot } from "~/types";
 const bcmrStore = useBcmrStore();
 const appStore = useAppStore();
 const props = defineProps<{
-  address: string | object;
+  address?: string;
   sat: string;
   tokenCategory?: string;
   tokenAmount?: string;
   tokenCommitment?: string;
   tokenCapability?: string;
 }>();
-const variable = computed(() => ({
-  network: appStore.network,
-  tokenCategory: "\\x" + props.tokenCategory,
-}));
 
 const bcmrInfo = ref<IdentitySnapshot | undefined>(undefined);
 watch(
   toRef(props, "tokenCategory"),
   () => {
-    const tokenCategory = props.tokenCategory;
-    if (!tokenCategory) return;
-    const { onResult } = useQuery<GetTokenQuery>(GetToken, variable);
-    onResult((result) => {
-      if (!result.data) return;
-      if (!result.data) return;
-      const opreturn = result.data?.transaction
-        .at(0)
-        ?.outputs?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
+    const category = props.tokenCategory;
+    if (!category) return;
+    const { onResult } = useQuery<GetTokenQuery>(GetToken, {
+      network: appStore.network,
+      tokenCategory: category,
+    });
+
+    onResult((tokenTransaction) => {
+      const outputs = tokenTransaction.data?.transaction.at(0)?.outputs;
+      const opreturn = outputs
+        ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
         ?.locking_bytecode.substring(2);
-      if (!opreturn) return;
-      const tokenInfo = bcmrStore.getTokenInfo(tokenCategory, opreturn);
-      bcmrInfo.value = tokenInfo.value.identity;
+
+      if (opreturn) {
+        bcmrStore.addToken(category.substring(2), opreturn);
+      }
     });
   },
   {
