@@ -3,6 +3,8 @@ import {
   base58AddressToLockingBytecode,
   cashAddressToLockingBytecode,
   decodeCashAddressFormatWithoutPrefix,
+  decodeCashAddress,
+  decodeBase58Address,
   hexToBin,
   lockingBytecodeToCashAddress,
   binToHex,
@@ -90,6 +92,29 @@ export const addressToLockingBytecodeHex = (address: string) => {
   }
 
   return lockingByteCode ? binToHex(lockingByteCode) : undefined;
+};
+
+export const isValidAddress = (address: string) => {
+  // Check if it's a cash address with prefix
+  const decodedCashAddress = decodeCashAddress(address);
+  if (typeof decodedCashAddress === "object") {
+    return true;
+  }
+
+  // Check if it's a cash address without prefix
+  const decodedCashAddressWithoutPrefix =
+    decodeCashAddressFormatWithoutPrefix(address);
+  if (typeof decodedCashAddressWithoutPrefix === "object") {
+    return true;
+  }
+
+  // Check if it's a base58 address
+  const decodedBase58 = decodeBase58Address(address);
+  if (typeof decodedBase58 === "object") {
+    return true;
+  }
+
+  return false;
 };
 
 // This function is from mainnet-js

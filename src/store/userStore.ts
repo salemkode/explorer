@@ -14,6 +14,18 @@ export const useAppStore = defineStore(
       }
     }
 
+    const router = useRouter();
+    const search = (keyword: string) => {
+      if (!keyword) {
+        return;
+      }
+      if (utils.isValidAddress(keyword)) {
+        router.push(`/address/${keyword}`);
+      } else {
+        router.push(`/tx/${keyword}`);
+      }
+    };
+
     const usdPrice = ref<undefined | string>(undefined);
     onMounted(async () => {
       const _usdPrice = await getBchPrice();
@@ -27,6 +39,7 @@ export const useAppStore = defineStore(
       network,
       usdPrice,
       lastBlockHeight,
+      search,
       calculatePrice,
       toggleNetwork,
     };

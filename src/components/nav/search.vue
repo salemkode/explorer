@@ -18,13 +18,15 @@
 </template>
 
 <script setup lang="ts">
+import { useAppStore } from "~/store";
+
 const route = useRoute();
+const appStore = useAppStore();
 
 const openFromOtherHomePage = computed(() => route.fullPath !== "/");
-
 const searchValue = ref("");
 function search() {
-  searchValue.value = "";
+  appStore.search(searchValue.value);
 }
 
 function keydownHandler(event: KeyboardEvent) {

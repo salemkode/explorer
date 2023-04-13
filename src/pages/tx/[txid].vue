@@ -75,7 +75,6 @@ import {
   type GetTxQuery,
   type GetTokenQuery,
   GetTx,
-  GetTokenQuery,
   GetToken,
 } from "~/module/chaingraph";
 import {
@@ -118,10 +117,13 @@ const bcmrToken = computed(() => {
 });
 
 /* Getting transaction info */
-const { result: Tx, loading: TxLoading } = useQuery<GetTxQuery>(
-  GetTx,
-  variables
-);
+const {
+  result: Tx,
+  loading: TxLoading,
+  onError,
+  onResult,
+} = useQuery<GetTxQuery>(GetTx, variables);
+
 const transaction = computed(() => {
   const node = Tx.value?.node.at(0);
   const unconfirmedTransactions =
@@ -142,7 +144,20 @@ const transaction = computed(() => {
     transaction,
   };
 });
-
+onError(() => {
+  throw showError({
+    statusCode: 404,
+    message: "This transaction is not found",
+  });
+});
+onResult(() => {
+  if (!transaction.value) {
+    throw showError({
+      statusCode: 404,
+      message: "This transaction is not found",
+    });
+  }
+});
 const infoContent = computed(() => {
   if (!transaction.value) return [];
   const satoshis: string | null | undefined =

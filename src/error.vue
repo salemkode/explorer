@@ -8,7 +8,12 @@
       <h3 class="mt-5">
         <b>{{ errorMsg }}</b>
       </h3>
-      <div class="btn btn-primary">Go Home</div>
+      <button
+        class="btn btn-primary px-4"
+        @click="clearError({ redirect: '/' })"
+      >
+        Go Home
+      </button>
     </div>
   </Layout>
 </template>
