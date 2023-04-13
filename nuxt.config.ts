@@ -1,7 +1,9 @@
 export default defineNuxtConfig({
   ssr: false,
   app: {
+    pageTransition: { name: "fade", mode: "out-in" },
     head: {
+      title: "Bitcoin Cash Explorer",
       link: [
         {
           rel: "icon",
