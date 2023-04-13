@@ -5,8 +5,9 @@ import {
   decodeCashAddressFormatWithoutPrefix,
   hexToBin,
   lockingBytecodeToCashAddress,
+  binToHex,
+  binToNumberUint16LE,
 } from "@bitauth/libauth";
-import { binToHex } from "mainnet-js";
 
 type num = number | string | BigNumber;
 export const satToBch = (num: num) => {
@@ -89,4 +90,31 @@ export const addressToLockingBytecodeHex = (address: string) => {
   }
 
   return lockingByteCode ? binToHex(lockingByteCode) : undefined;
+};
+
+// This function is from mainnet-js
+export const parseBinary = (opReturn: Uint8Array): Uint8Array[] => {
+  const chunks: Uint8Array[] = [];
+  let position = 1;
+
+  // handle direct push, OP_PUSHDATA1, OP_PUSHDATA2;
+  // OP_PUSHDATA4 is not supported in OP_RETURNs by consensus
+  while (opReturn[position]) {
+    let length = 0;
+    if (opReturn[position] === 0x4c) {
+      length = opReturn[position + 1];
+      position += 2;
+    } else if (opReturn[position] === 0x4d) {
+      length = binToNumberUint16LE(opReturn.slice(position + 1, position + 3));
+      position += 3;
+    } else {
+      length = opReturn[position];
+      position += 1;
+    }
+
+    chunks.push(opReturn.slice(position, position + length));
+    position += length;
+  }
+
+  return chunks;
 };

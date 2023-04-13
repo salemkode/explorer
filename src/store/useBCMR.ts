@@ -1,7 +1,13 @@
-import { binToUtf8, utf8ToBin, binToHex, hexToBin } from "@bitauth/libauth";
-import { OpReturnData, sha256 } from "mainnet-js";
+import {
+  binToUtf8,
+  utf8ToBin,
+  binToHex,
+  hexToBin,
+  sha256,
+} from "@bitauth/libauth";
 import { defineStore } from "pinia";
 import { Registry, tokenCapability } from "~/types";
+import { parseBinary } from "~/module/utils";
 
 // TODO: move to app store and create watch for network change
 const providersUrls = {
@@ -39,7 +45,7 @@ export const useBcmrStore = defineStore("bcmr", () => {
   };
 
   const opreturnToAuthChain = (opReturnHex: string) => {
-    const chunks = OpReturnData.parseBinary(hexToBin(opReturnHex));
+    const chunks = parseBinary(hexToBin(opReturnHex));
     const result = {
       contentHash: "",
       url: "",
