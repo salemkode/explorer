@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { GetBlock, GetBlockQuery } from "~/module/chaingraph";
+import { GetBlock, type GetBlockQuery } from "~/module/chaingraph";
 import { useAppStore } from "~/store";
 const appStore = useAppStore();
 

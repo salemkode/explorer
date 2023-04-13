@@ -1,10 +1,7 @@
-import {
-  ElectrumClient as ElectrumClientOriginal,
-  SubscribeCallback,
-} from "electrum-cash";
-import { Scalars } from "~/graphql/graphql";
+import type { SubscribeCallback, ElectrumClient } from "electrum-cash";
+import type { Scalars } from "~/graphql/graphql";
 
-export class ElectrumClient extends ElectrumClientOriginal {
+export class ElectrumClient extends ElectrumClient {
   request<T>(method: string, ...parameters: string[]): Promise<Error | T>;
 
   subscribe(

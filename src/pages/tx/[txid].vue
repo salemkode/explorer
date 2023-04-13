@@ -72,7 +72,8 @@
 <script setup lang="ts">
 import { useAppStore, useBcmrStore } from "~/store";
 import {
-  GetTxQuery,
+  type GetTxQuery,
+  type GetTokenQuery,
   GetTx,
   GetTokenQuery,
   GetToken,

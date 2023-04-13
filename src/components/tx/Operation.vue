@@ -33,8 +33,8 @@
 <script setup lang="ts">
 import { satToBch, removeAddressPrefix, shortTx } from "~/module/utils";
 import { useAppStore, useBcmrStore } from "~/store";
-import { GetToken, GetTokenQuery } from "~/module/chaingraph";
-import { IdentitySnapshot } from "~/types";
+import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
+import type { IdentitySnapshot } from "~/types";
 
 const bcmrStore = useBcmrStore();
 const appStore = useAppStore();

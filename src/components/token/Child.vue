@@ -13,8 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { GetTokenChild, GetTokenChildQuery } from "@/module/chaingraph";
-import { IdentitySnapshot, tableColumn } from "~/types/index.js";
+import { GetTokenChild, type GetTokenChildQuery } from "@/module/chaingraph";
+import type { IdentitySnapshot, tableColumn } from "~/types/index.js";
 import {
   lockingBytecodeHexToCashAddress,
   removeAddressPrefix,

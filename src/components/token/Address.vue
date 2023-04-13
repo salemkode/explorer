@@ -13,13 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import { GetTokenAddress, GetTokenAddressQuery } from "~/module/chaingraph";
+import {
+  type GetTokenAddressQuery,
+  GetTokenAddress,
+} from "~/module/chaingraph";
 import { useAppStore } from "~/store";
 import {
   lockingBytecodeHexToCashAddress,
   removeAddressPrefix,
 } from "~/module/utils";
-import { tableColumn } from "~/types";
+import type { tableColumn } from "~/types";
 
 const limit = ref(9);
 const offset = ref(0);
@@ -67,7 +70,6 @@ const addressList = computed(() => {
   let items: tableColumn[][] = Array.from(
     locking_bytecode,
     function ([lockingBytecode, amount]) {
-      // TODO: fix type
       const address = lockingBytecodeHexToCashAddress(
         lockingBytecode.substring(2)
       );

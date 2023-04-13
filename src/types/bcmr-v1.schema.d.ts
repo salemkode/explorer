@@ -392,7 +392,7 @@ export type IdentitySnapshot = {
                   | "hex"
                   | "https-url"
                   | "ipfs-cid"
-                  | `locktime`
+                  | "locktime"
                   | "utf8";
               }
             | {

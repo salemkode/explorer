@@ -51,8 +51,8 @@ import {
   satToBch,
 } from "~/module/utils";
 import { useAppStore } from "~/store";
-import { contentWarp } from "~/types";
 import { getBalance, getHistory } from "~/module/electrum";
+import type { contentWarp } from "~/types";
 
 const navItem = ref(0);
 // Get address from router param using useRouter

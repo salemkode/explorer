@@ -6,10 +6,9 @@ import {
   sha256,
 } from "@bitauth/libauth";
 import { defineStore } from "pinia";
-import { Registry, tokenCapability } from "~/types";
+import type { Registry, tokenCapability } from "~/types";
 import { parseBinary } from "~/module/utils";
 
-// TODO: move to app store and create watch for network change
 const providersUrls = {
   Mathieu:
     "https://raw.githubusercontent.com/mr-zwets/example_bcmr/main/example_bcmr.json",

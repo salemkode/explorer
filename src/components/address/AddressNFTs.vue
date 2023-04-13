@@ -14,12 +14,12 @@
 
 <script setup lang="ts">
 import {
+  type GetAddressNfTsQuery,
+  type GetTokenQuery,
   GetAddressNFTs,
-  GetAddressNfTsQuery,
   GetToken,
-  GetTokenQuery,
 } from "@/module/chaingraph";
-import { tableColumn } from "~/types/index.js";
+import type { tableColumn } from "~/types/index.js";
 import { useAppStore, useBcmrStore } from "~/store";
 
 const limit = ref(9);

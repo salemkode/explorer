@@ -1,5 +1,5 @@
 import { ElectrumClient } from "electrum-cash";
-import { ElectrumClient as ElectrumClientType } from "~/types/index";
+import type { ElectrumClient as ElectrumClientType } from "~/types/index";
 // TODO: change it
 const electrumChipnet = new ElectrumClient(
   "mainnet-js-node",

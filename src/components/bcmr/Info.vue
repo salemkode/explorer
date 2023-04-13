@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { formatDateString } from "~/module/utils";
-import { IdentitySnapshot } from "~/types";
+import type { IdentitySnapshot } from "~/types";
 
 const props = defineProps<{
   identitySnapshot?: IdentitySnapshot;

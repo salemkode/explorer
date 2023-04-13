@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { contentWarp } from "@/types";
+import type { contentWarp } from "@/types";
 const props = defineProps({
   items: {
     type: Array as PropType<contentWarp[]>,

@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { tableColumn } from "~/types/index.js";
+import type { tableColumn } from "~/types/index.js";
 
 defineProps<{
   column: tableColumn;

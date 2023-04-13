@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { useAppStore, useBcmrStore } from "~/store";
-import { GetToken, GetTokenQuery } from "~/module/chaingraph";
+import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
 import { lockingBytecodeHexToCashAddress } from "~/module/utils";
 
 const route = useRoute();

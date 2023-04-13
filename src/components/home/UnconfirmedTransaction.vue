@@ -14,10 +14,10 @@
 
 <script setup lang="ts">
 import {
+  type MonitorMempoolsSubscription,
   MonitorMempools,
-  MonitorMempoolsSubscription,
 } from "@/module/chaingraph";
-import { tableColumn } from "~/types/index.js";
+import type { tableColumn } from "~/types/index.js";
 import { useAppStore } from "~/store";
 import { satToBch, calculatePrice } from "~/module/utils";
 

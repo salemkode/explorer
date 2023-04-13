@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { useBcmrStore } from "~/store";
-import { Registry } from "~/types";
+import type { Registry } from "~/types";
 const bcmrStore = useBcmrStore();
 
 const props = defineProps<{

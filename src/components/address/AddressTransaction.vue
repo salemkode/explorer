@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { tableColumn } from "~/types/index.js";
-import { history } from "~/module/electrum";
+import type { tableColumn } from "~/types/index.js";
+import type { history } from "~/module/electrum";
 
 const limit = ref(9);
 const offset = ref(0);
