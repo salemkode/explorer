@@ -105,12 +105,13 @@ const tokenInfo = computed(() => {
     );
   }
 
-  const items = [
+  const items: contentWarp[] = [
     {
       title: "Genesis Transaction",
       text: genesisTx,
       url: `/tx/${genesisTx}`,
       copy: true,
+      warp: true,
     },
     {
       title: "Genesis Supply",

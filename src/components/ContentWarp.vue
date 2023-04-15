@@ -6,7 +6,12 @@
       <template v-for="(item, index) in existItems" :key="index">
         <div v-if="!loading && item.text">
           <div class="text-body-secondary mb-1" v-text="item.title" />
-          <Copy :url="item.url" :text="item.text" :copy="!!item.copy" />
+          <Copy
+            :url="item.url"
+            :text="item.text"
+            :copy="!!item.copy"
+            :warp="item.warp"
+          />
           <div v-if="existItems.length !== index + 1" class="mb-2" />
         </div>
       </template>

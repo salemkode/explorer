@@ -27,6 +27,7 @@ export interface contentWarp {
   text?: string | number;
   copy?: boolean;
   url?: string;
+  warp?: boolean;
 }
 
 export type addressInfo = {

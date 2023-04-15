@@ -111,6 +111,7 @@ const addressInfoWarp = computed<contentWarp[]>(() => {
       title: "Token Address",
       text: tokenAddress.value,
       copy: true,
+      warp: true,
     },
     {
       title: "Cash Address",
@@ -120,6 +121,7 @@ const addressInfoWarp = computed<contentWarp[]>(() => {
         false
       ),
       copy: true,
+      warp: true,
     },
     {
       title: "Balance",
@@ -139,6 +141,7 @@ const addressInfoWarp = computed<contentWarp[]>(() => {
       text: addressInfo?.firstTx,
       copy: true,
       url: `/tx/${addressInfo?.firstTx}`,
+      warp: true,
     },
     {
       title: "Transition count",

@@ -3,7 +3,7 @@
     v-if="typeof address === 'string'"
     class="card p-2 my-2 align-items-start"
   >
-    <Copy class="small" :text="removeAddressPrefix(address)" copy />
+    <Copy class="small" :text="removeAddressPrefix(address)" copy warp />
     <span class="my-1"> {{ satToBch(sat || "") }} BCH </span>
     <div v-if="tokenCategory && bcmrInfo" class="d-flex flex-wrap mt-2">
       <div
