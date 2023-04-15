@@ -121,7 +121,6 @@ watch(toRef(props, "rows"), () => {
   if (props.rows.length !== 0) {
     if (change.navigate) {
       change.count++;
-    } else {
       change.navigate = false;
     }
   }
