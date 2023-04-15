@@ -8,13 +8,32 @@ import {
 import { defineStore } from "pinia";
 import type { Registry, tokenCapability } from "~/types";
 import { parseBinary } from "~/module/utils";
+import Ajv from "ajv";
+import schema_bcmr from "@/assets/bcmr-v1.schema.json";
 
+// Create bitcoin cash metadata registry validator
+const ajv = new Ajv({
+  strictTypes: false,
+});
+const validate_bcmr = ajv.compile<Registry>(schema_bcmr);
+
+// TODO: must be reactive value
 const providersUrls = {
   Mathieu:
     "https://raw.githubusercontent.com/mr-zwets/example_bcmr/main/example_bcmr.json",
 };
+
 export const useBcmrStore = defineStore("bcmr", () => {
-  const opreturns = reactive(new Map<string, Registry | boolean>());
+  const opreturnsRef = shallowRef(new Map<string, Registry | boolean>());
+  const opreturns = {
+    get: (key: string) => opreturnsRef.value.get(key),
+    set(key: string, value: boolean | Registry) {
+      opreturnsRef.value.set(key, value);
+      triggerRef(opreturnsRef);
+      return opreturnsRef.value;
+    },
+  };
+
   const opreturnsVerified = reactive(new Map<string, boolean>());
   const providers = reactive(new Map<string, Registry | boolean>());
   const loadedProviders = ref(false);
@@ -123,12 +142,15 @@ export const useBcmrStore = defineStore("bcmr", () => {
           }
           const nftTypes = identity.token?.nfts?.parse.types || {};
           const child = nftTypes[nftCommitment];
-          token = {
-            name: child.name,
-            description: child.description,
-            icon: child.uris ? child.uris["icon"] : undefined,
-            symbol: undefined,
-          };
+
+          if (child) {
+            token = {
+              name: child.name,
+              description: child.description,
+              icon: child.uris ? child.uris["icon"] : undefined,
+              symbol: undefined,
+            };
+          }
         } else {
           token = {
             name: identity.name,
@@ -165,7 +187,14 @@ export const useBcmrStore = defineStore("bcmr", () => {
             hashContent === authChain.contentHash
           );
           try {
+            // Parse BCMR registry
             const registry: Registry = JSON.parse(bcmrContent);
+
+            // Validate BCMR registry
+            console.log(registry);
+            if (!validate_bcmr(registry)) return;
+
+            // Validate token category
             if (getTokenFromRegister(registry, tokenCategory)) {
               opreturns.set(tokenCategory, registry);
             }
