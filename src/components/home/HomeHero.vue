@@ -86,9 +86,12 @@ function keydownHandler(event: KeyboardEvent) {
       border-color: black;
     }
 
-    .btn:hover {
+    .btn {
       align-items: center;
-      color: black;
+
+      &:hover {
+        color: black;
+      }
     }
 
     .search-icon {
