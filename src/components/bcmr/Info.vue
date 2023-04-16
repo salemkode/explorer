@@ -1,5 +1,5 @@
 <template>
-  <ContentWarp v-if="tokenInfo.length" :loading="loading" :items="tokenInfo">
+  <content-warp v-if="tokenInfo.length" :loading="loading" :items="tokenInfo">
     <template #header>
       <bcmr-icon
         v-if="props.tokenCategory"
@@ -18,12 +18,12 @@
         </nuxt-link>
       </div>
     </template>
-  </ContentWarp>
+  </content-warp>
 </template>
 
 <script setup lang="ts">
 import { formatDateString } from "~/module/utils";
-import type { IdentitySnapshot } from "~/types";
+import type { IdentitySnapshot, contentWarpItem } from "~/types";
 
 const props = defineProps<{
   identitySnapshot?: IdentitySnapshot;
@@ -31,7 +31,7 @@ const props = defineProps<{
   loading: boolean;
 }>();
 
-const tokenInfo = computed(() => {
+const tokenInfo = computed<contentWarpItem[]>(() => {
   if (!props.identitySnapshot) return [];
   const beginTime = props.identitySnapshot.time.begin;
   const beginTimeStr = beginTime

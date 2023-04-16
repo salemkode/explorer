@@ -22,7 +22,7 @@ export interface tableColumn {
   };
 }
 
-export interface contentWarp {
+export interface contentWarpItem {
   title: string;
   text?: string | number;
   copy?: boolean;

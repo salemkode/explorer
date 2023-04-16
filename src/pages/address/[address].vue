@@ -6,7 +6,7 @@
   >
     <AddressHeader :address="routeAddress" class="d-lg-none" />
     <div class="column">
-      <ContentWarp
+      <content-warp
         :loading="!addressInfoWarp.length"
         :items="addressInfoWarp"
       />
@@ -52,7 +52,7 @@ import {
 } from "~/module/utils";
 import { useAppStore } from "~/store";
 import { getBalance, getHistory } from "~/module/electrum";
-import type { contentWarp } from "~/types";
+import type { contentWarpItem } from "~/types";
 
 const navItem = ref(0);
 // Get address from router param using useRouter
@@ -101,7 +101,7 @@ if (!historyLoading && validHistory.value?.length === 0) {
     message: "Invalid address",
   });
 }
-const addressInfoWarp = computed<contentWarp[]>(() => {
+const addressInfoWarp = computed<contentWarpItem[]>(() => {
   const addressInfo = {
     firstTx: validHistory.value?.at(-1)?.tx_hash || "",
     txCount: validHistory.value?.length.toString(),

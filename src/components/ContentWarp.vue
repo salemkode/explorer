@@ -21,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import type { contentWarp } from "@/types";
+import type { contentWarpItem } from "@/types";
 const props = defineProps({
   items: {
-    type: Array as PropType<contentWarp[]>,
+    type: Array as PropType<contentWarpItem[]>,
     required: true,
   },
   loading: {

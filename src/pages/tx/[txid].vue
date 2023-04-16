@@ -7,7 +7,7 @@
       class="d-lg-none mt-3 mb-4"
     />
     <div class="column">
-      <ContentWarp :loading="TxLoading" :items="infoContent" />
+      <content-warp :loading="TxLoading" :items="infoContent" />
       <bcmr-info
         :loading="TokenLoading || bcmrToken.value.loading"
         :identity-snapshot="bcmrToken.value.identity"

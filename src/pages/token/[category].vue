@@ -57,6 +57,7 @@
 import { useAppStore, useBcmrStore } from "~/store";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
 import { lockingBytecodeHexToCashAddress } from "~/module/utils";
+import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
 const category = computed(() => route.params.category as string);
@@ -105,7 +106,7 @@ const tokenInfo = computed(() => {
     );
   }
 
-  const items: contentWarp[] = [
+  const items: contentWarpItem[] = [
     {
       title: "Genesis Transaction",
       text: genesisTx,
