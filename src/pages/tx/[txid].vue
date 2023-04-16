@@ -1,6 +1,11 @@
 <!-- eslint-disable vue/no-useless-template-attributes -->
 <template>
-  <div v-if="transaction" class="tx-page container mx-auto">
+  <div v-if="transaction" class="tx-page d-lg-grid container mx-auto">
+    <TxConfirm
+      v-if="transaction.blockHeight"
+      :block-height="transaction.blockHeight"
+      class="d-lg-none mt-3 mb-4"
+    />
     <div class="column">
       <ContentWarp :loading="TxLoading" :items="infoContent" />
       <bcmr-info
@@ -13,8 +18,9 @@
       <TxConfirm
         v-if="transaction.blockHeight"
         :block-height="transaction.blockHeight"
+        class="d-none d-lg-block"
       />
-      <div class="operation">
+      <div class="operation d-lg-grid">
         <div>
           <span>Inputs</span>
           <div v-if="transaction.transaction.is_coinbase" class="card my-2 p-2">
@@ -151,7 +157,7 @@ onError(() => {
   });
 });
 onResult(() => {
-  if (!transaction.value) {
+  if (!transaction.value || !transaction.value.transaction) {
     throw showError({
       statusCode: 404,
       message: "This transaction is not found",
@@ -172,6 +178,7 @@ const infoContent = computed(() => {
       title: "Transaction hash",
       text: txid.value as string,
       copy: true,
+      warp: true,
     },
     {
       title: "Value (BCH)",
@@ -191,7 +198,6 @@ const infoContent = computed(() => {
 
 <style>
 .tx-page {
-  display: grid;
   grid-template-columns: 1fr 2.5fr;
   gap: 15px;
 }
@@ -202,7 +208,6 @@ const infoContent = computed(() => {
   margin-top: 10px;
 }
 .tx-page .operation {
-  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
