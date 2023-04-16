@@ -9,13 +9,13 @@
     />
     <NavPills
       v-model:select="navItem"
-      :items="['Transaction', 'Token Register']"
+      :items="['token_register', 'transaction']"
       class="d-lg-none"
     />
     <div
       class="column d-lg-block"
       :class="{
-        'd-none': navItem === 0,
+        'd-none': navItem === 1,
       }"
     >
       <content-warp :items="tokenInfo" :loading="tokenTransactionLoading" />
@@ -28,7 +28,7 @@
     <div
       class="column d-lg-block"
       :class="{
-        'd-none': navItem === 1,
+        'd-none': navItem === 0,
       }"
     >
       <TokenId
