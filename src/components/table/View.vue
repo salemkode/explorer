@@ -3,36 +3,13 @@
     <h3 class="p-3 d-flex">
       <span>{{ props.title }}</span>
       <div class="mx-auto" />
-      <div v-if="props.hasPrevPage || props.hasNextPage" class="pagination">
-        <button
-          class="border-0 btn p-0"
-          :disabled="!props.hasPrevPage"
-          @click="event('previous')"
-        >
-          <img
-            src="~/assets/icons/angle-small-left.svg"
-            alt=""
-            width="30"
-            :style="{
-              opacity: props.hasPrevPage ? 1 : 0.5,
-            }"
-          />
-        </button>
-        <button
-          class="border-0 btn p-0"
-          :disabled="!props.hasNextPage"
-          @click="event('next')"
-        >
-          <img
-            src="~/assets/icons/angle-small-right.svg"
-            alt=""
-            width="30"
-            :style="{
-              opacity: props.hasNextPage ? 1 : 0.5,
-            }"
-          />
-        </button>
-      </div>
+      <Pagination
+        v-show="props.hasPrevPage || props.hasNextPage"
+        :has-prev-page="props.hasPrevPage"
+        :has-next-page="props.hasNextPage"
+        @next="event('next')"
+        @previous="event('previous')"
+      />
     </h3>
     <div v-if="error" class="m-auto py-5 my-5">
       {{ error }}
