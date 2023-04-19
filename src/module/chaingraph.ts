@@ -163,6 +163,27 @@ export const GetLastBlock = gql`
   }
 `;
 
+export const GetBlocks = gql`
+  subscription GetBlocks($limit: Int, $offset: Int, $network: String) {
+    block(
+      where: { accepted_by: { node: { name: { _regex: $network } } } }
+      order_by: { height: desc }
+      limit: $limit
+      offset: $offset
+    ) {
+      hash
+      height
+      transaction_count
+      input_count
+      output_count
+      output_value_satoshis
+      size_bytes
+      generated_value_satoshis
+      timestamp
+    }
+  }
+`;
+
 export const MonitorMempools = gql`
   subscription MonitorMempools($limit: Int, $offset: Int, $network: String) {
     node(where: { name: { _regex: $network } }) {

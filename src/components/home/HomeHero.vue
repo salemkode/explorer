@@ -1,6 +1,6 @@
 <template>
   <div class="hero">
-    <div>
+    <div class="container">
       <h2 class="Title" v-text="$t('index_page_header')" />
       <p class="subheader">
         <span v-text="$t('index_page_subtext')" />
@@ -50,11 +50,10 @@ function keydownHandler(event: KeyboardEvent) {
   &::before {
     content: "";
     inset: 0;
-    left: 50%;
+    left: 0;
     position: absolute;
-    transform: translate(-50%);
     height: 100%;
-    width: 100vw;
+    width: 105vw;
     clip-path: inset(0 -100vmax);
   }
 
@@ -67,11 +66,6 @@ function keydownHandler(event: KeyboardEvent) {
     z-index: -2;
     background: url(~/assets/images/wallpaper.jpg) center;
     background-size: cover;
-  }
-
-  > * {
-    max-width: 800px;
-    min-width: 75%;
   }
 
   .search-hero {

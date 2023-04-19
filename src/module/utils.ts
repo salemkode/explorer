@@ -17,6 +17,15 @@ export const satToBch = (num: num) => {
   return bigNum.div(Math.pow(10, 8)).toString();
 };
 
+export const bytesToMB = (bytes: number) => {
+  // One megabyte is equal to 1024 * 1024 bytes
+  const MB = 1024 * 1024;
+  // Divide the bytes by MB and round the result to two decimal places
+  const mb = Math.round((bytes / MB) * 100) / 100;
+  // Return the result
+  return mb;
+};
+
 export const calculatePrice = (sat: string, price: string) => {
   const bchNum = satToBch(sat);
   const bigNum = BigNumber(bchNum);
