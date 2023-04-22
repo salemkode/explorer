@@ -191,7 +191,6 @@ export const useBcmrStore = defineStore("bcmr", () => {
             const registry: Registry = JSON.parse(bcmrContent);
 
             // Validate BCMR registry
-            console.log(registry);
             if (!validate_bcmr(registry)) return;
 
             // Validate token category
