@@ -10,9 +10,9 @@ import {
 } from "@bitauth/libauth";
 
 type num = number | string | BigNumber;
-export const satToBch = (num: num) => {
+export const satToBch = (num: num, decimal = 8) => {
   const bigNum = BigNumber(num);
-  return bigNum.div(Math.pow(10, 8)).toString();
+  return bigNum.div(Math.pow(10, 8)).decimalPlaces(decimal).toString();
 };
 
 export const bytesToMB = (bytes: number) => {
