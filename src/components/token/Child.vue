@@ -15,10 +15,7 @@
 <script setup lang="ts">
 import { GetTokenChild, type GetTokenChildQuery } from "@/module/chaingraph";
 import type { IdentitySnapshot, tableColumn } from "~/types/index.js";
-import {
-  lockingBytecodeHexToCashAddress,
-  removeAddressPrefix,
-} from "~/module/utils";
+import { removeAddressPrefix } from "~/module/utils";
 import { useAppStore } from "~/store";
 
 const appStore = useAppStore();
@@ -58,7 +55,7 @@ const outputs = computed<tableColumn[][]>(() => {
   }
 
   let items = result.value?.output.map((output) => {
-    const address = lockingBytecodeHexToCashAddress(
+    const address = appStore.lockingBytecodeHexToCashAddress(
       output.locking_bytecode.substring(2)
     );
     const commitment = output.nonfungible_token_commitment?.substring(2);

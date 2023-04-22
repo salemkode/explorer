@@ -18,10 +18,7 @@ import {
   GetTokenAddress,
 } from "~/module/chaingraph";
 import { useAppStore } from "~/store";
-import {
-  lockingBytecodeHexToCashAddress,
-  removeAddressPrefix,
-} from "~/module/utils";
+import { removeAddressPrefix } from "~/module/utils";
 import type { tableColumn } from "~/types";
 
 const limit = ref(9);
@@ -70,7 +67,7 @@ const addressList = computed(() => {
   let items: tableColumn[][] = Array.from(
     locking_bytecode,
     function ([lockingBytecode, amount]) {
-      const address = lockingBytecodeHexToCashAddress(
+      const address = appStore.lockingBytecodeHexToCashAddress(
         lockingBytecode.substring(2)
       );
       if (typeof address !== "string") {

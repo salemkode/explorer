@@ -45,11 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  addressToLockingBytecodeHex,
-  lockingBytecodeHexToCashAddress,
-  satToBch,
-} from "~/module/utils";
+import { addressToLockingBytecodeHex, satToBch } from "~/module/utils";
 import { useAppStore } from "~/store";
 import { getBalance, getHistory } from "~/module/electrum";
 import type { contentWarpItem } from "~/types";
@@ -69,15 +65,8 @@ if (!lockingBytecode.value) {
   });
 }
 
-const prefix = computed(() =>
-  appStore.network === "mainnet" ? "bitcoincash" : "bchtest"
-);
 const tokenAddress = computed(() =>
-  lockingBytecodeHexToCashAddress(
-    lockingBytecode.value || "",
-    prefix.value,
-    true
-  )
+  appStore.lockingBytecodeHexToCashAddress(lockingBytecode.value || "", true)
 );
 
 const { data: history, pending: historyLoading } = useLazyAsyncData(() =>
@@ -115,9 +104,8 @@ const addressInfoWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Cash Address",
-      text: lockingBytecodeHexToCashAddress(
+      text: appStore.lockingBytecodeHexToCashAddress(
         lockingBytecode.value || "",
-        prefix.value,
         false
       ),
       copy: true,

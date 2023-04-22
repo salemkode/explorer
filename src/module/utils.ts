@@ -5,8 +5,6 @@ import {
   decodeCashAddressFormatWithoutPrefix,
   decodeCashAddress,
   decodeBase58Address,
-  hexToBin,
-  lockingBytecodeToCashAddress,
   binToHex,
   binToNumberUint16LE,
 } from "@bitauth/libauth";
@@ -49,19 +47,6 @@ export const formatDateString = (date: Date) => {
   const dateString = date.toLocaleString("en-US", options).replace(",", "");
   return dateString;
 };
-
-export function lockingBytecodeHexToCashAddress(
-  hexCode: string,
-  prefix: "bchtest" | "bitcoincash" | "bchreg" = "bchtest",
-  tokenSupport = true
-) {
-  const bytecode = hexToBin(hexCode);
-  const address = lockingBytecodeToCashAddress(bytecode, prefix, {
-    tokenSupport,
-  });
-
-  return typeof address === "string" ? address : undefined;
-}
 
 export const removeAddressPrefix = (address: string) => {
   const regex = /(bitcoincash|bchtest):?([a-z0-9]{42})/i;

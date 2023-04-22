@@ -1,3 +1,4 @@
+import { hexToBin, lockingBytecodeToCashAddress } from "@bitauth/libauth";
 import { defineStore } from "pinia";
 import { getBchPrice } from "~/module/fullstack.api";
 import * as utils from "~/module/utils";
@@ -34,11 +35,28 @@ export const useAppStore = defineStore(
     const calculatePrice = (sat: string) =>
       utils.calculatePrice(sat, usdPrice.value || "");
 
+    const lockingBytecodeHexToCashAddress = (
+      hexCode: string,
+      tokenSupport = true
+    ) => {
+      const bytecode = hexToBin(hexCode);
+      const address = lockingBytecodeToCashAddress(
+        bytecode,
+        network.value === "mainnet" ? "bitcoincash" : "bchtest",
+        {
+          tokenSupport,
+        }
+      );
+
+      return typeof address === "string" ? address : undefined;
+    };
+
     const lastBlockHeight = ref("0");
     return {
       network,
       usdPrice,
       lastBlockHeight,
+      lockingBytecodeHexToCashAddress,
       search,
       calculatePrice,
       toggleNetwork,

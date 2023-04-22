@@ -56,7 +56,6 @@
 <script setup lang="ts">
 import { useAppStore, useBcmrStore } from "~/store";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
-import { lockingBytecodeHexToCashAddress } from "~/module/utils";
 import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
@@ -92,7 +91,7 @@ const tokenInfo = computed(() => {
     ?.hash.substring(2);
   const outputs = tokenTransaction.value?.transaction?.at(0)?.outputs;
   const nftCapability = outputs?.at(0)?.nonfungible_token_capability;
-  const address = lockingBytecodeHexToCashAddress(
+  const address = appStore.lockingBytecodeHexToCashAddress(
     outputs?.at(0)?.locking_bytecode.substring(2) || ""
   );
   const ownerAddress = typeof address === "string" ? address : undefined;
