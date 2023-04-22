@@ -1,50 +1,43 @@
 <template>
-  <div v-show="result || loading" class="card">
+  <div class="card">
     <h3 class="p-3">Block chain blocks</h3>
-    <div ref="element" class="blocks px-3" @wheel="mouseWheel">
-      <NuxtLink
-        v-for="i in 4"
-        :key="i"
-        :to="loading ? undefined : `/block/${atBlock(i - 1)?.height}`"
-        class="block-container nav-link"
-      >
-        <div class="block me-3">
-          <div
-            class="capacity"
-            :style="{
-              '--capacity-size': `${
-                +(result?.block.at(i - 1)?.size_bytes || 0) / 10_485
-              }%`,
-            }"
-          />
-        </div>
-        <Transition name="fade" mode="out-in">
-          <div v-if="!result?.block[i - 1]" v-text="$t('loading')" />
-          <div
-            v-else
-            :key="result?.block[i - 1].height"
-            class="d-flex flex-column"
-          >
-            <b v-text="numberWithCommas(result.block[i - 1].height)" />
-            <small
-              v-text="
-                formatDateString(
-                  new Date(1000 * +result.block[i - 1].timestamp)
-                )
-              "
-            />
-            <b
-              v-text="
-                `${result.block[i - 1].transaction_count} Txs • ${bytesToMB(
-                  +result.block[i - 1].size_bytes
-                )}MB`
-              "
+    <div v-if="blockList.type == 'error'" class="my-5 py-5 text-center">
+      <small>Not Found block list</small>
+    </div>
+    <div v-else ref="element" class="blocks px-3" @wheel="mouseWheel">
+      <TransitionGroup name="list">
+        <NuxtLink
+          v-for="(block, i) in blockList.value"
+          :key="i"
+          :to="typeof block === 'string' ? undefined : `/block/${block.height}`"
+          class="block-container nav-link"
+        >
+          <div class="block me-3">
+            <div
+              class="capacity"
+              :style="{
+                '--capacity-size': getCapacitySize(block),
+              }"
             />
           </div>
-        </Transition>
-      </NuxtLink>
+          <span v-if="typeof block === 'string'" v-text="$t('loading')" />
+          <Transition v-else name="fade" mode="out-in">
+            <div v-if="!block" v-text="$t('loading')" />
+            <div v-else :key="block.height" class="d-flex flex-column">
+              <b v-text="numberWithCommas(block.height)" />
+              <small
+                v-text="formatDateString(new Date(1000 * +block.timestamp))"
+              />
+              <b>
+                {{ block.transaction_count }} Txs •
+                {{ bytesToMB(+block.size_bytes) }}MB
+              </b>
+            </div>
+          </Transition>
+        </NuxtLink>
+      </TransitionGroup>
+      <NuxtLink to="/block" class="btn btn-primary w-100">See more</NuxtLink>
     </div>
-    <NuxtLink to="/block" class="btn btn-primary mt-auto">See more</NuxtLink>
   </div>
 </template>
 
@@ -55,12 +48,13 @@ import { useAppStore } from "~/store";
 
 const element = ref<HTMLDivElement | null>(null);
 const appStore = useAppStore();
+const { t } = useI18n();
 const variables = computed(() => ({
-  limit: 8,
+  limit: 7,
   offset: 0,
   network: appStore.network,
 }));
-const { result, loading } = useSubscription<GetBlocksSubscription>(
+const { result, loading, error } = useSubscription<GetBlocksSubscription>(
   GetBlocks,
   variables
 );
@@ -74,8 +68,32 @@ const mouseWheel = (e: WheelEvent) => {
   }
 };
 
-const atBlock = (index: number) => {
-  return result.value?.block.at(index);
+// create computed var to create virtual list to loading
+const blockList = computed(() => {
+  if (result.value) {
+    return {
+      type: "loaded",
+      value: result.value.block,
+    } as const;
+  } else if (loading.value) {
+    // I know I can use fill but I want change array type
+    // I use fill instead of Array.from({ length: 7 }, () => undefined)
+    // https://github.com/microsoft/TypeScript/issues/31785
+    return {
+      type: "loading",
+      value: Array.from({ length: 7 }, () => t("loading")),
+    } as const;
+  } else {
+    return {
+      type: "error",
+      value: error.value || undefined,
+    } as const;
+  }
+});
+
+const getCapacitySize = (block: GetBlocksSubscription["block"][0] | string) => {
+  if (typeof block === "string") return "0%";
+  return `${+(block.size_bytes || 0) / 10_485}%`;
 };
 </script>
 
