@@ -3,7 +3,7 @@
     <HomeHero />
     <div class="container">
       <HomeBlocks />
-      <div class="home-content container d-lg-grid">
+      <div class="home-content container d-lg-grid my-3">
         <HomeUnconfirmedTransaction />
         <HomeBlocksList />
       </div>
@@ -19,6 +19,6 @@ body {
 
 .home-content {
   grid-template-columns: 1.5fr 1fr;
-  gap: 5px;
+  gap: 15px;
 }
 </style>
