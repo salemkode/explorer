@@ -5,6 +5,8 @@
       {{ route.params.slug }}
     </div>
     {{ data }}
+
+    Soon Page
   </div>
 </template>
 

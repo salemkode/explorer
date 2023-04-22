@@ -3,9 +3,11 @@
     <HomeHero />
     <div class="container">
       <HomeBlocks />
-      <div class="home-content container d-lg-grid my-3">
+      <div class="home-content d-lg-grid my-3">
         <HomeUnconfirmedTransaction />
-        <HomeBlocksList />
+        <div>
+          <HomeBlocksList />
+        </div>
       </div>
     </div>
   </div>

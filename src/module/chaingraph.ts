@@ -200,17 +200,21 @@ export const MonitorMempools = gql`
           hash
           input_value_satoshis
           output_value_satoshis
+          is_coinbase
           inputs {
             outpoint {
               token_category
               fungible_token_amount
+              locking_bytecode
+              value_satoshis
             }
           }
           outputs {
             token_category
             fungible_token_amount
+            locking_bytecode
+            value_satoshis
           }
-          size_bytes
         }
       }
     }
@@ -414,4 +418,4 @@ export const GetAddressTokens = gql`
 `;
 
 // Export types
-export type * from "~/graphql/graphql";
+export * from "~/graphql/graphql";

@@ -36,6 +36,13 @@ export type addressInfo = {
   txCount: string;
 };
 
+export type utxo = {
+  token_category?: string | null;
+  fungible_token_amount?: string | null;
+  locking_bytecode: string;
+  value_satoshis: string;
+};
+
 export type tokenCapability = Scalars["enum_nonfungible_token_capability"];
 
 export * from "./bcmr-v1.schema";

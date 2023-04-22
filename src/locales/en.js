@@ -98,6 +98,8 @@ export default {
   month: "Month",
   week: "Week",
   day: "Day",
+  from: "From",
+  to: "To",
   view_on_bch_explorer: "View on BCH Explorer",
   copy_to_clipboard: "Copy to clipboard",
   type1: "Type1",
