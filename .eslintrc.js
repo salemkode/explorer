@@ -19,6 +19,7 @@ module.exports = {
   plugins: ["@typescript-eslint"],
   rules: {
     "@typescript-eslint/consistent-type-imports": "error",
+    "prettier/prettier": "warn",
     "vue/multi-word-component-names": "off",
     "no-shadow": "off",
     "vue/no-template-shadow": "off",
