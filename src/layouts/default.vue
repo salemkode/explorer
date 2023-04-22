@@ -16,7 +16,10 @@
 
 <script setup lang="ts">
 import { useAppStore } from "~/store";
-import { GetLastBlockSubscription, GetLastBlock } from "~/module/chaingraph";
+import {
+  type GetLastBlockSubscription,
+  GetLastBlock,
+} from "~/module/chaingraph";
 
 const appStore = useAppStore();
 const variables = computed(() => ({
@@ -37,15 +40,5 @@ watch(result, () => {
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>

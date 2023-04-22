@@ -14,6 +14,7 @@
     "@graphql-codegen/client-preset": "^2.1.1",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
     "@pinia-plugin-persistedstate/nuxt": "^1.0.0",
+    "@total-typescript/ts-reset": "^0.4.2",
     "@typescript-eslint/eslint-plugin": "^5.54.1",
     "@typescript-eslint/parser": "^5.54.1",
     "eslint": "^8.36.0",
