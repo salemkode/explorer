@@ -31,7 +31,7 @@
               v-for="(input, index) in transaction.transaction.inputs"
               :key="index"
               :address="
-                lockingBytecodeHexToCashAddress(
+                appStore.lockingBytecodeHexToCashAddress(
                   input?.outpoint?.locking_bytecode.substring(2) || ''
                 )
               "
@@ -42,7 +42,7 @@
                 input.outpoint?.nonfungible_token_commitment?.substring(2)
               "
               :token-capability="
-                input.outpoint?.nonfungible_token_capability?.toString()
+                input.outpoint?.nonfungible_token_capability || undefined
               "
             />
           </template>
@@ -53,7 +53,7 @@
             v-for="(output, index) in transaction.transaction.outputs"
             :key="index"
             :address="
-              lockingBytecodeHexToCashAddress(
+              appStore.lockingBytecodeHexToCashAddress(
                 output.locking_bytecode.substring(2)
               )
             "
@@ -63,7 +63,9 @@
             :token-commitment="
               output?.nonfungible_token_commitment?.substring(2)
             "
-            :token-capability="output?.nonfungible_token_capability?.toString()"
+            :token-capability="
+              output?.nonfungible_token_capability || undefined
+            "
           />
         </div>
       </div>
@@ -83,12 +85,7 @@ import {
   GetTx,
   GetToken,
 } from "~/module/chaingraph";
-import {
-  formatDateString,
-  satToBch,
-  lockingBytecodeHexToCashAddress,
-  calculatePrice,
-} from "~/module/utils";
+import { formatDateString, satToBch, calculatePrice } from "~/module/utils";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid");

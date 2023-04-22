@@ -11,18 +11,20 @@
       warp
     />
     <span class="my-1"> {{ satToBch(sat || "") }} BCH </span>
-    <div v-if="tokenCategory && bcmrInfo" class="d-flex flex-wrap mt-2">
+    <div v-if="props.tokenCategory" class="d-flex flex-wrap mt-2">
       <div
-        v-if="tokenCategory && tokenAmount"
+        v-if="props.tokenCategory && props.tokenAmount"
         class="badge text-bg-dark d-flex align-items-center me-1 mb-1"
       >
-        <NuxtLink class="text-white" :to="`/token/${tokenCategory}`">
-          {{ shortTx(tokenCategory) }}
+        <NuxtLink class="text-white" :to="`/token/${props.tokenCategory}`">
+          {{ shortTx(props.tokenCategory) }}
         </NuxtLink>
-        <template v-if="+tokenAmount">
-          {{ +tokenAmount }}
-          <span v-if="bcmrInfo.token?.symbol" class="dot" />
-          {{ bcmrInfo.token?.symbol }}
+        <template v-if="+props.tokenAmount">
+          <div class="mx-1">•</div>
+          {{ +props.tokenAmount }}
+          <span v-if="bcmrInfo?.token?.symbol">
+            {{ bcmrInfo.token.symbol }}
+          </span>
         </template>
       </div>
       <div v-if="props.tokenCommitment" class="badge text-bg-dark me-1 mb-1">
@@ -40,7 +42,7 @@
 import { satToBch, removeAddressPrefix, shortTx } from "~/module/utils";
 import { useAppStore, useBcmrStore } from "~/store";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
-import type { IdentitySnapshot } from "~/types";
+import type { tokenCapability } from "~/types";
 
 const bcmrStore = useBcmrStore();
 const appStore = useAppStore();
@@ -50,10 +52,14 @@ const props = defineProps<{
   tokenCategory?: string;
   tokenAmount?: string;
   tokenCommitment?: string;
-  tokenCapability?: string;
+  tokenCapability?: tokenCapability;
 }>();
 
-const bcmrInfo = ref<IdentitySnapshot | undefined>(undefined);
+const bcmrInfo = bcmrStore.getToken(
+  props.tokenCategory || "",
+  props.tokenCapability,
+  props.tokenCommitment
+);
 watch(
   toRef(props, "tokenCategory"),
   () => {
