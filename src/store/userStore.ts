@@ -1,6 +1,5 @@
 import { hexToBin, lockingBytecodeToCashAddress } from "@bitauth/libauth";
 import { defineStore } from "pinia";
-import { getBchPrice } from "~/module/fullstack.api";
 import * as utils from "~/module/utils";
 
 export const useAppStore = defineStore(
@@ -29,8 +28,9 @@ export const useAppStore = defineStore(
 
     const usdPrice = ref<undefined | string>(undefined);
     onMounted(async () => {
-      const _usdPrice = await getBchPrice();
-      usdPrice.value = _usdPrice;
+      const response = await fetch("/api/price");
+      const data: { usd: string } = await response.json();
+      usdPrice.value = data.usd;
     });
     const calculatePrice = (sat: string) =>
       utils.calculatePrice(sat, usdPrice.value || "");
