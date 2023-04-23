@@ -39,6 +39,8 @@ export type addressInfo = {
 export type utxo = {
   token_category?: string | null;
   fungible_token_amount?: string | null;
+  nonfungible_token_capability?: string | null;
+  nonfungible_token_commitment?: string | null;
   locking_bytecode: string;
   value_satoshis: string;
 };

@@ -67,7 +67,6 @@ type inputs = Array<{
   outpoint?: utxo | null;
 }>;
 type transactions = Array<{
-  __typename?: "node_transaction";
   validated_at?: number | null;
   transaction: {
     __typename?: "transaction";
@@ -75,7 +74,6 @@ type transactions = Array<{
     input_value_satoshis?: string | null;
     output_value_satoshis?: string | null;
     is_coinbase: boolean;
-    size_bytes: string;
     inputs: inputs;
     outputs: Array<utxo>;
   };
@@ -166,6 +164,7 @@ const transactions = computed(() => {
 <style scoped lang="scss">
 .transaction-item {
   > .info {
+    cursor: pointer;
     border: var(--bs-border-color) solid 1px;
     border-width: 1px 0;
     display: grid;

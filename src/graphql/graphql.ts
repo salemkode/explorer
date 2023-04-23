@@ -2391,13 +2391,18 @@ export type MonitorMempoolsSubscription = {
         input_value_satoshis?: string | null;
         output_value_satoshis?: string | null;
         is_coinbase: boolean;
-        size_bytes: string;
         inputs: Array<{
           __typename?: "input";
           outpoint?: {
             __typename?: "output";
             token_category?: string | null;
             fungible_token_amount?: string | null;
+            nonfungible_token_capability?:
+              | "none"
+              | "mutable"
+              | "minting"
+              | null;
+            nonfungible_token_commitment?: string | null;
             locking_bytecode: string;
             value_satoshis: string;
           } | null;
@@ -2406,6 +2411,8 @@ export type MonitorMempoolsSubscription = {
           __typename?: "output";
           token_category?: string | null;
           fungible_token_amount?: string | null;
+          nonfungible_token_capability?: "none" | "mutable" | "minting" | null;
+          nonfungible_token_commitment?: string | null;
           locking_bytecode: string;
           value_satoshis: string;
         }>;
@@ -4017,10 +4024,6 @@ export const MonitorMempoolsDocument = {
                             },
                             {
                               kind: "Field",
-                              name: { kind: "Name", value: "size_bytes" },
-                            },
-                            {
-                              kind: "Field",
                               name: { kind: "Name", value: "inputs" },
                               selectionSet: {
                                 kind: "SelectionSet",
@@ -4043,6 +4046,22 @@ export const MonitorMempoolsDocument = {
                                           name: {
                                             kind: "Name",
                                             value: "fungible_token_amount",
+                                          },
+                                        },
+                                        {
+                                          kind: "Field",
+                                          name: {
+                                            kind: "Name",
+                                            value:
+                                              "nonfungible_token_capability",
+                                          },
+                                        },
+                                        {
+                                          kind: "Field",
+                                          name: {
+                                            kind: "Name",
+                                            value:
+                                              "nonfungible_token_commitment",
                                           },
                                         },
                                         {
@@ -4083,6 +4102,20 @@ export const MonitorMempoolsDocument = {
                                     name: {
                                       kind: "Name",
                                       value: "fungible_token_amount",
+                                    },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: {
+                                      kind: "Name",
+                                      value: "nonfungible_token_capability",
+                                    },
+                                  },
+                                  {
+                                    kind: "Field",
+                                    name: {
+                                      kind: "Name",
+                                      value: "nonfungible_token_commitment",
                                     },
                                   },
                                   {

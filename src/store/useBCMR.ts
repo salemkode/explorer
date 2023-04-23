@@ -138,7 +138,10 @@ export const useBcmrStore = defineStore("bcmr", () => {
       if (identity) {
         if (nftType && nftType !== "minting") {
           if (!nftCommitment) {
-            return;
+            return {
+              loading: false,
+              token: undefined,
+            };
           }
           const nftTypes = identity.token?.nfts?.parse.types || {};
           const child = nftTypes[nftCommitment];
@@ -236,6 +239,7 @@ export const useBcmrStore = defineStore("bcmr", () => {
   };
 
   return {
+    opreturnsRef,
     opreturns,
     opreturnsVerified,
     providers,

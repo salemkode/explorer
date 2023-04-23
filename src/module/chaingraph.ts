@@ -205,6 +205,8 @@ export const MonitorMempools = gql`
             outpoint {
               token_category
               fungible_token_amount
+              nonfungible_token_capability
+              nonfungible_token_commitment
               locking_bytecode
               value_satoshis
             }
@@ -212,6 +214,8 @@ export const MonitorMempools = gql`
           outputs {
             token_category
             fungible_token_amount
+            nonfungible_token_capability
+            nonfungible_token_commitment
             locking_bytecode
             value_satoshis
           }
