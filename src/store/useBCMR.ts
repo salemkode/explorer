@@ -8,14 +8,23 @@ import {
 import { defineStore } from "pinia";
 import type { Registry, tokenCapability } from "~/types";
 import { parseBinary } from "~/module/utils";
-import Ajv from "ajv";
-import schema_bcmr from "@/assets/bcmr-v1.schema.json";
+import type { ValidateFunction } from "ajv";
 
-// Create bitcoin cash metadata registry validator
-const ajv = new Ajv({
-  strictTypes: false,
-});
-const validate_bcmr = ajv.compile<Registry>(schema_bcmr);
+let validate_bcmr: ValidateFunction<Registry> | undefined;
+const validateBcmrSchema = async (value: unknown) => {
+  if (!validate_bcmr) {
+    const { default: Ajv } = await import("ajv");
+    const schema_bcmr = await import("@/assets/bcmr-v1.schema.json");
+
+    // Create bitcoin cash metadata registry validator
+    const ajv = new Ajv({
+      strictTypes: false,
+    });
+    validate_bcmr = ajv.compile<Registry>(schema_bcmr);
+  }
+
+  return validate_bcmr(value);
+};
 
 // TODO: must be reactive value
 const providersUrls = {
@@ -194,7 +203,8 @@ export const useBcmrStore = defineStore("bcmr", () => {
             const registry: Registry = JSON.parse(bcmrContent);
 
             // Validate BCMR registry
-            if (!validate_bcmr(registry)) return;
+            const isValidSchema = await validateBcmrSchema(registry);
+            if (!isValidSchema) return;
 
             // Validate token category
             if (getTokenFromRegister(registry, tokenCategory)) {
