@@ -5,7 +5,7 @@
       class="d-flex flex-column align-items-start justify-content-center ms-md-3"
     >
       <div class="badge text-bg-primary">pubkeyhash</div>
-      <Copy class="my-1" copy warp :text="address" />
+      <BaseCopy class="my-1" copy warp :text="address" />
     </div>
   </div>
 </template>

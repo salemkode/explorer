@@ -9,7 +9,7 @@
         class="mb-2 me-2"
       />
       <!-- Copyable value of item -->
-      <Copy
+      <BaseCopy
         class="d-flex align-items-center"
         :short="column.short"
         :text="column.text"

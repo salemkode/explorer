@@ -13,7 +13,12 @@
             {{ i + 1 }}
           </b>
           <div>
-            <Copy v-if="utxo.type === 'p2pkh'" :text="utxo.address" warp copy />
+            <BaseCopy
+              v-if="utxo.type === 'p2pkh'"
+              :text="utxo.address"
+              warp
+              copy
+            />
             <b v-else>OP_RETURN {{ utxo.value }}</b>
             <div class="amount">
               {{ satToBch(utxo.value_satoshis || 0, 3) }}

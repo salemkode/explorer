@@ -6,7 +6,7 @@
       <template v-for="(item, index) in existItems" :key="index">
         <div v-if="!loading && item.text">
           <div class="text-body-secondary mb-1" v-text="item.title" />
-          <Copy
+          <BaseCopy
             :url="item.url"
             :text="item.text"
             :copy="!!item.copy"

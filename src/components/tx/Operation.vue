@@ -3,7 +3,7 @@
     v-if="typeof address === 'string'"
     class="card p-2 my-2 align-items-start"
   >
-    <Copy
+    <BaseCopy
       class="small"
       :url="`/address/${address}`"
       :text="removeAddressPrefix(address)"

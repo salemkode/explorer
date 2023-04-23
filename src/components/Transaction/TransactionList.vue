@@ -12,7 +12,7 @@
       "
     >
       <div class="info p-3">
-        <Copy
+        <BaseCopy
           :text="transaction.hash"
           :copy="true"
           :url="`/tx/${transaction.hash}`"
@@ -21,7 +21,7 @@
         <small>
           <div v-for="(item, i) in transaction.transfer" :key="i" class="me-1">
             <b class="me-1" v-text="['from', 'to'][i]" />
-            <Copy
+            <BaseCopy
               v-if="item.type === 'SingleSig'"
               :url="`/address/${item.text}`"
               :text="item.text"

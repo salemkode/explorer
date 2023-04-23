@@ -8,7 +8,7 @@
       <span class="mx-2" />
       <div>
         <h6 v-text="tokenName" />
-        <Copy copy :text="category" />
+        <BaseCopy copy :text="category" />
       </div>
     </div>
   </div>
