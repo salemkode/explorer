@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
+    "nuxt-purgecss",
   ],
   i18n: {
     // add `vueI18n` option to `@nuxtjs/i18n` module options
