@@ -6,8 +6,8 @@ import {
   sha256,
 } from "@bitauth/libauth";
 import { defineStore } from "pinia";
-import type { Registry, tokenCapability } from "~/types";
 import { parseBinary } from "~/module/utils";
+import type { Registry, tokenCapability } from "~/types";
 import type { ValidateFunction } from "ajv";
 
 let validate_bcmr: ValidateFunction<Registry> | undefined;
