@@ -44,6 +44,7 @@ function keydownHandler(event: KeyboardEvent) {
   align-items: center;
   position: relative;
   height: 600px;
+  overflow: hidden;
   color: white;
 
   &::after,
@@ -53,7 +54,8 @@ function keydownHandler(event: KeyboardEvent) {
     left: 0;
     position: absolute;
     height: 100%;
-    width: 105vw;
+    width: 100vw;
+    width: 100dvw;
     clip-path: inset(0 -100vmax);
   }
 
