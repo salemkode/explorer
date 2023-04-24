@@ -31,9 +31,9 @@
     </div>
 
     <!-- Copy right -->
-    <div class="copy-right bg-dark text-white p-3">
+    <div class="copy-right bg-dark text-white">
       <div
-        class="container d-flex flex-column flex-md-row justify-content-between"
+        class="container p-3 d-flex flex-column flex-md-row justify-content-between"
       >
         <p class="mb-0 my-2">
           Bitcoincash Explorer © {{ new Date().getFullYear() }}
