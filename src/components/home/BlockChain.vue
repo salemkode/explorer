@@ -1,7 +1,16 @@
 <template>
   <div v-show="result || loading" class="my-3">
-    <h3>Block chain blocks</h3>
-    <div ref="element" class="blocks ps-2 py-3" @wheel="mouseWheel">
+    <h3 class="d-flex justify-content-between">
+      Block chain blocks
+      <BasePagination
+        :has-next-page="state.hasRightScroll"
+        :has-prev-page="state.hasLeftScroll"
+        @previous="slideLeft"
+        @next="slideRight"
+      />
+    </h3>
+    <!-- blocks-container -->
+    <div ref="element" class="blocks ps-2 py-3">
       <NuxtLink
         v-for="i in 30"
         :key="i"
@@ -43,15 +52,44 @@ const { result, loading } = useSubscription<GetBlocksSubscription>(
   variables
 );
 
-const mouseWheel = (e: WheelEvent) => {
-  if (!e.deltaX) {
-    e.preventDefault();
-    element.value?.scrollBy({
-      left: e.deltaY < 0 ? -100 : 100,
-    });
-  }
-};
+const state = reactive({
+  hasLeftScroll: false,
+  hasRightScroll: false,
+});
 
+const scrollEndTimer = ref("");
+onMounted(() => {
+  if (!element.value) return;
+  updateElement();
+  element.value.onscroll = () => {
+    clearTimeout(scrollEndTimer.value);
+    scrollEndTimer.value = "" + setTimeout(updateElement, 100);
+  };
+});
+
+const updateElement = () => {
+  if (!element.value) return;
+  // Get the scroll position and the scroll width of the content element
+  const scrollPosition = element.value.scrollLeft + element.value.clientWidth;
+  const scrollWidth = element.value.scrollWidth;
+
+  // Compare the scroll position and the scroll width
+  // If they are equal, it means the scroll has reached the end
+  state.hasRightScroll = scrollPosition !== scrollWidth;
+  state.hasLeftScroll = element.value.scrollLeft > 0;
+};
+const slideLeft = () => {
+  element.value?.scrollBy({
+    left: -200,
+    behavior: "smooth",
+  });
+};
+const slideRight = () => {
+  element.value?.scrollBy({
+    left: 200,
+    behavior: "smooth",
+  });
+};
 const getBlockHeight = (index: number) => {
   return loading.value ? t("loading") : result.value?.block.at(index)?.height;
 };
@@ -64,7 +102,7 @@ const getBlockHeight = (index: number) => {
   scroll-behavior: smooth;
 
   display: flex;
-  max-width: 100vw;
+  max-width: calc(100vw - var(--bs-gutter-x, 1.5rem) * 2);
   overflow: auto;
 
   &::-webkit-scrollbar {
