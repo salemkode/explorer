@@ -2,7 +2,7 @@
   <div>
     <HomeHero />
     <div class="container">
-      <HomeBlocks />
+      <HomeBlockChain />
       <div class="home-content d-lg-grid my-3">
         <HomeUnconfirmedTransaction />
         <div>
@@ -13,12 +13,7 @@
   </div>
 </template>
 
-<style>
-body {
-  overflow-x: hidden;
-  width: 100vw;
-}
-
+<style scoped>
 .home-content {
   grid-template-columns: 1.5fr 1fr;
   gap: 15px;
