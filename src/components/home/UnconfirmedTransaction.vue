@@ -32,6 +32,10 @@ const { result: nodeUnconfirmedTx, loading } =
   useSubscription<MonitorMempoolsSubscription>(MonitorMempools, variables);
 
 const transactions = computed(() => {
-  return nodeUnconfirmedTx.value?.node.at(0)?.unconfirmed_transactions || [];
+  return (
+    nodeUnconfirmedTx.value?.node
+      .at(0)
+      ?.unconfirmed_transactions.map(({ transaction }) => transaction) || []
+  );
 });
 </script>

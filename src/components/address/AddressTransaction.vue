@@ -1,26 +1,43 @@
 <template>
-  <TableView
-    title="Address Transactions"
-    :rows="transactions"
-    :columns="['txid', 'block_height']"
-    :has-prev-page="!!offset"
-    :has-next-page="!!hasNextPage"
-    :loading="false"
-    @next="offset += 8"
-    @previous="offset -= 8"
-  />
+  <div class="transaction-list card">
+    <h3 class="p-3 justify-content-between d-flex">
+      Last transaction
+      <BasePagination
+        :has-next-page="hasNextPage"
+        :has-prev-page="hasPrevPage"
+        @next="offset += limit"
+        @previous="offset -= limit"
+      />
+    </h3>
+    <LoadingSpinner
+      v-if="loading && transactions.length === 0"
+      class="m-auto"
+    />
+    <div
+      v-else-if="transactions.length === 0 || error"
+      class="text-center my-5 py-5"
+    >
+      Not Found Transactions
+    </div>
+    <TransactionList v-else :transactions="transactions" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import type { tableColumn } from "~/types/index.js";
 import type { history } from "~/module/electrum";
+import {
+  type GetTransactionsQuery,
+  GetTransactions,
+} from "~/module/chaingraph";
+import { useAppStore } from "~/store";
 
-const limit = ref(9);
+const limit = ref(8);
 const offset = ref(0);
+const appStore = useAppStore();
 const props = defineProps<{
   history: history;
 }>();
-
+const hasPrevPage = computed(() => offset.value > 0);
 const hasNextPage = computed(() => {
   if (Array.isArray(props.history)) {
     return props.history.length > limit.value + offset.value;
@@ -35,20 +52,25 @@ const sortedHistory = computed(() => {
   }
 });
 
-const transactions = computed<tableColumn[][]>(() => {
+const transactionsHash = computed(() => {
   return sortedHistory.value
     .slice(offset.value, offset.value + limit.value)
-    ?.map((transaction) => [
-      {
-        text: transaction.tx_hash,
-        url: `/tx/${transaction.tx_hash}`,
-        short: true,
-        copy: true,
-      },
-      {
-        text: transaction.height,
-        url: `/block/${transaction.height}`,
-      },
-    ]);
+    ?.map((transaction) => `\\x${transaction.tx_hash}`);
+});
+const variables = computed(() => ({
+  network: appStore.network,
+  hashes: transactionsHash.value,
+}));
+const {
+  result: transactionsQuery,
+  error,
+  loading,
+} = useQuery<GetTransactionsQuery>(GetTransactions, variables);
+
+const transactions = computed(() => {
+  if (!transactionsQuery.value) {
+    return [];
+  }
+  return transactionsQuery.value.transaction;
 });
 </script>

@@ -67,16 +67,13 @@ type inputs = Array<{
   outpoint?: utxo | null;
 }>;
 type transactions = Array<{
-  validated_at?: number | null;
-  transaction: {
-    __typename?: "transaction";
-    hash: string;
-    input_value_satoshis?: string | null;
-    output_value_satoshis?: string | null;
-    is_coinbase: boolean;
-    inputs: inputs;
-    outputs: Array<utxo>;
-  };
+  __typename?: "transaction";
+  hash: string;
+  input_value_satoshis?: string | null;
+  output_value_satoshis?: string | null;
+  is_coinbase: boolean;
+  inputs: inputs;
+  outputs: Array<utxo>;
 }>;
 
 const props = defineProps<{
@@ -137,7 +134,7 @@ const getTo = (utxos: utxo[]) => {
 };
 const showOperation = reactive(new Map<string, boolean>());
 const transactions = computed(() => {
-  return props.transactions.map(({ transaction }) => {
+  return props.transactions.map((transaction) => {
     const amount =
       transaction.output_value_satoshis ||
       transaction.input_value_satoshis ||

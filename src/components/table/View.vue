@@ -3,7 +3,7 @@
     <h3 class="p-3 d-flex">
       <span>{{ props.title }}</span>
       <div class="mx-auto" />
-      <Pagination
+      <BasePagination
         v-show="props.hasPrevPage || props.hasNextPage"
         :has-prev-page="props.hasPrevPage"
         :has-next-page="props.hasNextPage"

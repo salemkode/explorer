@@ -225,6 +225,41 @@ export const MonitorMempools = gql`
   }
 `;
 
+export const GetTransactions = gql`
+  query GetTransactions($network: String, $hashes: [bytea!]) {
+    transaction(
+      where: {
+        block_inclusions: {
+          block: { accepted_by: { node: { name: { _regex: $network } } } }
+        }
+        hash: { _in: $hashes }
+      }
+    ) {
+      hash
+      input_value_satoshis
+      output_value_satoshis
+      is_coinbase
+      inputs {
+        outpoint {
+          token_category
+          fungible_token_amount
+          nonfungible_token_capability
+          nonfungible_token_commitment
+          locking_bytecode
+          value_satoshis
+        }
+      }
+      outputs {
+        token_category
+        fungible_token_amount
+        nonfungible_token_capability
+        nonfungible_token_commitment
+        locking_bytecode
+        value_satoshis
+      }
+    }
+  }
+`;
 export const GetTokenAddress = gql`
   query GetTokenAddress(
     $limit: Int
