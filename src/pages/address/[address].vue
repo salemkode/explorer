@@ -59,7 +59,7 @@ const lockingBytecode = computed(() =>
   addressToLockingBytecodeHex(routeAddress.value)
 );
 if (!lockingBytecode.value) {
-  throw createError({
+  showError({
     statusCode: 404,
     message: "Invalid address",
   });
@@ -84,12 +84,6 @@ const validHistory = computed(() => {
   }
 });
 
-if (!historyLoading && validHistory.value?.length === 0) {
-  throw createError({
-    statusCode: 404,
-    message: "Invalid address",
-  });
-}
 const addressInfoWarp = computed<contentWarpItem[]>(() => {
   const addressInfo = {
     firstTx: validHistory.value?.at(-1)?.tx_hash || "",
