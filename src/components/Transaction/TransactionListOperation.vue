@@ -73,8 +73,9 @@
 
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
+import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
-import { removeAddressPrefix, satToBch, shortTx } from "~/module/utils";
+import { shortTx } from "~/module/utils";
 import { useAppStore, useBcmrStore } from "~/store";
 import type { utxo } from "~/types";
 

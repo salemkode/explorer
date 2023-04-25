@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { GetTokenChild, type GetTokenChildQuery } from "@/module/chaingraph";
 import type { IdentitySnapshot, tableColumn } from "~/types/index.js";
-import { removeAddressPrefix } from "~/module/utils";
+import { removeAddressPrefix } from "~/module/bitcoin";
 import { useAppStore } from "~/store";
 
 const appStore = useAppStore();

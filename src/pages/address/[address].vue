@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { addressToLockingBytecodeHex, satToBch } from "~/module/utils";
+import { addressToLockingBytecodeHex, satToBch } from "~/module/bitcoin";
 import { useAppStore } from "~/store";
 import { getBalance, getHistory } from "~/module/electrum";
 import type { contentWarpItem } from "~/types";

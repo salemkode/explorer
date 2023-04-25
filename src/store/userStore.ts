@@ -1,5 +1,6 @@
 import { hexToBin, lockingBytecodeToCashAddress } from "@bitauth/libauth";
 import { defineStore } from "pinia";
+import { isValidAddress } from "~/module/bitcoin";
 import * as utils from "~/module/utils";
 
 export const useAppStore = defineStore(
@@ -19,7 +20,7 @@ export const useAppStore = defineStore(
       if (!keyword) {
         return;
       }
-      if (utils.isValidAddress(keyword)) {
+      if (isValidAddress(keyword)) {
         router.push(`/address/${keyword}`);
       } else {
         router.push(`/tx/${keyword}`);

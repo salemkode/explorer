@@ -59,7 +59,6 @@
 </template>
 
 <script setup lang="ts">
-import { removeAddressPrefix, satToBch } from "~/module/utils";
 import { useAppStore } from "~/store";
 import type { utxo } from "~/types";
 
@@ -75,6 +74,7 @@ type transactions = Array<{
   inputs: inputs;
   outputs: Array<utxo>;
 }>;
+import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
 
 const props = defineProps<{
   transactions: transactions;

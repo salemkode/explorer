@@ -1,6 +1,8 @@
 import type { SubscribeCallback, ElectrumClient } from "electrum-cash";
 import type { Scalars } from "~/graphql/graphql";
 
+export type bigNum = number | string | BigNumber;
+
 export class ElectrumClient extends ElectrumClient {
   request<T>(method: string, ...parameters: string[]): Promise<Error | T>;
 

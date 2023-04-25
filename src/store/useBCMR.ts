@@ -6,7 +6,7 @@ import {
   sha256,
 } from "@bitauth/libauth";
 import { defineStore } from "pinia";
-import { parseBinary } from "~/module/utils";
+import { parseBinary } from "~/module/bitcoin";
 import type { Registry, tokenCapability } from "~/types";
 import type { ValidateFunction } from "ajv";
 

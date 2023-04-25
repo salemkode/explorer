@@ -85,7 +85,8 @@ import {
   GetTx,
   GetToken,
 } from "~/module/chaingraph";
-import { formatDateString, satToBch, calculatePrice } from "~/module/utils";
+import { formatDateString, calculatePrice } from "~/module/utils";
+import { satToBch } from "~/module/bitcoin";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid");

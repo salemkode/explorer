@@ -39,7 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { satToBch, removeAddressPrefix, shortTx } from "~/module/utils";
+import { satToBch, removeAddressPrefix } from "~/module/bitcoin";
+import { shortTx } from "~/module/utils";
 import { useAppStore, useBcmrStore } from "~/store";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
 import type { tokenCapability } from "~/types";

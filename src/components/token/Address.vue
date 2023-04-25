@@ -18,7 +18,7 @@ import {
   GetTokenAddress,
 } from "~/module/chaingraph";
 import { useAppStore } from "~/store";
-import { removeAddressPrefix } from "~/module/utils";
+import { removeAddressPrefix } from "~/module/bitcoin";
 import type { tableColumn } from "~/types";
 
 const limit = ref(9);
