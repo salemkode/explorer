@@ -3,6 +3,8 @@ import type { Scalars } from "~/graphql/graphql";
 
 export type bigNum = number | string | BigNumber;
 
+export type bytea = `\\x${string}`;
+
 export class ElectrumClient extends ElectrumClient {
   request<T>(method: string, ...parameters: string[]): Promise<Error | T>;
 
@@ -26,7 +28,7 @@ export interface tableColumn {
 
 export interface contentWarpItem {
   title: string;
-  text?: string | number;
+  text?: string | number | null;
   copy?: boolean;
   url?: string;
   warp?: boolean;
@@ -38,11 +40,11 @@ export type addressInfo = {
   txCount: string;
 };
 
-export type utxo = {
-  token_category?: string | null;
+export type Utxo = {
+  token_category?: bytea | null;
   fungible_token_amount?: string | null;
   nonfungible_token_capability?: string | null;
-  nonfungible_token_commitment?: string | null;
+  nonfungible_token_commitment?: bytea | null;
   locking_bytecode: string;
   value_satoshis: string;
 };
