@@ -4,9 +4,11 @@
       'text-break': !!props.warp,
     }"
   >
-    <NuxtLink :to="props.url" class="copy">
-      {{ text }}
-    </NuxtLink>
+    <PopOver :msg="props.short ? '' + props.text : ''">
+      <NuxtLink :to="props.url" class="copy">
+        {{ text }}
+      </NuxtLink>
+    </PopOver>
     <img
       v-if="props.text && props.copy"
       src="~/assets/icons/duplicate.svg"

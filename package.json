@@ -32,6 +32,7 @@
   "dependencies": {
     "@bitauth/libauth": "2.0.0-alpha.8",
     "@bitjson/qr-code": "^1.0.2",
+    "@floating-ui/vue": "^0.2.1",
     "@nuxtjs/apollo": "^5.0.0-alpha.5",
     "@nuxtjs/i18n": "^8.0.0-beta.10",
     "@pinia/nuxt": "^0.4.7",
