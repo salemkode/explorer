@@ -4,14 +4,16 @@
       v-for="transaction in transactions"
       :key="transaction.hash"
       class="transaction-item"
-      @click="
-        showOperation.set(
-          transaction.hash,
-          !showOperation.get(transaction.hash)
-        )
-      "
     >
-      <div class="info p-3">
+      <div
+        class="info p-3"
+        @click="
+          showOperation.set(
+            transaction.hash,
+            !showOperation.get(transaction.hash)
+          )
+        "
+      >
         <BaseCopy
           :text="transaction.hash"
           :copy="true"
@@ -48,40 +50,47 @@
         />
       </div>
       <SliderUpDown :active="showOperation.get(transaction.hash)">
-        <div class="d-flex transaction-list-operation">
-          <TransactionListOperation name="from" :utxos="transaction.outputs" />
+        <div class="transaction-list-operation">
+          <TransactionListOperation
+            name="from"
+            :utxos="transaction.inputsUtxo"
+            :is-coin-base="transaction.isCoinBase"
+          />
           <div class="line" />
-          <TransactionListOperation name="to" :utxos="transaction.inputsUtxo" />
+          <TransactionListOperation name="to" :utxos="transaction.outputs" />
         </div>
       </SliderUpDown>
     </div>
   </TransitionGroup>
 </template>
 
-<script setup lang="ts">
-import { useAppStore } from "~/store";
-import type { utxo } from "~/types";
+<script lang="ts">
+import type { Utxo } from "~/types";
 
-type inputs = Array<{
-  outpoint?: utxo | null;
+export type inputs = Array<{
+  outpoint?: Utxo | null;
 }>;
-type transactions = Array<{
+export type transactions = Array<{
   __typename?: "transaction";
   hash: string;
   input_value_satoshis?: string | null;
   output_value_satoshis?: string | null;
   is_coinbase: boolean;
   inputs: inputs;
-  outputs: Array<utxo>;
+  outputs: Array<Utxo>;
 }>;
+</script>
+
+<script setup lang="ts">
 import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
+import { useAppStore } from "~/store";
 
 const props = defineProps<{
   transactions: transactions;
 }>();
 const appStore = useAppStore();
 
-const getTransferAddress = (utxos: utxo[]) => {
+const getTransferAddress = (utxos: Utxo[]) => {
   // remove op_return
   const utxosAddress = utxos.filter(
     ({ locking_bytecode }) => !locking_bytecode.startsWith("6a")
@@ -117,7 +126,7 @@ const getFrom = (inputs: inputs, isCoinBase: boolean) => {
     }
   }
 };
-const getTo = (utxos: utxo[]) => {
+const getTo = (utxos: Utxo[]) => {
   const address = getTransferAddress(utxos);
 
   if (address) {
@@ -153,6 +162,7 @@ const transactions = computed(() => {
         .map(({ outpoint }) => outpoint)
         .filter(Boolean),
       outputs: transaction.outputs,
+      isCoinBase: transaction.is_coinbase,
     };
   });
 });
@@ -180,6 +190,8 @@ const transactions = computed(() => {
 
   .transaction-list-operation {
     border-width: 1px 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
   }
 }
 </style>

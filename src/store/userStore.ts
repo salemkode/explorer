@@ -20,7 +20,10 @@ export const useAppStore = defineStore(
       if (!keyword) {
         return;
       }
-      if (isValidAddress(keyword)) {
+      clearError();
+      if (!isNaN(+keyword)) {
+        router.push(`/block/${keyword}`);
+      } else if (isValidAddress(keyword)) {
         router.push(`/address/${keyword}`);
       } else {
         router.push(`/tx/${keyword}`);
@@ -33,8 +36,10 @@ export const useAppStore = defineStore(
       const data: { usd: string } = await response.json();
       usdPrice.value = data.usd;
     });
-    const calculatePrice = (sat: string) =>
-      utils.calculatePrice(sat, usdPrice.value || "");
+
+    const calculatePrice = (sat: string) => {
+      return utils.calculatePrice(sat, usdPrice.value || "");
+    };
 
     const lockingBytecodeHexToCashAddress = (
       hexCode: string,

@@ -1,24 +1,3 @@
-export const GetBlock = gql`
-  query GetBlock($network: String, $height: bigint, $hash: bytea) {
-    block(
-      limit: 1
-      offset: 0
-      order_by: { height: desc }
-      where: {
-        accepted_by: { node: { name: { _regex: $network } } }
-        _or: [{ height: { _eq: $height } }, { hash: { _eq: $hash } }]
-      }
-    ) {
-      height
-      transaction_count
-      input_count
-      input_value_satoshis
-      fee_satoshis
-      generated_value_satoshis
-    }
-  }
-`;
-
 export const GetTx = gql`
   query GetTx($network: String, $hash: bytea) {
     transaction(
@@ -163,6 +142,64 @@ export const GetLastBlock = gql`
   }
 `;
 
+export const GetBlock = gql`
+  query GetBlock(
+    $network: String
+    $height: bigint
+    $hash: bytea
+    $limitTxs: Int
+    $offsetTxs: Int
+  ) {
+    block(
+      limit: 1
+      offset: 0
+      order_by: { height: desc }
+      where: {
+        accepted_by: { node: { name: { _regex: $network } } }
+        _or: [{ height: { _eq: $height } }, { hash: { _eq: $hash } }]
+      }
+    ) {
+      height
+      hash
+      transaction_count
+      input_count
+      input_value_satoshis
+      fee_satoshis
+      generated_value_satoshis
+      transactions(
+        limit: $limitTxs
+        offset: $offsetTxs
+        order_by: { transaction_index: asc }
+      ) {
+        transaction {
+          hash
+          input_value_satoshis
+          output_value_satoshis
+          is_coinbase
+          inputs {
+            outpoint {
+              token_category
+              fungible_token_amount
+              nonfungible_token_capability
+              nonfungible_token_commitment
+              locking_bytecode
+              value_satoshis
+            }
+          }
+          outputs {
+            token_category
+            fungible_token_amount
+            nonfungible_token_capability
+            nonfungible_token_commitment
+            locking_bytecode
+            value_satoshis
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const GetBlocks = gql`
   subscription GetBlocks($limit: Int, $offset: Int, $network: String) {
     block(
@@ -260,6 +297,7 @@ export const GetTransactions = gql`
     }
   }
 `;
+
 export const GetTokenAddress = gql`
   query GetTokenAddress(
     $limit: Int

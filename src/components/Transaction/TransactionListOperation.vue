@@ -1,7 +1,7 @@
 <template>
   <div class="px-3">
     <b class="d-block py-2" v-text="$t(props.name)" />
-    <ul class="mb-0 nav flex-column">
+    <ul class="mb-0 nav flex-column text-break">
       <li
         v-for="(utxo, i) in utxos"
         :key="i"
@@ -19,51 +19,56 @@
               warp
               copy
             />
-            <b v-else>OP_RETURN {{ utxo.value }}</b>
+            <b v-else-if="utxo.type === 'op_return'">
+              OP_RETURN {{ utxo.data }}
+            </b>
+            <b v-else-if="utxo.type === 'coinbase'"> Block Reward </b>
             <div class="amount">
               {{ utxo.value }}
               BCH • ${{ appStore.calculatePrice(utxo.valueSatoshis || "0") }}
             </div>
-            <div v-if="utxo.category">
-              <BaseCopy
-                :text="utxo.category"
-                :url="`/token/${utxo.category}`"
-                short
-                :copy="false"
-              />
-              • {{ utxo.tokenAmount }}
-              {{ bcmrStore.getToken(utxo.category)?.token?.symbol }}
-            </div>
-            <div v-if="utxo.category" class="d-flex flex-wrap mt-2">
-              <div
-                v-if="utxo.category && utxo.tokenAmount"
-                class="badge text-bg-dark d-flex align-items-center me-1 mb-1"
-              >
-                <NuxtLink class="text-white" :to="`/token/${utxo.category}`">
-                  {{ shortTx(utxo.category) }}
-                </NuxtLink>
-                <template v-if="+utxo.tokenAmount">
-                  <div class="mx-1">•</div>
-                  {{ +utxo.tokenAmount }}&nbsp;
-                  <span>
-                    {{ bcmrStore.getToken(utxo.category)?.token?.symbol }}
-                  </span>
-                </template>
+            <template v-if="'category' in utxo && utxo.category">
+              <div>
+                <BaseCopy
+                  :text="utxo.category"
+                  :url="`/token/${utxo.category}`"
+                  short
+                  :copy="false"
+                />
+                • {{ utxo.tokenAmount }}
+                {{ bcmrStore.getToken(utxo.category)?.token?.symbol }}
               </div>
-              <div
-                v-if="utxo.tokenCommitment"
-                class="badge text-bg-dark me-1 mb-1"
-              >
-                NFT commitment:
-                {{ utxo.tokenCommitment }}
+              <div class="d-flex flex-wrap mt-2">
+                <div
+                  v-if="utxo.category && utxo.tokenAmount"
+                  class="badge text-bg-dark d-flex align-items-center me-1 mb-1"
+                >
+                  <NuxtLink class="text-white" :to="`/token/${utxo.category}`">
+                    {{ shortTx(utxo.category) }}
+                  </NuxtLink>
+                  <template v-if="+utxo.tokenAmount">
+                    <div class="mx-1">•</div>
+                    {{ +utxo.tokenAmount }}&nbsp;
+                    <span>
+                      {{ bcmrStore.getToken(utxo.category)?.token?.symbol }}
+                    </span>
+                  </template>
+                </div>
+                <div
+                  v-if="utxo.tokenCommitment"
+                  class="badge text-bg-dark me-1 mb-1"
+                >
+                  NFT commitment:
+                  {{ utxo.tokenCommitment }}
+                </div>
+                <div
+                  v-if="utxo.tokenCapability"
+                  class="badge text-bg-dark me-1 mb-1"
+                >
+                  {{ utxo.tokenCapability }} nft
+                </div>
               </div>
-              <div
-                v-if="utxo.tokenCapability"
-                class="badge text-bg-dark me-1 mb-1"
-              >
-                {{ utxo.tokenCapability }} nft
-              </div>
-            </div>
+            </template>
           </div>
         </div>
       </li>
@@ -77,13 +82,14 @@ import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
 import { shortTx } from "~/module/utils";
 import { useAppStore, useBcmrStore } from "~/store";
-import type { utxo } from "~/types";
+import type { Utxo } from "~/types";
 
 const appStore = useAppStore();
 const bcmrStore = useBcmrStore();
 const props = defineProps<{
   name: "from" | "to";
-  utxos: utxo[];
+  utxos: Utxo[];
+  isCoinBase?: boolean;
 }>();
 
 watch(
@@ -116,32 +122,44 @@ watch(
     immediate: true,
   }
 );
-const utxos = computed(() =>
-  props.utxos.map((utxo) => {
+const utxos = computed(() => {
+  if (props.name === "from" && props.isCoinBase === true) {
+    return [
+      {
+        type: "coinbase" as const,
+        value: "0",
+        valueSatoshis: "0",
+      },
+    ];
+  }
+  return props.utxos.map((utxo) => {
     // check is op_return
     if (utxo?.locking_bytecode?.startsWith("\\x6a")) {
       return {
-        ...utxo,
         type: "op_return" as const,
-        value: binToUtf8(hexToBin(utxo.locking_bytecode.substring(4))),
+        data: binToUtf8(hexToBin(utxo.locking_bytecode.substring(4))),
+        valueSatoshis: utxo.value_satoshis,
+        value: satToBch(utxo.value_satoshis || 0, 3),
       };
     }
 
     const category = utxo.token_category?.substring(2);
 
     return {
-      // ...utxo,
       type: "p2pkh" as const,
       category,
       address: getAddress(utxo?.locking_bytecode || ""),
       valueSatoshis: utxo.value_satoshis,
       value: satToBch(utxo.value_satoshis || 0, 3),
+      tokenRegister:
+        utxo.token_category &&
+        bcmrStore.getToken(utxo.token_category?.substring(2)),
       tokenAmount: utxo.fungible_token_amount,
       tokenCommitment: utxo.nonfungible_token_commitment?.substring(2),
       tokenCapability: utxo.nonfungible_token_capability,
     };
-  })
-);
+  });
+});
 const getAddress = (lockingBytecode: string) => {
   return removeAddressPrefix(
     appStore.lockingBytecodeHexToCashAddress(lockingBytecode.substring(2)) || ""
