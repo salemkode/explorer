@@ -14,7 +14,7 @@ let validate_bcmr: ValidateFunction<Registry> | undefined;
 const validateBcmrSchema = async (value: unknown) => {
   if (!validate_bcmr) {
     const { default: Ajv } = await import("ajv");
-    const schema_bcmr = await import("@/assets/bcmr-v1.schema.json");
+    const schema_bcmr = await import("@/assets/bcmr-v2.schema.json");
 
     // Create bitcoin cash metadata registry validator
     const ajv = new Ajv({
@@ -103,7 +103,7 @@ export const useBcmrStore = defineStore("bcmr", () => {
   const getTokenFromRegister = (registry: Registry, tokenCategory: string) => {
     const identities = registry?.identities;
     if (identities && identities[tokenCategory]) {
-      const identity = identities[tokenCategory].find(
+      const identity = Object.values(identities[tokenCategory]).find(
         (identity) => identity.token?.category === tokenCategory
       );
       if (identity) {

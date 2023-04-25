@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import { formatDateString } from "~/module/utils";
 import type { IdentitySnapshot, contentWarpItem } from "~/types";
 
 const props = defineProps<{
@@ -33,10 +32,6 @@ const props = defineProps<{
 
 const tokenInfo = computed<contentWarpItem[]>(() => {
   if (!props.identitySnapshot) return [];
-  const beginTime = props.identitySnapshot.time.begin;
-  const beginTimeStr = beginTime
-    ? formatDateString(new Date(beginTime))
-    : undefined;
   return [
     {
       title: "Token Name",
@@ -49,10 +44,6 @@ const tokenInfo = computed<contentWarpItem[]>(() => {
     {
       title: "Token symbol",
       text: props.identitySnapshot?.token?.symbol,
-    },
-    {
-      title: "Begin TimeStamp",
-      text: beginTimeStr,
     },
     {
       title: "Decimals",

@@ -51,4 +51,4 @@ export type Utxo = {
 
 export type tokenCapability = Scalars["enum_nonfungible_token_capability"];
 
-export * from "./bcmr-v1.schema";
+export * from "./bcmr-v2.schema";

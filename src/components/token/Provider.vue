@@ -40,8 +40,11 @@ const itemClass =
   "list-group-item d-flex justify-content-between align-items-center";
 const isVerified = (category: string, registry: Registry) => {
   const identities = registry.identities;
-  return identities
-    ? identities[category]?.find((identity) => identity.token?.category)
-    : undefined;
+  const identity = identities && identities[category];
+  if (identity) {
+    return Object.values(identities[category])?.find(
+      (identity) => identity.token?.category
+    );
+  }
 };
 </script>
