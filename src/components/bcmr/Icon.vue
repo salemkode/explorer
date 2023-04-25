@@ -15,6 +15,7 @@
 
 <script setup lang="ts">
 import { toSvg } from "jdenticon";
+import { getHttpsUrl } from "~/module/utils";
 
 const props = defineProps<{
   tokenCategory: string;
@@ -22,7 +23,7 @@ const props = defineProps<{
   url?: string;
 }>();
 const status = reactive({
-  loaded: true,
+  loaded: false,
   error: false,
   iconUrl: props.url,
 });
@@ -33,16 +34,15 @@ watch(
     if (url) {
       status.loaded = false;
       status.error = false;
-      status.iconUrl = url;
+      status.iconUrl = getHttpsUrl(url);
     } else {
       imageLoadError();
     }
+  },
+  {
+    immediate: true,
   }
 );
-if (!props.url) {
-  status.loaded = true;
-  imageLoadError();
-}
 //
 function imageLoadError() {
   if (status.error) {
@@ -52,11 +52,9 @@ function imageLoadError() {
 
   // Change error state
   status.error = true;
-
-  // Create svg icon for token
+  status.loaded = true;
   const svgString = toSvg(props.tokenCategory, 128);
   status.iconUrl = "data:image/svg+xml;base64," + btoa(svgString);
-  status.loaded = true;
 }
 </script>
 
