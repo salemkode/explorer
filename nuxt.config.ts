@@ -19,13 +19,7 @@ export default defineNuxtConfig({
   srcDir: "src",
   pages: true,
   components: true,
-  modules: [
-    "@nuxtjs/apollo",
-    "@nuxtjs/i18n",
-    "@pinia/nuxt",
-    "@pinia-plugin-persistedstate/nuxt",
-    "nuxt-purgecss",
-  ],
+  modules: ["@nuxtjs/apollo", "@nuxtjs/i18n", "@pinia/nuxt", "nuxt-purgecss"],
   i18n: {
     // add `vueI18n` option to `@nuxtjs/i18n` module options
     langDir: "locales/",

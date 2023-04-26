@@ -1,13 +1,29 @@
-// https:markets.api.bitcoin.com / rates ? c = BCH
+import { z } from "zod";
+
+const priceSchema = z
+  .object({
+    code: z.string(),
+    name: z.string(),
+    time: z.number(),
+    rate: z.number(),
+  })
+  .array();
+
 export default defineEventHandler(async () => {
-  const price = await fetch("https://markets.api.bitcoin.com/rates?c=BCH");
-  const priceJSON: {
-    code: string;
-    name: string;
-    time: number;
-    rate: number;
-  }[] = await price.json();
+  const response = await fetch(
+    "https://markets.api.bitcoin.com/rates?c=BCH"
+  ).then((res) => res.json());
+  const price = priceSchema.safeParse(response);
+
+  if (!price.success) {
+    return {
+      success: price.success,
+      usd: "0",
+    };
+  }
+
   return {
-    usd: `${priceJSON.find((api) => api.code === "USD")?.rate || 0}`,
+    success: price.success,
+    usd: `${price.data.find((api) => api.code === "USD")?.rate || 0}`,
   };
 });
