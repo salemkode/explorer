@@ -16,9 +16,9 @@
 import { GetTokenChild, type GetTokenChildQuery } from "@/module/chaingraph";
 import type { IdentitySnapshot, tableColumn } from "~/types/index.js";
 import { removeAddressPrefix } from "~/module/bitcoin";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const limit = ref(9);
 const offset = ref(0);
 const props = defineProps<{
@@ -26,7 +26,7 @@ const props = defineProps<{
   identitySnapshot?: IdentitySnapshot;
 }>();
 const variable = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   tokenCategory: "\\x" + props.category,
   offset: offset.value,
   limit: limit.value,
@@ -55,7 +55,7 @@ const outputs = computed<tableColumn[][]>(() => {
   }
 
   let items = result.value?.output.map((output) => {
-    const address = appStore.lockingBytecodeHexToCashAddress(
+    const address = stateStore.lockingBytecodeHexToCashAddress(
       output.locking_bytecode.substring(2)
     );
     const commitment = output.nonfungible_token_commitment?.substring(2);

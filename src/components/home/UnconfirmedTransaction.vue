@@ -17,13 +17,13 @@ import {
   type MonitorMempoolsSubscription,
   MonitorMempools,
 } from "@/module/chaingraph";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 
 const limit = ref(9);
 const offset = ref(0);
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const variables = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   offset: offset.value,
   limit: limit.value,
 }));

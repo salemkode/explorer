@@ -46,15 +46,15 @@
 <script setup lang="ts">
 import { type GetBlocksSubscription, GetBlocks } from "~/module/chaingraph";
 import { formatDateString, numberWithCommas, bytesToMB } from "~/module/utils";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 
 const element = ref<HTMLDivElement | null>(null);
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const { t } = useI18n();
 const variables = computed(() => ({
   limit: 7,
   offset: 0,
-  network: appStore.network,
+  network: stateStore.network,
 }));
 const { result, loading, error } = useSubscription<GetBlocksSubscription>(
   GetBlocks,

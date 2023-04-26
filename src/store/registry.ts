@@ -32,7 +32,7 @@ const providersUrls = {
     "https://raw.githubusercontent.com/mr-zwets/example_bcmr/main/example_bcmr.json",
 };
 
-export const useBcmrStore = defineStore("bcmr", () => {
+export const useRegistryStore = defineStore("registry", () => {
   const opreturnsRef = shallowRef(new Map<string, Registry | boolean>());
   const opreturns = {
     get: (key: string) => opreturnsRef.value.get(key),

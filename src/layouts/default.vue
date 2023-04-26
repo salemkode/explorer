@@ -15,22 +15,22 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 import {
   type GetLastBlockSubscription,
   GetLastBlock,
 } from "~/module/chaingraph";
 
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const variables = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
 }));
 const { result } = useSubscription<GetLastBlockSubscription>(
   GetLastBlock,
   variables
 );
 watch(result, () => {
-  appStore.lastBlockHeight =
+  stateStore.lastBlockHeight =
     result.value?.node_block.at(0)?.block.height || "0";
 });
 </script>

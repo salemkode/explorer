@@ -54,18 +54,18 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore, useBcmrStore } from "~/store";
+import { useStateStore, useRegistryStore } from "~/store";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
 import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
 const category = computed(() => route.params.category as string);
 
-const bcmrStore = useBcmrStore();
-const appStore = useAppStore();
+const registryStore = useRegistryStore();
+const stateStore = useStateStore();
 const navItem = ref(0);
 const variable = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   tokenCategory: "\\x" + category.value,
 }));
 const { result: tokenTransaction, loading: tokenTransactionLoading } =
@@ -78,7 +78,7 @@ const opreturn = computed(() => {
     ?.locking_bytecode.substring(2);
 });
 const bcmrToken = computed(() => {
-  const result = bcmrStore.getTokenOpreturn(
+  const result = registryStore.getTokenOpreturn(
     category.value,
     opreturn.value || ""
   );
@@ -91,7 +91,7 @@ const tokenInfo = computed(() => {
     ?.hash.substring(2);
   const outputs = tokenTransaction.value?.transaction?.at(0)?.outputs;
   const nftCapability = outputs?.at(0)?.nonfungible_token_capability;
-  const address = appStore.lockingBytecodeHexToCashAddress(
+  const address = stateStore.lockingBytecodeHexToCashAddress(
     outputs?.at(0)?.locking_bytecode.substring(2) || ""
   );
   const ownerAddress = typeof address === "string" ? address : undefined;

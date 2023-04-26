@@ -20,17 +20,17 @@ import {
   GetToken,
 } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
-import { useAppStore, useBcmrStore } from "~/store";
+import { useStateStore, useRegistryStore } from "~/store";
 
 const limit = ref(9);
 const offset = ref(0);
 const props = defineProps<{
   lockingBytecode: string;
 }>();
-const appStore = useAppStore();
-const bcmrStore = useBcmrStore();
+const stateStore = useStateStore();
+const registryStore = useRegistryStore();
 const variables = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   lockingBytecode: `{${props.lockingBytecode}}`,
   offset: offset.value,
   limit: limit.value,
@@ -55,7 +55,7 @@ onResult((transaction) => {
     const category = token.token_category;
 
     const { onResult } = useQuery<GetTokenQuery>(GetToken, {
-      network: appStore.network,
+      network: stateStore.network,
       tokenCategory: category,
     });
 
@@ -66,7 +66,7 @@ onResult((transaction) => {
         ?.locking_bytecode.substring(2);
 
       if (opreturn) {
-        bcmrStore.addToken(category.substring(2), opreturn);
+        registryStore.addToken(category.substring(2), opreturn);
       }
     });
   });
@@ -80,7 +80,7 @@ const transactions = computed(() => {
     const commitment = nft.nonfungible_token_commitment?.substring(2) || "";
 
     // BCMR Data
-    const metadata = bcmrStore.getToken(
+    const metadata = registryStore.getToken(
       category,
       nft.nonfungible_token_capability || undefined,
       commitment

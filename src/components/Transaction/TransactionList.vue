@@ -35,7 +35,7 @@
         </small>
         <small class="amount text-end">
           {{ satToBch(transaction.amount || 0, 3) }}
-          BCH • ${{ appStore.calculatePrice(transaction.amount || "0") }}
+          BCH • ${{ stateStore.calculatePrice(transaction.amount || "0") }}
         </small>
         <img
           src="~/assets/icons/angle-small-down.svg"
@@ -83,12 +83,12 @@ export type transactions = Array<{
 
 <script setup lang="ts">
 import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 
 const props = defineProps<{
   transactions: transactions;
 }>();
-const appStore = useAppStore();
+const stateStore = useStateStore();
 
 const getTransferAddress = (utxos: Utxo[]) => {
   // remove op_return
@@ -97,7 +97,7 @@ const getTransferAddress = (utxos: Utxo[]) => {
   );
 
   if (utxosAddress.length === 1) {
-    return appStore.lockingBytecodeHexToCashAddress(
+    return stateStore.lockingBytecodeHexToCashAddress(
       utxosAddress.at(0)?.locking_bytecode.substring(2) || ""
     );
   }

@@ -21,17 +21,17 @@
 </template>
 
 <script setup lang="ts">
-import { useBcmrStore } from "~/store";
+import { useRegistryStore } from "~/store";
 import type { Registry } from "~/types";
-const bcmrStore = useBcmrStore();
+const registryStore = useRegistryStore();
 
 const props = defineProps<{
   category: string;
 }>();
 const providers = computed(() => {
-  const providersObj = Object.fromEntries(bcmrStore.providers);
+  const providersObj = Object.fromEntries(registryStore.providers);
   return {
-    OpReturn: bcmrStore.opreturns.get(props.category) || false,
+    OpReturn: registryStore.opreturns.get(props.category) || false,
     ...providersObj,
   };
 });

@@ -17,7 +17,7 @@ import {
   type GetTokenAddressQuery,
   GetTokenAddress,
 } from "~/module/chaingraph";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 import { removeAddressPrefix } from "~/module/bitcoin";
 import type { tableColumn } from "~/types";
 
@@ -26,9 +26,9 @@ const offset = ref(0);
 const props = defineProps<{
   category: string;
 }>();
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const variables = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   tokenCategory: "\\x" + props.category,
   offset: offset.value,
   limit: limit.value,
@@ -67,7 +67,7 @@ const addressList = computed(() => {
   let items: tableColumn[][] = Array.from(
     locking_bytecode,
     function ([lockingBytecode, amount]) {
-      const address = appStore.lockingBytecodeHexToCashAddress(
+      const address = stateStore.lockingBytecodeHexToCashAddress(
         lockingBytecode.substring(2)
       );
       if (typeof address !== "string") {

@@ -17,16 +17,16 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 import { numberWithCommas } from "~/module/utils";
 
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const props = defineProps<{
   blockHeight: number;
 }>();
 
 const confirm = computed(
-  () => +appStore.lastBlockHeight - props.blockHeight + 1
+  () => +stateStore.lastBlockHeight - props.blockHeight + 1
 );
 const percentage = computed(() =>
   Math.round(Math.min(100, (confirm.value / 6) * 100))

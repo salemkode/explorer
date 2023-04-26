@@ -20,22 +20,22 @@ import {
   type GetTokenQuery,
 } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
-import { useAppStore, useBcmrStore } from "~/store";
+import { useStateStore, useRegistryStore } from "~/store";
 
 const limit = ref(9);
 const offset = ref(0);
 const props = defineProps<{
   lockingBytecode: string;
 }>();
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const variables = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   lockingBytecode: `{${props.lockingBytecode}}`,
   offset: offset.value,
   limit: limit.value,
 }));
 
-const bcmrStore = useBcmrStore();
+const registryStore = useRegistryStore();
 const {
   result: transaction,
   error,
@@ -75,7 +75,7 @@ const transactions = computed<tableColumn[][]>(() => {
 
   const items = Array.from(tokens, ([categoryBytea, amount]) => {
     const category = categoryBytea?.substring(2) || "";
-    const metadata = bcmrStore.getToken(category);
+    const metadata = registryStore.getToken(category);
 
     return [
       {
@@ -108,7 +108,7 @@ onResult((transaction) => {
     const category = token.token_category;
 
     const { onResult } = useQuery<GetTokenQuery>(GetToken, {
-      network: appStore.network,
+      network: stateStore.network,
       tokenCategory: category,
     });
 
@@ -119,7 +119,7 @@ onResult((transaction) => {
         ?.locking_bytecode.substring(2);
 
       if (opreturn) {
-        bcmrStore.addToken(category.substring(2), opreturn);
+        registryStore.addToken(category.substring(2), opreturn);
       }
     });
   });

@@ -41,12 +41,12 @@
 <script setup lang="ts">
 import { satToBch, removeAddressPrefix } from "~/module/bitcoin";
 import { shortTx } from "~/module/utils";
-import { useAppStore, useBcmrStore } from "~/store";
+import { useStateStore, useRegistryStore } from "~/store";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
 import type { tokenCapability } from "~/types";
 
-const bcmrStore = useBcmrStore();
-const appStore = useAppStore();
+const registryStore = useRegistryStore();
+const stateStore = useStateStore();
 const props = defineProps<{
   address?: string;
   sat: string;
@@ -56,7 +56,7 @@ const props = defineProps<{
   tokenCapability?: tokenCapability;
 }>();
 
-const bcmrInfo = bcmrStore.getToken(
+const bcmrInfo = registryStore.getToken(
   props.tokenCategory || "",
   props.tokenCapability,
   props.tokenCommitment
@@ -67,7 +67,7 @@ watch(
     const category = props.tokenCategory;
     if (!category) return;
     const { onResult } = useQuery<GetTokenQuery>(GetToken, {
-      network: appStore.network,
+      network: stateStore.network,
       tokenCategory: category,
     });
 
@@ -78,7 +78,7 @@ watch(
         ?.locking_bytecode.substring(2);
 
       if (opreturn) {
-        bcmrStore.addToken(category.substring(2), opreturn);
+        registryStore.addToken(category.substring(2), opreturn);
       }
     });
   },

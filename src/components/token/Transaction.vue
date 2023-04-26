@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { GetTokenTxs, type GetTokenTxsQuery } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 import { formatDateString } from "~/module/utils";
 
 const limit = ref(9);
@@ -23,9 +23,9 @@ const offset = ref(0);
 const props = defineProps<{
   category: string;
 }>();
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const variables = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   tokenCategory: "\\x" + props.category,
   offset: offset.value,
   limit: limit.value,

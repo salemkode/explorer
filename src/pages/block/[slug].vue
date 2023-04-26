@@ -22,15 +22,15 @@
 
 <script setup lang="ts">
 import { GetBlock, type GetBlockQuery } from "~/module/chaingraph";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
 // Get slug from router param using useRouter
 const route = useRoute();
 const blockHashOrHeight = computed(() => route.params.slug as string);
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const variable = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   hash: blockHashOrHeight.value,
   height: blockHashOrHeight.value,
   limitTxs: 9,

@@ -46,14 +46,14 @@
 
 <script setup lang="ts">
 import { addressToLockingBytecodeHex, satToBch } from "~/module/bitcoin";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 import { getBalance, getHistory } from "~/module/electrum";
 import type { contentWarpItem } from "~/types";
 
 const navItem = ref(0);
 // Get address from router param using useRouter
 const route = useRoute();
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const routeAddress = computed(() => route.params.address as string);
 const lockingBytecode = computed(() =>
   addressToLockingBytecodeHex(routeAddress.value)
@@ -66,11 +66,11 @@ if (!lockingBytecode.value) {
 }
 
 const tokenAddress = computed(() =>
-  appStore.lockingBytecodeHexToCashAddress(lockingBytecode.value || "", true)
+  stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.value || "", true)
 );
 
 const { data: history, pending: historyLoading } = useLazyAsyncData(() =>
-  getHistory(routeAddress.value, appStore.network)
+  getHistory(routeAddress.value, stateStore.network)
 );
 const { data: balance } = useAsyncData(async () => {
   if (tokenAddress.value) {
@@ -98,7 +98,7 @@ const addressInfoWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Cash Address",
-      text: appStore.lockingBytecodeHexToCashAddress(
+      text: stateStore.lockingBytecodeHexToCashAddress(
         lockingBytecode.value || "",
         false
       ),

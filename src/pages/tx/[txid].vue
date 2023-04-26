@@ -31,7 +31,7 @@
               v-for="(input, index) in transaction.transaction.inputs"
               :key="index"
               :address="
-                appStore.lockingBytecodeHexToCashAddress(
+                stateStore.lockingBytecodeHexToCashAddress(
                   input?.outpoint?.locking_bytecode.substring(2) || ''
                 )
               "
@@ -53,7 +53,7 @@
             v-for="(output, index) in transaction.transaction.outputs"
             :key="index"
             :address="
-              appStore.lockingBytecodeHexToCashAddress(
+              stateStore.lockingBytecodeHexToCashAddress(
                 output.locking_bytecode.substring(2)
               )
             "
@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore, useBcmrStore } from "~/store";
+import { useStateStore, useRegistryStore } from "~/store";
 import {
   type GetTxQuery,
   type GetTokenQuery,
@@ -90,18 +90,18 @@ import { satToBch } from "~/module/bitcoin";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid");
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const variables = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   hash: "\\x" + txid.value,
 }));
 
 /* Getting token info */
-const bcmrStore = useBcmrStore();
+const registryStore = useRegistryStore();
 const { result: Token, loading: TokenLoading } = useQuery<GetTokenQuery>(
   GetToken,
   computed(() => ({
-    network: appStore.network,
+    network: stateStore.network,
     tokenCategory: "\\x" + txid.value,
   }))
 );
@@ -112,7 +112,7 @@ const opreturn = computed(() => {
     ?.locking_bytecode.substring(2);
 });
 const bcmrToken = computed(() => {
-  const result = bcmrStore.getTokenOpreturn(
+  const result = registryStore.getTokenOpreturn(
     txid.value as string,
     opreturn.value || ""
   );
@@ -169,7 +169,7 @@ const infoContent = computed(() => {
     transaction.value.transaction.output_value_satoshis;
   const bchValue = satoshis ? `${satToBch(satoshis)}BCH` : "Unknown";
   const usdValue = satoshis
-    ? `${calculatePrice(satoshis, appStore.usdPrice || "")}USD`
+    ? `${calculatePrice(satoshis, stateStore.usdPrice || "")}USD`
     : "Unknown";
   return [
     {

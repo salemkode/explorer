@@ -29,11 +29,11 @@ import {
   type GetTransactionsQuery,
   GetTransactions,
 } from "~/module/chaingraph";
-import { useAppStore } from "~/store";
+import { useStateStore } from "~/store";
 
 const limit = ref(8);
 const offset = ref(0);
-const appStore = useAppStore();
+const stateStore = useStateStore();
 const props = defineProps<{
   history: history;
 }>();
@@ -58,7 +58,7 @@ const transactionsHash = computed(() => {
     ?.map((transaction) => `\\x${transaction.tx_hash}`);
 });
 const variables = computed(() => ({
-  network: appStore.network,
+  network: stateStore.network,
   hashes: transactionsHash.value,
 }));
 const {

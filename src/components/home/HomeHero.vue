@@ -22,12 +22,12 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from "~/store";
-const appStore = useAppStore();
+import { useStateStore } from "~/store";
+const stateStore = useStateStore();
 
 const searchValue = ref("");
 function search() {
-  appStore.search(searchValue.value);
+  stateStore.search(searchValue.value);
 }
 
 function keydownHandler(event: KeyboardEvent) {
