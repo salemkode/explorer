@@ -1,8 +1,6 @@
 import type { SubscribeCallback, ElectrumClient } from "electrum-cash";
 import type { Scalars } from "~/graphql/graphql";
-
 export type bigNum = number | string | BigNumber;
-
 export type bytea = `\\x${string}`;
 
 export class ElectrumClient extends ElectrumClient {
@@ -34,20 +32,20 @@ export interface contentWarpItem {
   warp?: boolean;
 }
 
-export type addressInfo = {
+export interface addressInfo {
   firstTx: string;
   lastTx: string;
   txCount: string;
-};
+}
 
-export type Utxo = {
+export interface Utxo {
   token_category?: bytea | null;
   fungible_token_amount?: string | null;
   nonfungible_token_capability?: string | null;
   nonfungible_token_commitment?: bytea | null;
   locking_bytecode: string;
   value_satoshis: string;
-};
+}
 
 export type tokenCapability = Scalars["enum_nonfungible_token_capability"];
 
