@@ -7,30 +7,8 @@ import {
 } from "@bitauth/libauth";
 import { defineStore } from "pinia";
 import { parseBinary } from "~/module/bitcoin";
+import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, tokenCapability } from "~/types";
-import type { ValidateFunction } from "ajv";
-
-let validate_bcmr: ValidateFunction<Registry> | undefined;
-const validateBcmrSchema = async (value: unknown) => {
-  if (!validate_bcmr) {
-    const { default: Ajv } = await import("ajv");
-    const schema_bcmr = await import("@/assets/bcmr-v2.schema.json");
-
-    // Create bitcoin cash metadata registry validator
-    const ajv = new Ajv({
-      strictTypes: false,
-    });
-    validate_bcmr = ajv.compile<Registry>(schema_bcmr);
-  }
-
-  return validate_bcmr(value);
-};
-
-// TODO: must be reactive value
-const providersUrls = {
-  Mathieu:
-    "https://raw.githubusercontent.com/mr-zwets/example_bcmr/main/example_bcmr.json",
-};
 
 export const useRegistryStore = defineStore("registry", () => {
   const opreturnsRef = shallowRef(new Map<string, Registry | boolean>());
@@ -200,15 +178,15 @@ export const useRegistryStore = defineStore("registry", () => {
           );
           try {
             // Parse BCMR registry
-            const registry: Registry = JSON.parse(bcmrContent);
+            const registry = JSON.parse(bcmrContent);
 
             // Validate BCMR registry
-            const isValidSchema = await validateBcmrSchema(registry);
-            if (!isValidSchema) return;
+            const validRegistry = await validateBcmrSchema(registry);
+            if (!validRegistry.success) return;
 
             // Validate token category
-            if (getTokenFromRegister(registry, tokenCategory)) {
-              opreturns.set(tokenCategory, registry);
+            if (getTokenFromRegister(validRegistry.value, tokenCategory)) {
+              opreturns.set(tokenCategory, validRegistry.value);
             }
           } catch (error) {
             console.log("Parsing error: ", error);

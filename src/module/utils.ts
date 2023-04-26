@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
-import type { bigNum } from "~/types";
 import { satToBch } from "./bitcoin";
+import type { bigNum, Registry } from "~/types";
+import type { ValidateFunction } from "ajv";
 
 export const bytesToMB = (bytes: number) => {
   // One megabyte is equal to 1024 * 1024 bytes
@@ -50,4 +51,29 @@ export const getHttpsUrl = (url: string) => {
   } else {
     return url;
   }
+};
+
+let validate_bcmr: ValidateFunction<Registry> | undefined;
+export const validateBcmrSchema = async (value: unknown) => {
+  if (!validate_bcmr) {
+    const { default: Ajv } = await import("ajv");
+    const schema_bcmr = await import("@/assets/bcmr-v2.schema.json");
+
+    // Create bitcoin cash metadata registry validator
+    const ajv = new Ajv({
+      strictTypes: false,
+    });
+    validate_bcmr = ajv.compile(schema_bcmr);
+  }
+
+  if (validate_bcmr(value)) {
+    return {
+      success: true,
+      value: value as Registry,
+    } as const;
+  }
+
+  return {
+    success: false,
+  } as const;
 };
