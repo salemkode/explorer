@@ -13,6 +13,12 @@ export class ElectrumClient extends ElectrumClient {
   ): Promise<true>;
 }
 
+export type RegistryProviders = {
+  name: string;
+  url: string;
+  enabled: boolean;
+};
+
 export interface tableColumn {
   text: string | number;
   short?: boolean;

@@ -20,24 +20,11 @@ export const useRegistryStore = defineStore("registry", () => {
       return opreturnsRef.value;
     },
   };
-
   const opreturnsVerified = reactive(new Map<string, boolean>());
-  const providers = reactive(new Map<string, Registry | boolean>());
-  const loadedProviders = ref(false);
-  (async () => {
-    const promises = Object.entries(providersUrls).map(async ([name, url]) => {
-      try {
-        providers.set(name, true);
-        const response = await fetch(url);
-        const json = await response.json();
-        providers.set(name, json);
-      } catch (error) {
-        providers.set(name, false);
-      }
-    });
 
-    await Promise.all(promises).finally(() => (loadedProviders.value = true));
-  })();
+  //* Coming from setting store
+  const registryProviders = reactive(new Map<string, Registry>());
+  const loadingProviders = ref(true);
 
   const validateBCMR = (chunks: Uint8Array[]) => {
     if (
@@ -95,7 +82,7 @@ export const useRegistryStore = defineStore("registry", () => {
     if (typeof opreturnResult === "object") {
       return opreturnResult;
     } else {
-      Array.from(providers).find(([, registry]) => {
+      Array.from(registryProviders).find(([, registry]) => {
         if (typeof registry === "object") {
           return registry.identities
             ? registry.identities[category]
@@ -153,8 +140,7 @@ export const useRegistryStore = defineStore("registry", () => {
     }
 
     return {
-      loading:
-        loadedProviders.value === false || opreturns.get(category) === true,
+      loading: loadingProviders.value || opreturns.get(category) === true,
       token,
     };
   };
@@ -230,8 +216,8 @@ export const useRegistryStore = defineStore("registry", () => {
     opreturnsRef,
     opreturns,
     opreturnsVerified,
-    providers,
-    loadedProviders,
+    registryProviders,
+    loadingProviders,
     getToken,
     addToken,
     getTokenOpreturn,

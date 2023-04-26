@@ -29,7 +29,7 @@ const props = defineProps<{
   category: string;
 }>();
 const providers = computed(() => {
-  const providersObj = Object.fromEntries(registryStore.providers);
+  const providersObj = Object.fromEntries(registryStore.registryProviders);
   return {
     OpReturn: registryStore.opreturns.get(props.category) || false,
     ...providersObj,
