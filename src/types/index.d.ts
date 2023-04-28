@@ -3,20 +3,11 @@ import type { Scalars } from "~/graphql/graphql";
 export type bigNum = number | string | BigNumber;
 export type bytea = `\\x${string}`;
 
-export class ElectrumClient extends ElectrumClient {
-  request<T>(method: string, ...parameters: string[]): Promise<Error | T>;
-
-  subscribe(
-    callback: SubscribeCallback,
-    method: string,
-    ...parameters: string[]
-  ): Promise<true>;
-}
-
-export type RegistryProviders = {
+export type RegistryProvider = {
   name: string;
   url: string;
-  enabled: boolean;
+  enable: boolean;
+  default: boolean;
 };
 
 export interface tableColumn {
@@ -56,3 +47,21 @@ export interface Utxo {
 export type tokenCapability = Scalars["enum_nonfungible_token_capability"];
 
 export * from "./bcmr-v2.schema";
+
+declare module "electrum-cash" {
+  type balance = { confirmed: number; unconfirmed: number };
+  class ElectrumClient {
+    request(
+      method: "blockchain.address.get_balance",
+      address: string
+    ): Promise<Error | balance>;
+    request<T>(method: string, ...parameters: string[]): Promise<Error | T>;
+
+    subscribe(
+      callback: SubscribeCallback,
+      method: string,
+      ...parameters: string[]
+    ): Promise<true>;
+  }
+}
+

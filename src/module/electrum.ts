@@ -1,5 +1,4 @@
 import { ElectrumClient } from "electrum-cash";
-import type { ElectrumClient as ElectrumClientType } from "~/types/index";
 // TODO: change it
 const electrumChipnet = new ElectrumClient(
   "mainnet-js-node",
@@ -14,18 +13,15 @@ type network = "mainnet" | "chipnet";
 const electrumClient = (network: network) => {
   if (network === "mainnet") {
     // TODO: change to mainnet
-    return electrumChipnet as ElectrumClientType;
+    return electrumChipnet;
   } else {
-    return electrumChipnet as ElectrumClientType;
+    return electrumChipnet;
   }
 };
 
 export type balance = { confirmed: number; unconfirmed: number };
 export const getBalance = (address: string, network: network = "chipnet") =>
-  electrumClient(network).request<balance>(
-    "blockchain.address.get_balance",
-    address
-  );
+  electrumClient(network).request("blockchain.address.get_balance", address);
 
 export type history = {
   height: number;
