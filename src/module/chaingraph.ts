@@ -428,6 +428,7 @@ export const GetTokenChild = gql`
         }
         token_category: { _eq: $tokenCategory }
         nonfungible_token_capability: { _nin: "minting" }
+        _not: { spent_by: { transaction: { hash: { _gt: "" } } } }
       }
     ) {
       locking_bytecode
