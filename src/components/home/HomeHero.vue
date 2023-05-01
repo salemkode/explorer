@@ -74,24 +74,22 @@ function keydownHandler(event: KeyboardEvent) {
     width: 100%;
     display: flex;
     justify-content: center;
-    background-color: white;
+    background-color: transparent;
     border-radius: 5px;
 
-    > :focus {
+    :focus {
       box-shadow: none !important;
-      border-color: black;
+      border-color: var(--bs-body-color) !important;
     }
 
     .btn {
       align-items: center;
+      border: calc(var(--bs-border-width) + 0.5px) solid var(--bs-border-color);
+      background: var(--bs-body-bg);
 
       &:hover {
         color: black;
       }
-    }
-
-    .search-icon {
-      filter: invert(100%);
     }
   }
 }

@@ -53,7 +53,18 @@ function imageLoadError() {
   // Change error state
   status.error = true;
   status.loaded = true;
-  const svgString = toSvg(props.tokenCategory, 128);
+  const svgString = toSvg(props.tokenCategory, 128, {
+    lightness: {
+      color: [0.39, 0.75],
+      grayscale: [0.27, 0.9],
+    },
+    saturation: {
+      color: 0.8,
+      grayscale: 0.1,
+    },
+    padding: 0,
+    replaceMode: "observe",
+  });
   status.iconUrl = "data:image/svg+xml;base64," + btoa(svgString);
 }
 </script>

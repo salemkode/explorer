@@ -35,6 +35,19 @@ $theme-colors: (
   min-width: 30px;
 }
 
+[data-transition-switch] * {
+  transition: background 0.8s ease,
+              border-color 0.8s ease;
+}
+
+[data-bs-theme="dark"] {
+  .btn-primary {
+    --bs-btn-bg: #eeeeee;
+    --bs-btn-color: black;
+    --bs-btn-border-color: #939393;
+  }
+}
+
 .list-enter-active,
 .list-leave-active {
   transition: all 0.8s ease;
