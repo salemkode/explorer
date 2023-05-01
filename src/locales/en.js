@@ -76,6 +76,7 @@ export default {
   category: "Token category",
   cash_token: "Cash token",
   token_register: "Token Register",
+  registers: "Registers",
   token_id: "Token ID",
   token_balance: "Token Balance",
   token: "Token",
