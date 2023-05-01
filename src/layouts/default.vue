@@ -14,28 +14,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { useStateStore } from "~/store";
-import {
-  type GetLastBlockSubscription,
-  GetLastBlock,
-} from "~/module/chaingraph";
-
-const stateStore = useStateStore();
-const variables = computed(() => ({
-  network: stateStore.network,
-}));
-const { result } = useSubscription<GetLastBlockSubscription>(
-  GetLastBlock,
-  variables
-);
-watch(result, () => {
-  stateStore.lastBlockHeight =
-    result.value?.node_block.at(0)?.block.height || "0";
-});
-</script>
-
-<style>
+<style scoped>
 .app {
   display: grid;
   grid-template-rows: auto 1fr auto;
