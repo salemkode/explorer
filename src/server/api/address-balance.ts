@@ -1,6 +1,6 @@
 import { ConnectionStatus } from "electrum-cash";
 import {
-  electrumChipnet,
+  electrum,
   getBalance,
   type balance,
   type network,
@@ -16,8 +16,8 @@ export type AddressBalanceResponse =
       message: string;
     };
 export default defineEventHandler(async (event) => {
-  electrumChipnet.connection.status === ConnectionStatus.DISCONNECTED ??
-    (await electrumChipnet.connect().catch(console.log));
+  electrum.connection.status === ConnectionStatus.DISCONNECTED ??
+    (await electrum.connect().catch(console.log));
   const address = event.context.params?.address;
   const network = event.context.params?.network as network;
 

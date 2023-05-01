@@ -1,11 +1,10 @@
 import {
-  electrumChipnet,
+  electrum,
   getBalance,
   getHistory,
-  type history,
-  type balance,
   type network,
 } from "~/module/electrum";
+import { type balance, ConnectionStatus, type history } from "electrum-cash";
 
 export type AddressHistoryResponse =
   | {
@@ -20,7 +19,8 @@ export type AddressHistoryResponse =
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
-    await electrumChipnet.connect().catch(console.log);
+    electrum.connection.status === ConnectionStatus.DISCONNECTED ??
+      (await electrum.connect().catch(console.log));
     const address = body?.address as string;
     const network = body?.network as network;
 

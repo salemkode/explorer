@@ -50,11 +50,22 @@ export * from "./bcmr-v2.schema";
 
 declare module "electrum-cash" {
   type balance = { confirmed: number; unconfirmed: number };
+  type history = {
+    height: number;
+    tx_hash: string;
+  }[];
+
   class ElectrumClient {
     request(
       method: "blockchain.address.get_balance",
       address: string
     ): Promise<Error | balance>;
+
+    request(
+      method: "blockchain.address.get_history",
+      address: string
+    ): Promise<Error | history>;
+
     request<T>(method: string, ...parameters: string[]): Promise<Error | T>;
 
     subscribe(

@@ -1,7 +1,6 @@
 <template>
-  <LoadingView v-if="historyLoading" />
   <div
-    v-else-if="lockingBytecode && tokenAddress"
+    v-if="lockingBytecode && tokenAddress"
     class="address-page overflow-hidden container d-lg-grid"
   >
     <AddressHeader :address="routeAddress" class="d-lg-none" />
@@ -76,11 +75,13 @@ const addressParam = computed(() => ({
   address: routeAddress.value,
   network: stateStore.network,
 }));
-const { data: history, pending: historyLoading } =
-  useLazyFetch<AddressHistoryResponse>("/api/address-history", {
+const { data: history } = useLazyFetch<AddressHistoryResponse>(
+  "/api/address-history",
+  {
     method: "POST",
     body: addressParam,
-  });
+  }
+);
 
 const addressResponse = computed(() => {
   if (history.value?.success) {
