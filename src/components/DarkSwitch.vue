@@ -164,6 +164,7 @@ const switchModel = () => {
 </script>
 
 <style scoped>
+/* purgecss ignore */
 .toggle {
   --easing: ease-in-out;
   --speed: 0.35s;
