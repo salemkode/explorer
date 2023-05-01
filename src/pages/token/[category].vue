@@ -2,8 +2,8 @@
   <LoadingView v-if="tokenTransactionLoading" />
   <div v-else class="token-page overflow-hidden container d-lg-grid">
     <TokenId
-      :loading="bcmrToken.value.loading"
-      :identity-snapshot="bcmrToken.value.identity"
+      :loading="metadata.loading"
+      :identity-snapshot="metadata.identitySnapshot"
       :category="category"
       class="d-lg-none"
     />
@@ -20,8 +20,8 @@
     >
       <content-warp :items="tokenInfo" :loading="tokenTransactionLoading" />
       <bcmr-info
-        :loading="bcmrToken.value.loading"
-        :identity-snapshot="bcmrToken.value.identity"
+        :loading="metadata.loading"
+        :identity-snapshot="metadata.identitySnapshot"
       />
       <TokenProvider :category="category" />
     </div>
@@ -32,8 +32,8 @@
       }"
     >
       <TokenId
-        :loading="bcmrToken.value.loading"
-        :identity-snapshot="bcmrToken.value.identity"
+        :loading="metadata.loading"
+        :identity-snapshot="metadata.identitySnapshot"
         :category="category"
         class="d-none d-lg-block"
       />
@@ -46,7 +46,7 @@
       />
       <TokenTransaction :category="category" />
       <TokenChild
-        :identity-snapshot="bcmrToken.value.identity"
+        :identity-snapshot="metadata.identitySnapshot"
         :category="category"
       />
     </div>
@@ -71,20 +71,25 @@ const variable = computed(() => ({
 const { result: tokenTransaction, loading: tokenTransactionLoading } =
   useQuery<GetTokenQuery>(GetToken, variable);
 
-const opreturn = computed(() => {
-  const outputs = tokenTransaction.value?.transaction.at(0)?.outputs;
-  return outputs
-    ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
-    ?.locking_bytecode.substring(2);
-});
-const bcmrToken = computed(() => {
-  const result = registryStore.getTokenOpreturn(
-    category.value,
-    opreturn.value || ""
-  );
+watch(
+  [category, tokenTransaction],
+  () => {
+    const outputs = tokenTransaction.value?.transaction.at(0)?.outputs;
+    const opreturn = outputs
+      ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
+      ?.locking_bytecode.substring(2);
 
-  return result;
-});
+    registryStore.addToken(category.value, opreturn || "");
+  },
+  { immediate: true }
+);
+
+const metadata = computed(() => ({
+  loading:
+    registryStore.loadingProviders ||
+    registryStore.opreturns.get(category.value) === true,
+  identitySnapshot: registryStore.getTokenIdentity(category.value),
+}));
 const tokenInfo = computed(() => {
   const genesisTx = tokenTransaction.value?.transaction
     .at(0)
