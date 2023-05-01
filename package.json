@@ -35,7 +35,7 @@
     "@bitauth/libauth": "2.0.0-alpha.8",
     "@bitjson/qr-code": "^1.0.2",
     "@floating-ui/vue": "^0.2.1",
-    "@nuxtjs/apollo": "^5.0.0-alpha.5",
+    "@nuxtjs/apollo": "^5.0.0-alpha.6",
     "@nuxtjs/i18n": "^8.0.0-beta.10",
     "@pinia/nuxt": "^0.4.7",
     "ajv": "^8.12.0",
@@ -52,6 +52,7 @@
     "zod": "^3.21.4"
   },
   "overrides": {
-    "vue": "latest"
+    "vue": "latest",
+    "consola": "^3.0.1"
   }
 }
