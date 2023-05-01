@@ -17,14 +17,14 @@ const props = defineProps({
 });
 
 const setHeight = (temp: string, afterRelayout: () => string) => {
-  style.value = { height: temp };
+  style.value = { maxHeight: temp };
 
   nextTick(() => {
     // force relayout so the animation will run
     style.value = {
-      height: afterRelayout(),
+      maxHeight: afterRelayout(),
       overflow: "hidden",
-      "transition-property": "height",
+      "transition-property": "max-height",
       "transition-duration": props.duration + "ms",
     };
   });
@@ -49,10 +49,12 @@ const onTransitionEnd = (event: TransitionEvent) => {
   if (event.target !== containerRef.value) return;
 
   if (props.active) {
-    style.value = {};
+    style.value = {
+      maxHeight: containerRef.value?.scrollHeight + "px",
+    };
   } else {
     style.value = {
-      height: "0",
+      maxHeight: "0",
       overflow: "hidden",
     };
   }
