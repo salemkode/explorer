@@ -1,5 +1,9 @@
 <template>
-  <span ref="reference" class="reference" @mouseover="update">
+  <span
+    ref="reference"
+    class="reference"
+    @mouseover="() => !!props.msg && update()"
+  >
     <slot />
   </span>
   <div
@@ -33,11 +37,14 @@ const { x, y, strategy, update } = useFloating(reference, floating, {
 
 <style>
 .floating {
+  display: none;
   opacity: 0;
   transition: opacity 0.5s;
   font-size: 12.5px;
   margin-bottom: 5px;
+  white-space: break-spaces;
 }
+
 .floating::before {
   content: "";
   position: absolute;
@@ -48,7 +55,9 @@ const { x, y, strategy, update } = useFloating(reference, floating, {
   transform: translate(-50%, 0);
   border-radius: 1px;
 }
+
 .reference:hover ~ .floating {
+  display: block;
   opacity: 1;
 }
 </style>
