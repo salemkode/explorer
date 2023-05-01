@@ -8,14 +8,5 @@ export const electrum = new ElectrumClient(
   "wss"
 );
 
+await electrum.connect().catch(console.log);
 export type network = "mainnet" | "chipnet";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const electrumClient = (network: network) => {
-  return electrum;
-};
-
-export const getBalance = (address: string, network: network = "chipnet") =>
-  electrumClient(network).request("blockchain.address.get_balance", address);
-
-export const getHistory = (address: string, network: network = "chipnet") =>
-  electrumClient(network).request("blockchain.address.get_history", address);

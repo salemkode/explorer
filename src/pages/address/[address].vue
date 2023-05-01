@@ -50,7 +50,7 @@
 import { addressToLockingBytecodeHex, satToBch } from "~/module/bitcoin";
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
-import type { AddressHistoryResponse } from "~/server/api/address-history";
+import { electrum } from "~/module/electrum";
 
 const navItem = ref(0);
 // Get address from router param using useRouter
@@ -71,33 +71,25 @@ const tokenAddress = computed(() =>
   stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.value || "", true)
 );
 
-const addressParam = computed(() => ({
-  address: routeAddress.value,
-  network: stateStore.network,
-}));
-const { data: history } = useLazyFetch<AddressHistoryResponse>(
-  "/api/address-history",
-  {
-    method: "POST",
-    body: addressParam,
-  }
+const { data: history } = useAsyncData(() =>
+  electrum.request("blockchain.address.get_history", routeAddress.value)
+);
+const { data: balance } = useAsyncData(() =>
+  electrum.request("blockchain.address.get_balance", routeAddress.value)
 );
 
 const addressResponse = computed(() => {
-  if (history.value?.success) {
-    return {
-      history: history.value.history,
-      balance: history.value.balance,
-    };
-  } else {
-    return {
-      history: [],
-      balance: {
-        confirmed: 0,
-        unconfirmed: 0,
-      },
-    };
-  }
+  const emptyBalance = {
+    confirmed: 0,
+    unconfirmed: 0,
+  };
+  const _balance = !(balance.value instanceof Error) && balance.value;
+  const _history = !(history.value instanceof Error) && history.value;
+
+  return {
+    history: _history || [],
+    balance: _balance || emptyBalance,
+  };
 });
 
 const addressInfoWarp = computed<contentWarpItem[]>(() => {
