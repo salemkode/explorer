@@ -32,6 +32,7 @@ $theme-colors: (
 [class^="uicon-"], [class*=" uicon-"] {
   display: inline-flex;
   align-items: center;
+  font-display: swap;
 }
 .uicon-md {
   font-size: 30px;
