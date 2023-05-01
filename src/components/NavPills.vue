@@ -1,17 +1,22 @@
 <template>
-  <ul class="nav nav-pills nav-fill my-4">
-    <li v-for="(item, index) in props.items" :key="index" class="nav-item">
-      <button
-        class="nav-link"
+  <div class="d-flex text-center">
+    <div
+      v-for="(item, index) in props.items"
+      :key="index"
+      class="pointer w-100 p-2"
+      @click="navItem = index"
+    >
+      <span
+        class="nav-item"
         :class="{
           active: navItem === index,
         }"
-        @click="navItem = index"
       >
         {{ $t(item) }}
-      </button>
-    </li>
-  </ul>
+        <div class="nav-line bg-primary mt-1" />
+      </span>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -34,8 +39,25 @@ const navItem = computed({
 });
 </script>
 
-<style scoped>
-.nav-link {
-  --bs-nav-link-color: black;
+<style lang="scss" scoped>
+.nav-item {
+  cursor: pointer;
+  display: inline-block;
+
+  &.active {
+    font-weight: bold;
+
+    .nav-line {
+      opacity: 1;
+    }
+  }
+
+  .nav-line {
+    opacity: 0;
+    height: 6px;
+    border-radius: 5px;
+    transform: scaleX(1.3);
+    transition: opacity 0.5s;
+  }
 }
 </style>

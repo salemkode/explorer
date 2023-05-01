@@ -24,6 +24,9 @@ $theme-colors: (
   "dark": $dark-color,
 );
 
+.pointer {
+  cursor: pointer;
+}
 @import "node_modules/bootstrap/scss/bootstrap";
 @import url("/font/uicon.css");
 [class^="uicon-"], [class*=" uicon-"] {
