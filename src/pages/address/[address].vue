@@ -25,7 +25,10 @@
               order: navItem === 0 ? 1 : 0,
             }"
           >
-            <AddressTransaction v-if="validHistory" :history="validHistory" />
+            <AddressTransaction
+              v-if="addressResponse.history.length"
+              :history="addressResponse.history"
+            />
           </div>
         </Transition>
         <Transition name="fade">
@@ -47,8 +50,8 @@
 <script setup lang="ts">
 import { addressToLockingBytecodeHex, satToBch } from "~/module/bitcoin";
 import { useStateStore } from "~/store";
-import { getBalance, getHistory } from "~/module/electrum";
 import type { contentWarpItem } from "~/types";
+import type { AddressHistoryResponse } from "~/server/api/address-history";
 
 const navItem = ref(0);
 // Get address from router param using useRouter
@@ -69,25 +72,37 @@ const tokenAddress = computed(() =>
   stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.value || "", true)
 );
 
-const { data: history, pending: historyLoading } = useLazyAsyncData(() =>
-  getHistory(routeAddress.value, stateStore.network)
-);
-const { data: balance } = useAsyncData(async () => {
-  if (tokenAddress.value) {
-    const result = await getBalance(tokenAddress.value);
-    return result instanceof Error ? undefined : result;
-  }
-});
-const validHistory = computed(() => {
-  if (!(history.value instanceof Error) && history.value) {
-    return history.value;
+const addressParam = computed(() => ({
+  address: routeAddress.value,
+  network: stateStore.network,
+}));
+const { data: history, pending: historyLoading } =
+  useLazyFetch<AddressHistoryResponse>("/api/address-history", {
+    method: "POST",
+    body: addressParam,
+  });
+
+const addressResponse = computed(() => {
+  if (history.value?.success) {
+    return {
+      history: history.value.history,
+      balance: history.value.balance,
+    };
+  } else {
+    return {
+      history: [],
+      balance: {
+        confirmed: 0,
+        unconfirmed: 0,
+      },
+    };
   }
 });
 
 const addressInfoWarp = computed<contentWarpItem[]>(() => {
   const addressInfo = {
-    firstTx: validHistory.value?.at(-1)?.tx_hash || "",
-    txCount: validHistory.value?.length.toString(),
+    firstTx: addressResponse.value.history?.at(-1)?.tx_hash || "",
+    txCount: addressResponse.value.history?.length.toString(),
   };
   return [
     {
@@ -107,14 +122,14 @@ const addressInfoWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Balance",
-      text: balance.value?.confirmed
-        ? `${satToBch(balance.value.confirmed)} BCH`
+      text: addressResponse.value?.balance.confirmed
+        ? `${satToBch(addressResponse.value?.balance.confirmed)} BCH`
         : "",
     },
     {
       title: "Unconfirmed Balance",
-      text: balance.value?.unconfirmed
-        ? `${satToBch(balance.value.unconfirmed)} BCH`
+      text: addressResponse.value?.balance.unconfirmed
+        ? `${satToBch(addressResponse.value?.balance.unconfirmed)} BCH`
         : "",
     },
     {

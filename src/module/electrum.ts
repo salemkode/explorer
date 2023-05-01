@@ -1,15 +1,14 @@
 import { ElectrumClient } from "electrum-cash";
 // TODO: change it
-const electrumChipnet = new ElectrumClient(
+export const electrumChipnet = new ElectrumClient(
   "mainnet-js-node",
   "1.5",
   "chipnet.imaginary.cash",
   50004,
   "wss"
 );
-await electrumChipnet.connect().catch(console.log);
 
-type network = "mainnet" | "chipnet";
+export type network = "mainnet" | "chipnet";
 const electrumClient = (network: network) => {
   if (network === "mainnet") {
     // TODO: change to mainnet
