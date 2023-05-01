@@ -4,7 +4,7 @@
     <div v-if="blockList.type == 'error'" class="my-5 py-5 text-center">
       <small>Not Found block list</small>
     </div>
-    <div v-else ref="element" class="blocks px-3" @wheel="mouseWheel">
+    <div v-else ref="element" class="blocks px-3">
       <TransitionGroup name="list">
         <NuxtLink
           v-for="(block, i) in blockList.value"
@@ -60,15 +60,6 @@ const { result, loading, error } = useSubscription<GetBlocksSubscription>(
   GetBlocks,
   variables
 );
-
-const mouseWheel = (e: WheelEvent) => {
-  if (!e.deltaX) {
-    e.preventDefault();
-    element.value?.scrollBy({
-      left: e.deltaY < 0 ? -100 : 100,
-    });
-  }
-};
 
 // create computed var to create virtual list to loading
 const blockList = computed(() => {
