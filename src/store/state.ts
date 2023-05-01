@@ -45,11 +45,17 @@ export const useStateStore = defineStore("state", () => {
     }
   };
 
-  const usdPrice = ref<undefined | string>(undefined);
+  const usdPrice = ref<string>("0");
   onMounted(async () => {
-    const response = await fetch("/api/price");
-    const data: { usd: string } = await response.json();
-    usdPrice.value = data.usd;
+    const response = await fetch("/api/price").then((res) => res.json());
+    if (
+      typeof response === "object" &&
+      response &&
+      "usd" in response &&
+      typeof response.usd === "string"
+    ) {
+      if (!isNaN(+response.usd)) usdPrice.value = response.usd;
+    }
   });
 
   const calculatePrice = (sat: string) => {
