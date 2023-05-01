@@ -107,10 +107,9 @@ const addressInfoWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Balance",
-      text:
-        balance.value?.unconfirmed !== undefined
-          ? `${satToBch(balance.value.confirmed)} BCH`
-          : "",
+      text: balance.value?.confirmed
+        ? `${satToBch(balance.value.confirmed)} BCH`
+        : "",
     },
     {
       title: "Unconfirmed Balance",
