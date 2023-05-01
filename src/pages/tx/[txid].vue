@@ -102,7 +102,7 @@ const { result: Token, loading: TokenLoading } = useQuery<GetTokenQuery>(
   GetToken,
   computed(() => ({
     network: stateStore.network,
-    tokenCategory: "\\x" + txid.value,
+    tokenCategory: ["\\x" + txid.value],
   }))
 );
 const opreturn = computed(() => {

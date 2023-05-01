@@ -66,7 +66,7 @@ const stateStore = useStateStore();
 const navItem = ref(0);
 const variable = computed(() => ({
   network: stateStore.network,
-  tokenCategory: "\\x" + category.value,
+  tokenCategory: ["\\x" + category.value],
 }));
 const { result: tokenTransaction, loading: tokenTransactionLoading } =
   useQuery<GetTokenQuery>(GetToken, variable);

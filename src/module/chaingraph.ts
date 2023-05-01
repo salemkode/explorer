@@ -363,19 +363,22 @@ export const GetTokenTxs = gql`
 `;
 
 export const GetToken = gql`
-  query GetToken($network: String, $tokenCategory: bytea) {
+  query GetToken($network: String, $tokenCategory: [bytea!]) {
     transaction(
       where: {
         block_inclusions: {
           block: { accepted_by: { node: { name: { _regex: $network } } } }
         }
         inputs: {
-          outpoint_transaction_hash: { _eq: $tokenCategory }
+          outpoint_transaction_hash: { _in: $tokenCategory }
           outpoint_index: { _eq: 0 }
         }
       }
     ) {
       hash
+      inputs {
+        outpoint_transaction_hash
+      }
       outputs {
         fungible_token_amount
         nonfungible_token_capability

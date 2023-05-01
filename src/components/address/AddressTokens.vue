@@ -103,18 +103,20 @@ const transactions = computed<tableColumn[][]>(() => {
 });
 
 onResult((transaction) => {
-  transaction.data.search_output.forEach((token) => {
-    if (!token.token_category) return;
-    const category = token.token_category;
+  const tokenCategories = transaction.data.search_output
+    .map((token) => token.token_category)
+    .filter(Boolean);
 
-    const { onResult } = useQuery<GetTokenQuery>(GetToken, {
-      network: stateStore.network,
-      tokenCategory: category,
-    });
+  const { onResult } = useQuery<GetTokenQuery>(GetToken, {
+    network: stateStore.network,
+    tokenCategory: new Set(tokenCategories),
+  });
 
-    onResult((tokenTransaction) => {
-      const outputs = tokenTransaction.data?.transaction.at(0)?.outputs;
-      const opreturn = outputs
+  onResult((tokenTransaction) => {
+    tokenTransaction.data.transaction.forEach((transaction) => {
+      // Get token category
+      const category = transaction.inputs[0].outpoint_transaction_hash;
+      const opreturn = transaction.outputs
         ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
         ?.locking_bytecode.substring(2);
 

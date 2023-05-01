@@ -102,7 +102,7 @@ watch(
         if (category) {
           const { onResult } = useQuery<GetTokenQuery>(GetToken, {
             network: stateStore.network,
-            tokenCategory: category,
+            tokenCategory: [category],
           });
 
           onResult((tokenTransaction) => {
