@@ -66,10 +66,7 @@ export const useStateStore = defineStore(
       () => {
         if (utils.isServer) return;
         const html = document.querySelector("html");
-
         html?.setAttribute("data-bs-theme", darkmode.value ? "dark" : "light");
-        html?.setAttribute("data-transition-switch", "true");
-        setTimeout(() => html?.removeAttribute("data-transition-switch"), 500);
       },
       { immediate: true }
     );
