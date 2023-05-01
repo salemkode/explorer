@@ -7,7 +7,7 @@ const electrumChipnet = new ElectrumClient(
   50004,
   "wss"
 );
-await electrumChipnet.connect();
+await electrumChipnet.connect().catch(console.log);
 
 type network = "mainnet" | "chipnet";
 const electrumClient = (network: network) => {
