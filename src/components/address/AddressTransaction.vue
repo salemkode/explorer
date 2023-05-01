@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import type { history } from "~/module/electrum";
+import type { history } from "electrum-cash";
 import {
   type GetTransactionsQuery,
   GetTransactions,

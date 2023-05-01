@@ -14,7 +14,6 @@ const electrumClient = (network: network) => {
   return electrum;
 };
 
-export type balance = { confirmed: number; unconfirmed: number };
 export const getBalance = (address: string, network: network = "chipnet") =>
   electrumClient(network).request("blockchain.address.get_balance", address);
 

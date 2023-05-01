@@ -4,7 +4,7 @@ import {
   getHistory,
   type network,
 } from "~/module/electrum";
-import { type balance, ConnectionStatus, type history } from "electrum-cash";
+import { type balance, type history, ConnectionStatus } from "electrum-cash";
 
 export type AddressHistoryResponse =
   | {

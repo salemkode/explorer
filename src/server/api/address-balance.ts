@@ -1,10 +1,5 @@
-import { ConnectionStatus } from "electrum-cash";
-import {
-  electrum,
-  getBalance,
-  type balance,
-  type network,
-} from "~/module/electrum";
+import { type balance, ConnectionStatus } from "electrum-cash";
+import { electrum, getBalance, type network } from "~/module/electrum";
 
 export type AddressBalanceResponse =
   | {
