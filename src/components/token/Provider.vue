@@ -9,13 +9,11 @@
         class="spinner-grow"
         alt=""
       />
-      <img
+      <i
         v-else-if="registry === false || !isVerified(category, registry)"
-        width="18"
-        src="~/assets/icons/unverified.svg"
-        alt=""
+        class="uicon-unverified"
       />
-      <img v-else width="18" src="~/assets/icons/verified.svg" alt="" />
+      <i v-else class="uicon-verified" />
     </li>
   </ul>
 </template>

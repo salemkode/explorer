@@ -14,7 +14,7 @@
           @keydown="keydownHandler"
         />
         <button class="btn d-flex" type="button" @click="search">
-          <img width="18" src="~/assets/icons/search.svg" class="search-icon" />
+          <i class="uicon-search" />
         </button>
       </div>
     </div>

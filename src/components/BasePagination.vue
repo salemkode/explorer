@@ -5,10 +5,8 @@
       :disabled="!props.hasPrevPage"
       @click="emit('previous')"
     >
-      <img
-        src="~/assets/icons/angle-small-left.svg"
-        alt=""
-        width="30"
+      <i
+        class="uicon-angle-small-left uicon-md"
         :style="{
           opacity: props.hasPrevPage ? 1 : 0.5,
         }"
@@ -19,10 +17,8 @@
       :disabled="!props.hasNextPage"
       @click="emit('next')"
     >
-      <img
-        src="~/assets/icons/angle-small-right.svg"
-        alt=""
-        width="30"
+      <i
+        class="uicon-angle-small-right uicon-md"
         :style="{
           opacity: props.hasNextPage ? 1 : 0.5,
         }"

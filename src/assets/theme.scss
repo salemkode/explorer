@@ -25,6 +25,15 @@ $theme-colors: (
 );
 
 @import "node_modules/bootstrap/scss/bootstrap";
+@import url("/font/uicon.css");
+[class^="uicon-"], [class*=" uicon-"] {
+  display: inline-flex;
+  align-items: center;
+}
+.uicon-md {
+  font-size: 30px;
+  min-width: 30px;
+}
 
 .list-enter-active,
 .list-leave-active {

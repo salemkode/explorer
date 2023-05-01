@@ -9,13 +9,7 @@
         {{ text }}
       </NuxtLink>
     </PopOver>
-    <img
-      v-if="props.text && props.copy"
-      src="~/assets/icons/duplicate.svg"
-      width="16"
-      class="copy-icon align-items-center"
-      @click="copy"
-    />
+    <i v-if="props.text && props.copy" class="uicon-duplicate" @click="copy" />
     <div class="copy-popup" :class="{ show: showPopup }">copied!</div>
   </span>
 </template>
