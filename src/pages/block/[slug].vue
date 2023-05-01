@@ -4,12 +4,10 @@
     v-else-if="result"
     class="block-page overflow-hidden container d-lg-grid"
   >
-    <h3 class="d-lg-none">Block Page</h3>
     <div class="column">
       <content-warp :loading="loading" :items="blockItemWarp" />
     </div>
     <div class="column">
-      <h3 class="d-none d-lg-block">Block Page</h3>
       <BlockTransaction
         v-model:offset="variable.offsetTxs"
         :limit="variable.limitTxs"
