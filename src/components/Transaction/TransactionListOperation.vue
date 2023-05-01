@@ -16,6 +16,7 @@
             <BaseCopy
               v-if="utxo.type === 'p2pkh'"
               :text="utxo.address"
+              :url="`/address/${utxo.address}`"
               warp
               copy
             />

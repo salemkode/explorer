@@ -5,50 +5,55 @@
       :key="transaction.hash"
       class="transaction-item"
     >
-      <div
-        class="info p-3"
-        @click="
-          showOperation.set(
-            transaction.hash,
-            !showOperation.get(transaction.hash)
-          )
-        "
-      >
-        <BaseCopy
-          :text="transaction.hash"
-          :copy="true"
-          :url="`/tx/${transaction.hash}`"
-          short
-        />
-        <small>
-          <div v-for="(item, i) in transaction.transfer" :key="i" class="me-1">
-            <b class="me-1" v-text="['from', 'to'][i]" />
-            <BaseCopy
-              v-if="item.type === 'SingleSig'"
-              :url="`/address/${item.text}`"
-              :text="item.text"
-              :copy="false"
-              short
-            />
-            <span v-else v-text="item.text" />
-          </div>
-        </small>
-        <small class="amount text-end">
-          {{ satToBch(transaction.amount || 0, 3) }}
-          BCH • ${{ stateStore.calculatePrice(transaction.amount || "0") }}
-        </small>
-        <img
-          src="~/assets/icons/angle-small-down.svg"
-          alt=""
-          class="ms-1 angle"
-          width="24"
+      <div class="content-warp d-flex p-3 w-100">
+        <div
+          class="content w-100"
+          @click="
+            showOperation.set(
+              transaction.hash,
+              !showOperation.get(transaction.hash)
+            )
+          "
+        >
+          <BaseCopy
+            :text="transaction.hash"
+            :copy="true"
+            :url="`/tx/${transaction.hash}`"
+            short
+          />
+          <small>
+            <div
+              v-for="(item, i) in transaction.transfer"
+              :key="i"
+              class="me-1"
+            >
+              <b class="me-1" v-text="['from', 'to'][i]" />
+              <BaseCopy
+                v-if="item.type === 'SingleSig'"
+                :url="`/address/${item.text}`"
+                :text="item.text"
+                :copy="false"
+                short
+              />
+              <span v-else v-text="item.text" />
+            </div>
+          </small>
+          <small class="amount">
+            {{ satToBch(transaction.amount || 0, 3) }}
+            BCH • ${{ stateStore.calculatePrice(transaction.amount || "0") }}
+          </small>
+        </div>
+        <i
+          class="uicon-angle-small-down uicon-md ms-2 angle"
           :style="{
+            width: '1rem',
             transform: showOperation.get(transaction.hash)
               ? 'rotate(-180deg)'
               : 'rotate(0deg)',
           }"
         />
       </div>
+
       <SliderUpDown :active="showOperation.get(transaction.hash)">
         <div class="transaction-list-operation">
           <TransactionListOperation
@@ -169,14 +174,36 @@ const transactions = computed(() => {
 </script>
 
 <style scoped lang="scss">
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+) !default;
+@import "node_modules/bootstrap/scss/mixins";
+@media (min-width: map-get($grid-breakpoints, md)) {
+  .transaction-item .content {
+    grid-template-columns: repeat(3, 1fr) auto;
+
+    .amount {
+      text-align: end;
+    }
+  }
+}
+
 .transaction-item {
-  > .info {
+  .content-warp {
     cursor: pointer;
     border: var(--bs-border-color) solid 1px;
     border-width: 1px 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr) auto;
-    align-items: center;
+
+    .content {
+      display: grid;
+      gap: 10px;
+      align-items: center;
+    }
   }
 
   .line {
