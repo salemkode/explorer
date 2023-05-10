@@ -5,7 +5,7 @@ const path = require("path");
 svgtofont({
   src: path.resolve(process.cwd(), "src/assets/icons"), // svg path
   dist: path.resolve(process.cwd(), "src/public/font"), // output path
-  fontName: "svgtofont", // font name
+  fontName: "uicon", // font name
   css: {
     // Create CSS files.
     cssPath: "/font/",
