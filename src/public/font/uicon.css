@@ -1,16 +1,16 @@
 @font-face {
   font-family: "uicon";
-  src: url('/font/uicon.eot?t=1682865774024'); /* IE9*/
-  src: url('/font/uicon.eot?t=1682865774024#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url("/font/uicon.woff2?t=1682865774024") format("woff2"),
-  url("/font/uicon.woff?t=1682865774024") format("woff"),
-  url('/font/uicon.ttf?t=1682865774024') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-  url('/font/uicon.svg?t=1682865774024#uicon') format('svg'); /* iOS 4.1- */
+  src: url('/font/uicon.eot?t=1683830643738'); /* IE9*/
+  src: url('/font/uicon.eot?t=1683830643738#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url("/font/uicon.woff2?t=1683830643738") format("woff2"),
+  url("/font/uicon.woff?t=1683830643738") format("woff"),
+  url('/font/uicon.ttf?t=1683830643738') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('/font/uicon.svg?t=1683830643738#uicon') format('svg'); /* iOS 4.1- */
 }
 
 [class^="uicon-"], [class*=" uicon-"] {
   font-family: 'uicon' !important;
-  font-size:16px;
+  font-size:18px;
   font-style:normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -20,8 +20,11 @@
 .uicon-angle-small-down:before { content: "\ea01"; }
 .uicon-angle-small-left:before { content: "\ea02"; }
 .uicon-angle-small-right:before { content: "\ea03"; }
-.uicon-close:before { content: "\ea04"; }
-.uicon-duplicate:before { content: "\ea05"; }
-.uicon-search:before { content: "\ea06"; }
-.uicon-unverified:before { content: "\ea07"; }
-.uicon-verified:before { content: "\ea08"; }
+.uicon-arrows-alt:before { content: "\ea04"; }
+.uicon-block:before { content: "\ea05"; }
+.uicon-draggable:before { content: "\ea06"; }
+.uicon-duplicate:before { content: "\ea07"; }
+.uicon-menu:before { content: "\ea08"; }
+.uicon-search:before { content: "\ea09"; }
+.uicon-unverified:before { content: "\ea0a"; }
+.uicon-verified:before { content: "\ea0b"; }
