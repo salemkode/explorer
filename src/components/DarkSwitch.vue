@@ -1,25 +1,19 @@
 <script setup lang="ts">
-const props = defineProps<{
-  modelValue: boolean;
-}>();
-const input = ref<null | HTMLElement>(null);
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
+import { useStateStore } from "~/store";
 
-const toggle = computed({
-  get() {
-    return props.modelValue;
-  },
-  set(value) {
-    emit("update:modelValue", value);
-  },
-});
+const input = ref<null | HTMLElement>(null);
+const stateStore = useStateStore();
 </script>
 
 <template>
   <div>
-    <input ref="input" v-model="toggle" v-uid type="checkbox" class="d-none" />
+    <input
+      ref="input"
+      v-model="stateStore.darkmode"
+      v-uid
+      type="checkbox"
+      class="d-none"
+    />
     <label :for="input?.id" class="toggle" title="Toggle Dark Mode">
       <svg
         aria-hidden="true"

@@ -65,8 +65,9 @@ export const useStateStore = defineStore(
       darkmode,
       () => {
         if (utils.isServer) return;
-        const html = document.querySelector("html");
-        html?.setAttribute("data-bs-theme", darkmode.value ? "dark" : "light");
+        document
+          .querySelector("html")
+          ?.setAttribute("data-bs-theme", darkmode.value ? "dark" : "light");
       },
       { immediate: true }
     );
