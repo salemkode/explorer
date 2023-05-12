@@ -7,7 +7,6 @@
     <slot />
   </span>
   <div
-    v-if="props.msg"
     ref="floating"
     :style="{
       position: strategy,
@@ -17,12 +16,11 @@
     }"
     class="bg-black p-1 px-2 rounded-1 text-white floating"
   >
-    {{ props.msg || "message" }}
+    {{ props.msg }}
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
 import { autoUpdate, useFloating } from "@floating-ui/vue";
 
 const props = defineProps<{ msg: string }>();
