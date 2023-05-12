@@ -1,6 +1,6 @@
 <template>
   <div class="transaction-list card">
-    <h3 class="p-3 justify-content-between d-flex">
+    <h3 class="p-3 d-flex justify-content-between align-items-center">
       Block transaction
       <BasePagination
         :has-next-page="hasNextPage"

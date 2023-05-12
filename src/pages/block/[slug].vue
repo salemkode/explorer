@@ -1,24 +1,25 @@
 <template>
   <LoadingView v-if="loading" />
-  <div
-    v-else-if="result"
-    class="block-page overflow-hidden container d-lg-grid"
-  >
-    <div class="column">
-      <content-warp :loading="loading" :items="blockItemWarp" />
-    </div>
-    <div class="column">
-      <BlockTransaction
-        v-model:offset="variable.offsetTxs"
-        :limit="variable.limitTxs"
-        :transactions="transactions"
-        :loading="loading"
-      />
+  <div v-else-if="result" class="container">
+    <div class="block-page overflow-hidden d-lg-grid">
+      <div class="column">
+        <content-warp :loading="loading" :items="blockItemWarp" />
+      </div>
+      <div class="column">
+        <BlockHeader :height="result.block.at(0)?.height || ''" />
+        <BlockTransaction
+          v-model:offset="variable.offsetTxs"
+          :limit="variable.limitTxs"
+          :transactions="transactions"
+          :loading="loading"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { satToBch } from "~/module/bitcoin";
 import { GetBlock, type GetBlockQuery } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
@@ -57,7 +58,7 @@ const blockItemWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Input total",
-      text: block.input_value_satoshis,
+      text: `${satToBch(block.input_value_satoshis, 3)}BCH`,
     },
     {
       title: "Output count",
@@ -65,7 +66,7 @@ const blockItemWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Output total",
-      text: block.input_value_satoshis,
+      text: `${satToBch(block.input_value_satoshis, 3)}BCH`,
     },
   ];
 });
