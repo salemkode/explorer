@@ -27,8 +27,28 @@ $theme-colors: (
 .pointer {
   cursor: pointer;
 }
+
+.h-max-content {
+  height: max-content !important;
+}
+
+.rounded-full {
+  border-radius: 9999px !important;
+}
+
+.white-space-nowrap {
+  white-space: nowrap;
+}
+
 @import "node_modules/bootstrap/scss/bootstrap";
 @import url("/font/uicon.css");
+
+
+.input-group > .btn:hover {
+  color: var(--bs-btn-color);
+  font-weight: bold;
+}
+
 [class^="uicon-"], [class*=" uicon-"] {
   display: inline-flex;
   align-items: center;
@@ -36,7 +56,6 @@ $theme-colors: (
 }
 .uicon-md {
   font-size: 30px;
-  min-width: 30px;
 }
 
 [data-bs-theme="dark"] {
