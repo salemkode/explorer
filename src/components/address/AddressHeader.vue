@@ -5,7 +5,12 @@
       class="d-flex flex-column align-items-start justify-content-center ms-md-3"
     >
       <div class="badge text-bg-primary">pubkeyhash</div>
-      <BaseCopy class="my-1" copy warp :text="address" />
+      <BaseCopy
+        class="my-1 d-flex align-items-center"
+        copy
+        warp
+        :text="address"
+      />
     </div>
   </div>
 </template>
