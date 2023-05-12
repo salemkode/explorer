@@ -27,6 +27,7 @@ export const GetTx = gql`
           nonfungible_token_commitment
           nonfungible_token_capability
           locking_bytecode
+          value_satoshis
         }
       }
       outputs {
@@ -75,6 +76,7 @@ export const GetTx = gql`
               nonfungible_token_commitment
               nonfungible_token_capability
               locking_bytecode
+              value_satoshis
             }
           }
           outputs {

@@ -21,53 +21,15 @@
         class="d-none d-lg-block"
       />
       <div class="operation d-lg-grid">
-        <div>
-          <span>Inputs</span>
-          <div v-if="transaction.transaction.is_coinbase" class="card my-2 p-2">
-            CoinBase
-          </div>
-          <template v-else>
-            <TxOperation
-              v-for="(input, index) in transaction.transaction.inputs"
-              :key="index"
-              :address="
-                stateStore.lockingBytecodeHexToCashAddress(
-                  input?.outpoint?.locking_bytecode.substring(2) || ''
-                )
-              "
-              :sat="input.value_satoshis || ''"
-              :token-amount="input.outpoint?.fungible_token_amount?.toString()"
-              :token-category="input.outpoint?.token_category?.substring(2)"
-              :token-commitment="
-                input.outpoint?.nonfungible_token_commitment?.substring(2)
-              "
-              :token-capability="
-                input.outpoint?.nonfungible_token_capability || undefined
-              "
-            />
-          </template>
-        </div>
-        <div>
-          <span>Outputs</span>
-          <TxOperation
-            v-for="(output, index) in transaction.transaction.outputs"
-            :key="index"
-            :address="
-              stateStore.lockingBytecodeHexToCashAddress(
-                output.locking_bytecode.substring(2)
-              )
-            "
-            :sat="output.value_satoshis || ''"
-            :token-amount="output?.fungible_token_amount?.toString()"
-            :token-category="output?.token_category?.substring(2)"
-            :token-commitment="
-              output?.nonfungible_token_commitment?.substring(2)
-            "
-            :token-capability="
-              output?.nonfungible_token_capability || undefined
-            "
-          />
-        </div>
+        <TransactionListOperation
+          name="from"
+          :utxos="transaction.inputUtxo"
+          :is-coin-base="transaction.transaction.is_coinbase"
+        />
+        <TransactionListOperation
+          name="to"
+          :utxos="transaction.transaction.outputs"
+        />
       </div>
     </div>
   </div>
@@ -146,6 +108,9 @@ const transaction = computed(() => {
     blockHeight, // TODO: fix not work when block not found app store will update last block height
     timestamp: block ? new Date(+block.timestamp * 1000) : new Date(),
     transaction,
+    inputUtxo: transaction.inputs
+      .map(({ outpoint }) => outpoint)
+      .filter(Boolean),
   };
 });
 onError(() => {
