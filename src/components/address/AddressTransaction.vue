@@ -9,17 +9,16 @@
         @previous="offset -= limit"
       />
     </h3>
-    <LoadingSpinner
-      v-if="loading && transactions.length === 0"
-      class="m-auto"
-    />
-    <div
-      v-else-if="transactions.length === 0 || error"
-      class="text-center my-5 py-5"
-    >
-      Not Found Transactions
-    </div>
-    <TransactionList v-else :transactions="transactions" />
+    <Transition name="fade" mode="out-in">
+      <LoadingSpinner v-if="loading" class="m-auto my-5" />
+      <div
+        v-else-if="transactions.length === 0 || error"
+        class="text-center my-5 py-5"
+      >
+        Not Found Transactions
+      </div>
+      <TransactionList v-else :transactions="transactions" />
+    </Transition>
   </div>
 </template>
 

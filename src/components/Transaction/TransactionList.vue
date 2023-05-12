@@ -1,13 +1,13 @@
 <template>
-  <TransitionGroup name="list">
-    <div
-      v-for="transaction in transactions"
-      :key="transaction.hash"
-      class="transaction-item"
-    >
-      <div class="content-warp d-flex p-3 w-100">
+  <Transition name="fade" mode="out-in">
+    <div :key="key">
+      <div
+        v-for="transaction in transactions"
+        :key="transaction.hash"
+        class="transaction-item"
+      >
         <div
-          class="content w-100"
+          class="content-warp d-flex p-3 w-100"
           @click="
             showOperation.set(
               transaction.hash,
@@ -15,58 +15,60 @@
             )
           "
         >
-          <BaseCopy
-            :text="transaction.hash"
-            :copy="true"
-            :url="`/tx/${transaction.hash}`"
-            short
+          <div class="content w-100">
+            <BaseCopy
+              :text="transaction.hash"
+              :copy="true"
+              :url="`/tx/${transaction.hash}`"
+              class="d-flex align-items-center"
+              short
+            />
+            <small>
+              <div
+                v-for="(item, i) in transaction.transfer"
+                :key="i"
+                class="me-1"
+              >
+                <b class="me-1" v-text="['from', 'to'][i]" />
+                <BaseCopy
+                  v-if="item.type === 'SingleSig'"
+                  :url="`/address/${item.text}`"
+                  :text="item.text"
+                  :copy="false"
+                  short
+                />
+                <span v-else v-text="item.text" />
+              </div>
+            </small>
+            <small class="amount">
+              {{ satToBch(transaction.amount || 0, 3) }}
+              BCH • ${{ stateStore.calculatePrice(transaction.amount || "0") }}
+            </small>
+          </div>
+          <i
+            class="uicon-angle-small-down uicon-md ms-2 angle"
+            :style="{
+              transform: showOperation.get(transaction.hash)
+                ? 'rotate(-180deg)'
+                : 'rotate(0deg)',
+            }"
           />
-          <small>
-            <div
-              v-for="(item, i) in transaction.transfer"
-              :key="i"
-              class="me-1"
-            >
-              <b class="me-1" v-text="['from', 'to'][i]" />
-              <BaseCopy
-                v-if="item.type === 'SingleSig'"
-                :url="`/address/${item.text}`"
-                :text="item.text"
-                :copy="false"
-                short
-              />
-              <span v-else v-text="item.text" />
-            </div>
-          </small>
-          <small class="amount">
-            {{ satToBch(transaction.amount || 0, 3) }}
-            BCH • ${{ stateStore.calculatePrice(transaction.amount || "0") }}
-          </small>
         </div>
-        <i
-          class="uicon-angle-small-down uicon-md ms-2 angle"
-          :style="{
-            width: '1rem',
-            transform: showOperation.get(transaction.hash)
-              ? 'rotate(-180deg)'
-              : 'rotate(0deg)',
-          }"
-        />
-      </div>
 
-      <SliderUpDown :active="showOperation.get(transaction.hash)">
-        <div class="transaction-list-operation">
-          <TransactionListOperation
-            name="from"
-            :utxos="transaction.inputsUtxo"
-            :is-coin-base="transaction.isCoinBase"
-          />
-          <div class="line" />
-          <TransactionListOperation name="to" :utxos="transaction.outputs" />
-        </div>
-      </SliderUpDown>
+        <SliderUpDown :active="showOperation.get(transaction.hash)">
+          <div class="transaction-list-operation">
+            <TransactionListOperation
+              name="from"
+              :utxos="transaction.inputsUtxo"
+              :is-coin-base="transaction.isCoinBase"
+            />
+            <div class="line" />
+            <TransactionListOperation name="to" :utxos="transaction.outputs" />
+          </div>
+        </SliderUpDown>
+      </div>
     </div>
-  </TransitionGroup>
+  </Transition>
 </template>
 
 <script lang="ts">
@@ -90,9 +92,14 @@ export type transactions = Array<{
 import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
 import { useStateStore } from "~/store";
 
+const key = ref(0);
 const props = defineProps<{
   transactions: transactions;
 }>();
+watch(props, () => {
+  key.value += 1;
+});
+
 const stateStore = useStateStore();
 
 const getTransferAddress = (utxos: Utxo[]) => {
