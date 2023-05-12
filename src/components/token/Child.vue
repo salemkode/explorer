@@ -89,7 +89,7 @@ const outputs = computed<tableColumn[][]>(() => {
           text: childInfo?.name,
           token: {
             category: props.category,
-            url: childInfo.uris.icon,
+            icon: childInfo.uris.icon,
           },
         });
       }

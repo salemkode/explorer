@@ -84,8 +84,9 @@ const transactions = computed<tableColumn[][]>(() => {
           : metadata?.token?.name || "No name",
         token: {
           category: category,
-          url: metadata?.token?.icon || "",
+          icon: metadata?.token?.icon || "",
         },
+        url: `/token/${category}`,
       },
       {
         text: category,

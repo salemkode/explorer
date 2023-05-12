@@ -4,7 +4,9 @@
       <img
         :key="status.iconUrl"
         :src="status.iconUrl"
-        :class="{ small }"
+        :class="{ small, rounded: props.rounded === true }"
+        :width="80"
+        :height="80"
         alt="icon"
         @load="status.loaded = true"
         @error="imageLoadError"
@@ -20,16 +22,17 @@ import { getHttpsUrl } from "~/module/utils";
 const props = defineProps<{
   tokenCategory: string;
   small?: boolean;
-  url?: string;
+  icon?: string;
+  rounded?: boolean;
 }>();
 const status = reactive({
   loaded: false,
   error: false,
-  iconUrl: props.url,
+  iconUrl: props.icon,
 });
 
 watch(
-  () => props.url,
+  () => props.icon,
   (url) => {
     if (url) {
       status.loaded = false;
@@ -43,7 +46,7 @@ watch(
     immediate: true,
   }
 );
-//
+
 function imageLoadError() {
   if (status.error) {
     // Stop for loop error
@@ -72,6 +75,7 @@ function imageLoadError() {
 <style scoped>
 .icon > img {
   --size-image: 80px;
+  object-fit: contain;
   width: var(--size-image);
   max-width: var(--size-image);
   max-height: var(--size-image);

@@ -1,14 +1,14 @@
 <template>
   <div class="card text-break">
-    <div class="align-items-center d-flex flex-column p-3 flex-md-row">
+    <div class="d-flex flex-column align-items-md-center p-3 flex-md-row">
       <bcmr-icon
         :token-category="category"
-        :url="identitySnapshot?.uris?.icon"
+        :icon="identitySnapshot?.uris?.icon"
       />
       <span class="mx-2" />
       <div>
         <h6 v-text="tokenName" />
-        <BaseCopy copy :text="category" />
+        <BaseCopy :text="category" class="d-flex align-items-center" copy />
       </div>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import type { SubscribeCallback, ElectrumClient } from "electrum-cash";
+import type { SubscribeCallback } from "electrum-cash";
 import type { Scalars } from "~/graphql/graphql";
 export type bigNum = number | string | BigNumber;
 export type bytea = `\\x${string}`;
@@ -17,7 +17,7 @@ export interface tableColumn {
   url?: string;
   token?: {
     category: string;
-    url: string;
+    icon: string;
   };
 }
 
