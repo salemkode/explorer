@@ -32,9 +32,6 @@
           </Transition>
         </NuxtLink>
       </TransitionGroup>
-      <NuxtLink to="/block" class="btn btn-primary w-100 my-2">
-        See more
-      </NuxtLink>
     </div>
   </div>
 </template>
