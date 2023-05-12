@@ -9,7 +9,7 @@
         style="font-size: 12.8px"
       >
         <div class="d-flex">
-          <b class="pe-2">
+          <b style="font-size: 20px" class="pe-2">
             {{ i + 1 }}
           </b>
           <div>
