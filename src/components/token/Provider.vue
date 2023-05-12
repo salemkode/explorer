@@ -1,7 +1,14 @@
 <template>
   <h5>Verifying by</h5>
   <ul class="list-group">
-    <li v-for="(registry, name) in providers" :key="name" :class="itemClass">
+    <li
+      v-for="(registry, name) in providers"
+      :key="name"
+      :class="itemClass"
+      :style="{
+        order: getOrder(name),
+      }"
+    >
       {{ name }}
       <div
         v-if="registry === true"
@@ -11,9 +18,9 @@
       />
       <i
         v-else-if="registry === false || !isVerified(category, registry)"
-        class="uicon-unverified"
+        class="uicon-unverified text-danger"
       />
-      <i v-else class="uicon-verified" />
+      <i v-else class="uicon-verified text-primary" />
     </li>
   </ul>
 </template>
@@ -27,13 +34,27 @@ const props = defineProps<{
   category: string;
 }>();
 const providers = computed(() => {
-  const providersObj = Object.fromEntries(registryStore.registryProviders);
-  return {
+  const items: Record<string, Registry | boolean> = {
     OpReturn: registryStore.opreturns.get(props.category) || false,
-    ...providersObj,
   };
+
+  registryStore.registryProviders.forEach((provider) => {
+    if (typeof provider.registryIdentity === "string") {
+      items.AuthChain = provider;
+      return;
+    }
+
+    items[provider.registryIdentity.name] = provider;
+  });
+
+  return items;
 });
 
+const getOrder = (name: string) => {
+  return registryStore.registryList.findIndex(
+    (registry) => registry.name === name
+  );
+};
 const itemClass =
   "list-group-item d-flex justify-content-between align-items-center";
 const isVerified = (category: string, registry: Registry) => {
@@ -46,3 +67,10 @@ const isVerified = (category: string, registry: Registry) => {
   }
 };
 </script>
+
+<style scoped>
+[class^="uicon-"],
+[class*=" uicon-"] {
+  font-size: 22px;
+}
+</style>

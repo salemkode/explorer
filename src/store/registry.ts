@@ -10,19 +10,8 @@ import { parseBinary } from "~/module/bitcoin";
 import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, RegistryProvider, tokenCapability } from "~/types";
 
-const defaultProviders: RegistryProvider[] = [
-  {
-    name: "BitJson",
-    url: "https://raw.githubusercontent.com/bitjson/chip-bcmr/373322b98861b5d080b167701a990a3ba108d9c7/examples/fungible-token.json",
-    enable: true,
-    default: true,
-  },
-  {
-    name: "SalemKode",
-    url: "https://gist.githubusercontent.com/salemkode/c60a7d233fd2011cbe943fedd9c67c5d/raw/46a81bd4cb7bb5294731d93bff14346be9a265e5/registry.json",
-    enable: true,
-    default: true,
-  },
+export const defaultProviders = [
+  "https://gist.githubusercontent.com/salemkode/c60a7d233fd2011cbe943fedd9c67c5d/raw/364ffb3dc26fadf1ad68cbfda242c5729a1567b7/registry.json",
 ];
 export const useRegistryStore = defineStore(
   "registry",
@@ -40,59 +29,80 @@ export const useRegistryStore = defineStore(
 
     const registryProviders = reactive(new Map<string, Registry>());
     const loadingProviders = ref(true);
-    const registryList = reactive([] as RegistryProvider[]);
+    const registryList = ref([] as RegistryProvider[]);
 
-    const isRegistryProviderExist = (name: string, url: string) => {
-      return !!registryList.find(
-        (item) => item.name === name || item.url === url
-      );
+    const isRegistryProviderExist = (url: string) => {
+      return !!registryList.value.find((item) => item.url === url);
     };
 
-    const addRegistryProvider = async (name: string, url: string) => {
+    const addRegistryProvider = async (url: string, _default = false) => {
       // Check is url valid using regex
       const urlPattern =
         /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
       if (!urlPattern.test(url)) {
         return {
-          error: "Invalid URL",
-        };
+          status: "Error",
+          errorMessage: "Invalid URL",
+        } as const;
       }
-      const responseRegistry = await fetch(url).then((res) => res.json());
+      const responseRegistry = await fetch(url)
+        .then((res) => res.json())
+        .catch(() => undefined);
 
       // Validate BCMR registry
       const registry = await validateBcmrSchema(responseRegistry);
       if (!registry.success) {
         return {
-          error: "Invalid BCMR registry schema",
-        };
+          status: "Error",
+          errorMessage: "Invalid BCMR registry schema",
+        } as const;
       }
 
       // Add providers to registryProviders
-      !isRegistryProviderExist(name, url) &&
-        registryList.push({ name, url, enable: true, default: false });
-      registryProviders.set(name, registry.value);
-      return "Success";
+      if (!isRegistryProviderExist(url)) {
+        const registryIdentity = registry.value.registryIdentity;
+        // TODO: support auth chain
+        const name =
+          typeof registryIdentity === "object"
+            ? registryIdentity.name
+            : registryIdentity;
+
+        if (_default) {
+          registryList.value.unshift({
+            name,
+            url,
+            enable: true,
+            default: _default,
+          });
+        } else {
+          registryList.value.push({
+            name,
+            url,
+            enable: true,
+            default: _default,
+          });
+        }
+      }
+
+      registryProviders.set(url, registry.value);
+      return {
+        status: "Success",
+      } as const;
     };
 
-    (() => {
-      if (registryList.length === 0) {
-        registryList.push(...defaultProviders);
-      } else {
-        defaultProviders.forEach((item) => {
-          if (!isRegistryProviderExist(item.name, item.url)) {
-            registryList.push(item);
-          }
-        });
-      }
-      const promises = registryList.map((item) =>
-        addRegistryProvider(item.name, item.url).then(console.log)
-      );
+    onMounted(() => {
+      const providerSet = new Set(defaultProviders);
+      registryList.value.forEach(({ url }) => providerSet.add(url));
+
+      const promises = Array.from(providerSet, (url) => {
+        return addRegistryProvider(url, defaultProviders.includes(url));
+      });
 
       // End loading
       Promise.all(promises).then(() => {
         loadingProviders.value = false;
       });
-    })();
+    });
 
     const validateBCMR = (chunks: Uint8Array[]) => {
       if (
@@ -137,12 +147,19 @@ export const useRegistryStore = defineStore(
       registry: Registry,
       tokenCategory: string
     ) => {
-      const identities = registry?.identities;
-      if (identities && identities[tokenCategory]) {
-        const identity = Object.values(identities[tokenCategory]).find(
-          (identity) => identity.token?.category === tokenCategory
-        );
-        if (identity) {
+      const tokenIdentities =
+        registry?.identities && registry?.identities[tokenCategory];
+      if (tokenIdentities) {
+        const timestamp = Object.keys(tokenIdentities)
+          .filter((revision) => +new Date(revision) < +new Date())
+          .reduce(function (timestamp1, timestamp2) {
+            return new Date(timestamp1) > new Date(timestamp2)
+              ? timestamp1
+              : timestamp2;
+          }, "");
+
+        const identity = tokenIdentities[timestamp];
+        if (identity && identity.token?.category === tokenCategory) {
           return identity;
         }
       }
@@ -293,6 +310,8 @@ export const useRegistryStore = defineStore(
       opreturnsVerified,
       registryProviders,
       loadingProviders,
+      registryList,
+      addRegistryProvider,
       getToken,
       addToken,
       getTokenIdentity,

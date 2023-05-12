@@ -1,6 +1,10 @@
 <template>
-  <div v-if="loading || error || rows.length" class="card">
-    <h3 class="p-3 d-flex">
+  <div
+    v-if="loading || error || rows.length"
+    class="card"
+    :class="{ 'border-less': headerLess }"
+  >
+    <h3 class="d-flex align-items-center p-3 header">
       <span>{{ props.title }}</span>
       <div class="mx-auto" />
       <BasePagination
@@ -76,6 +80,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  headerLess: {
+    type: Boolean,
+    default: false,
+  },
   error: {
     type: String,
     default: "",
@@ -104,10 +112,27 @@ watch(toRef(props, "rows"), () => {
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .table {
   animation: fade 0.8s linear;
 }
+
+.border-less {
+  border: none;
+
+  .header {
+    padding: 8px 0 0 !important;
+    display: none !important;
+  }
+
+  .table {
+    --bs-table-border-color: transparent;
+    --bs-table-striped-color: transparent;
+    --bs-table-striped-bg: transparent;
+    padding: 8px 0 0 !important;
+  }
+}
+
 @keyframes fade {
   from {
     opacity: 0;
