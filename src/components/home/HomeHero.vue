@@ -66,7 +66,7 @@ function keydownHandler(event: KeyboardEvent) {
 
   &::before {
     z-index: -2;
-    background: url(~/assets/images/wallpaper.jpg) center;
+    background: url(~/assets/images/wallpaper.webp) center;
     background-size: cover;
   }
 
@@ -86,10 +86,6 @@ function keydownHandler(event: KeyboardEvent) {
       align-items: center;
       border: calc(var(--bs-border-width) + 0.5px) solid var(--bs-border-color);
       background: var(--bs-body-bg);
-
-      &:hover {
-        color: black;
-      }
     }
   }
 }
