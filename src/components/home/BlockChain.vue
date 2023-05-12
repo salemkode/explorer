@@ -12,23 +12,14 @@
     <!-- blocks-container -->
     <div ref="element" class="blocks ps-2 py-3">
       <NuxtLink
-        v-for="i in 30"
+        v-for="(block, i) in blocks"
         :key="i"
-        :to="loading ? undefined : `/block/${getBlockHeight(i - 1)}`"
+        :to="block.loading ? undefined : `/block/${block.height}`"
         class="block-container nav-link"
       >
-        <div class="block">
-          <div
-            class="capacity shadow"
-            :style="{
-              '--capacity-size': `${
-                +(result?.block.at(i - 1)?.size_bytes || 0) / 10_485
-              }%`,
-            }"
-          />
-        </div>
+        <BlockCapacity :size-bytes="block.size_bytes" class="block" />
         <Transition name="fade" mode="out-in">
-          <small :key="getBlockHeight(i - 1)" v-text="getBlockHeight(i - 1)" />
+          <small :key="block.height" v-text="block.height" />
         </Transition>
       </NuxtLink>
     </div>
@@ -93,9 +84,24 @@ const slideRight = () => {
     behavior: "smooth",
   });
 };
-const getBlockHeight = (index: number) => {
-  return loading.value ? t("loading") : result.value?.block.at(index)?.height;
-};
+
+const blocks = computed(() => {
+  if (!result.value) {
+    return Array.from({ length: 30 }, () => {
+      return {
+        loading: true,
+        height: t("loading"),
+        size_bytes: 0,
+      };
+    });
+  }
+
+  return result.value.block.map((block) => ({
+    loading: false,
+    height: block.height,
+    size_bytes: +block.size_bytes,
+  }));
+});
 </script>
 
 <style lang="scss" scoped>
