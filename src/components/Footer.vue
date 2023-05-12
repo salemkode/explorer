@@ -82,7 +82,7 @@ const connectList = [
   },
   {
     title: "CashToken",
-    url: "https://t.me/simpleledger",
+    url: "https://t.me/cashtoken_devs",
   },
   {
     title: "Chaingraph dev",
