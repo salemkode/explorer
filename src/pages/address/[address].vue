@@ -38,7 +38,7 @@
             }"
           >
             <AddressNFTs :locking-bytecode="lockingBytecode" />
-            <AddressTokens class="mt-2" :locking-bytecode="lockingBytecode" />
+            <AddressTokens class="mt-4" :locking-bytecode="lockingBytecode" />
           </div>
         </Transition>
       </div>
