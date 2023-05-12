@@ -10,8 +10,9 @@ import {
 } from "@bitauth/libauth";
 import type { bigNum } from "~/types";
 
-export const satToBch = (num: bigNum, decimal = 8) => {
+export const satToBch = (num: bigNum, decimal = 6) => {
   const bigNum = BigNumber(num);
+  if (bigNum.isNaN()) return "0";
   return bigNum.div(Math.pow(10, 8)).decimalPlaces(decimal).toString();
 };
 
