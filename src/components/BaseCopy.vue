@@ -4,18 +4,23 @@
       'text-break': !!props.warp,
     }"
   >
-    <PopOver :msg="props.short ? '' + props.text : ''">
+    <component :is="props.short ? PopOver : 'span'" :msg="String(props.text)">
       <NuxtLink :to="props.url" class="copy">
         {{ text }}
       </NuxtLink>
-    </PopOver>
-    <i v-if="props.text && props.copy" class="uicon-duplicate" @click="copy" />
+    </component>
+    <i
+      v-if="props.text && props.copy"
+      class="uicon-duplicate ms-2 pointer"
+      @click="copy"
+    />
     <div class="copy-popup" :class="{ show: showPopup }">copied!</div>
   </span>
 </template>
 
 <script setup lang="ts">
 import { shortTx } from "~/module/utils";
+import PopOver from "./PopOver.vue";
 
 const text = computed(() => {
   if (props.short && typeof props.text === "string") {
@@ -79,9 +84,10 @@ const copy = async () => {
   color: initial;
 }
 
-.copy-icon {
+.uicon-duplicate {
   margin: 0px 2px;
   cursor: pointer;
+  font-size: inherit;
 }
 
 .copy-popup {
