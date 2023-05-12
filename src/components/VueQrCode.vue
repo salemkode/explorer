@@ -1,12 +1,12 @@
 <template>
   <qr-code
+    :key="content"
     :contents="content"
     module-color="#1c7d43"
     position-ring-color="#13532d"
     position-center-color="#70c559"
     :style="{
-      width: '80px',
-      height: '80px',
+      '--code-size': `${size}px`,
     }"
   />
 </template>
@@ -32,8 +32,9 @@ onMounted(() => {
 
 <style scoped>
 qr-code {
-  --code-size: v-bind(size) + "px";
-  width: 80px;
-  height: 80px;
+  width: var(--code-size);
+  height: var(--code-size);
+  background: white;
+  border-radius: 10px;
 }
 </style>
