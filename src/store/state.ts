@@ -47,16 +47,23 @@ export const useStateStore = defineStore(
       }
     };
 
-    const usdPrice = ref<string>("0");
+    const usdPrice = ref(0);
     onMounted(async () => {
-      const response = await fetch("/api/price").then((res) => res.json());
-      if (
-        typeof response === "object" &&
-        response &&
-        "usd" in response &&
-        typeof response.usd === "string"
-      ) {
-        if (!isNaN(+response.usd)) usdPrice.value = response.usd;
+      const response = await fetch(
+        "https://markets.api.bitcoin.com/rates?c=BCH"
+      ).then((res) => res.json());
+      if (Array.isArray(response)) {
+        const price = utils.tObject(
+          response.find((price) => {
+            const priceObj = utils.tObject(price);
+            if (priceObj && "code" in priceObj && priceObj.code === "USD") {
+              return true;
+            }
+          })
+        );
+
+        if (price && "rate" in price && typeof price.rate === "number")
+          usdPrice.value = price.rate;
       }
     });
 
