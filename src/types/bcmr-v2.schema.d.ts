@@ -264,7 +264,7 @@ export type NftCategoryField = {
             | "https-url"
             | "ipfs-cid"
             | "utf8"
-            | `locktime`;
+            | "locktime";
         }
       | {
           type: "number";

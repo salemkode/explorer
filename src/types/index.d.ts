@@ -75,4 +75,3 @@ declare module "electrum-cash" {
     ): Promise<true>;
   }
 }
-
