@@ -10,7 +10,7 @@ import {
 export const useStateStore = defineStore(
   "state",
   () => {
-    const network = ref("chipnet" as "mainnet" | "chipnet");
+    const network = ref("mainnet" as "mainnet" | "chipnet");
     const lastBlockHeight = ref("0");
     const variables = computed(() => ({
       network: network.value,
