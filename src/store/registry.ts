@@ -11,7 +11,7 @@ import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, RegistryProvider, tokenCapability } from "~/types";
 
 export const defaultProviders = [
-  "https://gist.githubusercontent.com/salemkode/c60a7d233fd2011cbe943fedd9c67c5d/raw/364ffb3dc26fadf1ad68cbfda242c5729a1567b7/registry.json",
+  "https://otr.cash/.well-known/bitcoin-cash-metadata-registry.json",
 ];
 export const useRegistryStore = defineStore(
   "registry",
