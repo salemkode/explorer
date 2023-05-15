@@ -21,6 +21,7 @@ import {
 } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
 import { useStateStore, useRegistryStore } from "~/store";
+import { calculateDecimal } from "~/module/bitcoin";
 
 const limit = ref(9);
 const offset = ref(0);
@@ -76,12 +77,11 @@ const transactions = computed<tableColumn[][]>(() => {
   const items = Array.from(tokens, ([categoryBytea, amount]) => {
     const category = categoryBytea?.substring(2) || "";
     const metadata = registryStore.getToken(category);
-
+    const decimals = metadata.token?.decimals;
+    const name = metadata?.loading ? false : metadata?.token?.name || "N/A";
     return [
       {
-        text: metadata?.loading
-          ? "Loading..."
-          : metadata?.token?.name || "No name",
+        text: name || "Loading...",
         token: {
           category: category,
           icon: metadata?.token?.icon || "",
@@ -95,7 +95,7 @@ const transactions = computed<tableColumn[][]>(() => {
         url: `/token/${category}`,
       },
       {
-        text: amount || "N/A",
+        text: calculateDecimal(amount, decimals || 0).toString() || "N/A",
       },
     ];
   });

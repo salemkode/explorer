@@ -10,10 +10,15 @@ import {
 } from "@bitauth/libauth";
 import type { bigNum } from "~/types";
 
-export const satToBch = (num: bigNum, decimal = 6) => {
+export const calculateDecimal = (num: bigNum, decimal: number) => {
   const bigNum = BigNumber(num);
-  if (bigNum.isNaN()) return "0";
-  return bigNum.div(Math.pow(10, 8)).decimalPlaces(decimal).toString();
+  if (bigNum.isNaN()) return BigNumber("0");
+  return bigNum.div(Math.pow(10, decimal));
+};
+
+export const satToBch = (num: bigNum, decimalPlaces = 6) => {
+  const sat = calculateDecimal(num, 8);
+  return sat.decimalPlaces(decimalPlaces).toString();
 };
 
 export const removeAddressPrefix = (address: string) => {

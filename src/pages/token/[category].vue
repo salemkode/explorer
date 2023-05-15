@@ -42,6 +42,7 @@
           !tokenTransaction?.transaction?.at(0)?.outputs.at(0)
             ?.nonfungible_token_capability
         "
+        :decimals="decimals"
         :category="category"
       />
       <TokenTransaction :category="category" />
@@ -57,6 +58,7 @@
 import { useStateStore, useRegistryStore } from "~/store";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
 import type { contentWarpItem } from "~/types";
+import { calculateDecimal } from "~/module/bitcoin";
 
 const route = useRoute();
 const category = computed(() => route.params.category as string);
@@ -84,12 +86,19 @@ watch(
   { immediate: true }
 );
 
-const metadata = computed(() => ({
-  loading:
-    registryStore.loadingProviders ||
-    registryStore.opreturns.get(category.value) === true,
-  identitySnapshot: registryStore.getTokenIdentity(category.value),
-}));
+const metadata = computed(() => {
+  const isOpreturnLoading =
+    registryStore.opreturns.get(category.value) === true;
+  const registryState = registryStore.getTokenIdentity(category.value);
+  return {
+    loading: registryStore.loadingProviders || isOpreturnLoading,
+    type: registryState?.type,
+    identitySnapshot: registryState?.identity,
+  };
+});
+const decimals = computed(
+  () => metadata.value.identitySnapshot?.token?.decimals || 0
+);
 const tokenInfo = computed(() => {
   const genesisTx = tokenTransaction.value?.transaction
     .at(0)
@@ -120,7 +129,7 @@ const tokenInfo = computed(() => {
     },
     {
       title: "Genesis Supply",
-      text: genesisSupply,
+      text: calculateDecimal(genesisSupply, decimals.value || 0).toString(),
     },
     {
       title: "Token type",

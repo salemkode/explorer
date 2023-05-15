@@ -18,13 +18,14 @@ import {
   GetTokenAddress,
 } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
-import { removeAddressPrefix } from "~/module/bitcoin";
+import { calculateDecimal, removeAddressPrefix } from "~/module/bitcoin";
 import type { tableColumn } from "~/types";
 
 const limit = ref(9);
 const offset = ref(0);
 const props = defineProps<{
   category: string;
+  decimals: number;
 }>();
 const stateStore = useStateStore();
 const variables = computed(() => ({
@@ -81,7 +82,7 @@ const addressList = computed(() => {
           url: `/address/${address}`,
         },
         {
-          text: amount,
+          text: calculateDecimal(amount, props.decimals).toString(),
         },
       ];
     }

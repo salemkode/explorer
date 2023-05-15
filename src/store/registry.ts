@@ -192,7 +192,7 @@ export const useRegistryStore = defineStore(
       nftType?: tokenCapability,
       nftCommitment?: string
     ) => {
-      const identity = getTokenIdentity(category);
+      const tokenIdentity = getTokenIdentity(category);
       let token:
         | {
             name: string;
@@ -202,7 +202,8 @@ export const useRegistryStore = defineStore(
           }
         | undefined;
 
-      if (identity) {
+      if (tokenIdentity) {
+        const { identity } = tokenIdentity;
         if (nftType && nftType !== "minting") {
           if (!nftCommitment) {
             return {
@@ -219,6 +220,7 @@ export const useRegistryStore = defineStore(
               description: child.description,
               icon: child.uris ? child.uris["icon"] : undefined,
               symbol: undefined,
+              decimals: 0,
             };
           }
         } else {
@@ -227,6 +229,7 @@ export const useRegistryStore = defineStore(
             description: identity.description,
             symbol: identity.token?.symbol,
             icon: identity.uris ? identity.uris["icon"] : undefined,
+            decimals: identity.token?.decimals || 0,
           };
         }
       }
