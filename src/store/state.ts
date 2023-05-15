@@ -53,9 +53,9 @@ export const useStateStore = defineStore(
         "https://markets.api.bitcoin.com/rates?c=BCH"
       ).then((res) => res.json());
       if (Array.isArray(response)) {
-        const price = utils.tObject(
+        const price = utils.toObject(
           response.find((price) => {
-            const priceObj = utils.tObject(price);
+            const priceObj = utils.toObject(price);
             if (priceObj && "code" in priceObj && priceObj.code === "USD") {
               return true;
             }

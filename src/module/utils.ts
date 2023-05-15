@@ -12,6 +12,9 @@ export const bytesToMB = (bytes: number) => {
   return mb;
 };
 
+export const toObject = (value: unknown) => {
+  return typeof value === "object" && value !== null && value;
+};
 export const calculatePrice = (sat: bigNum, price: bigNum) => {
   const bchNum = satToBch(sat);
   const bigNum = BigNumber(bchNum);
