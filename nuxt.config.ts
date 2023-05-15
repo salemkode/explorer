@@ -26,7 +26,6 @@ export default defineNuxtConfig({
     "@nuxtjs/apollo",
     "@nuxtjs/i18n",
     "@pinia/nuxt",
-    "nuxt-purgecss",
     "@pinia-plugin-persistedstate/nuxt",
   ],
   i18n: {
