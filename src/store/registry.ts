@@ -168,21 +168,39 @@ export const useRegistryStore = defineStore(
     const getRegistryHasCategory = (category: string) => {
       const opreturnResult = opreturns.get(category);
       if (typeof opreturnResult === "object") {
-        return opreturnResult;
+        return {
+          type: "opreturn",
+          registry: opreturnResult,
+        } as const;
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        return Array.from(registryProviders, ([_, registry]) => registry).find(
-          ({ identities }) => (identities ? identities[category] : undefined)
+        const registry = Array.from(
+          registryProviders,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ([_, registry]) => registry
+        ).find(({ identities }) =>
+          identities ? identities[category] : undefined
         );
+
+        if (!registry) {
+          return;
+        }
+
+        return {
+          type: "registry",
+          registry,
+        } as const;
       }
     };
 
     const getTokenIdentity = (category: string) => {
       const registry = getRegistryHasCategory(category);
       if (registry) {
-        const identity = getTokenFromRegister(registry, category);
+        const identity = getTokenFromRegister(registry.registry, category);
         if (identity) {
-          return identity;
+          return {
+            type: registry.type,
+            identity,
+          };
         }
       }
     };
@@ -199,6 +217,7 @@ export const useRegistryStore = defineStore(
             description?: string;
             symbol?: string;
             icon?: string;
+            decimals: number;
           }
         | undefined;
 
