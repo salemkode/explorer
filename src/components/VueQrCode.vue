@@ -7,6 +7,7 @@
     position-center-color="#70c559"
     :style="{
       '--code-size': `${size}px`,
+      '--scale-size': scale ? '2' : '1',
     }"
   />
 </template>
@@ -23,6 +24,10 @@ defineProps({
     type: String,
     required: true,
   },
+  scale: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 onMounted(() => {
@@ -36,5 +41,8 @@ qr-code {
   height: var(--code-size);
   background: white;
   border-radius: 10px;
+  transform: scale(var(--scale-size));
+  transform-origin: 0 0;
+  transition: transform 1s;
 }
 </style>
