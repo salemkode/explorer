@@ -26,7 +26,7 @@ const scaleQrBtn = ref();
 const scaleQr = ref(false);
 
 const outsideClick = (event: MouseEvent) => {
-  if (reference.value !== event.target && scaleQr.value) {
+  if (scaleQrBtn.value !== event.target && scaleQr.value) {
     scaleQr.value = false;
   }
 };
