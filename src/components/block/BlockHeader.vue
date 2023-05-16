@@ -61,6 +61,11 @@ const blocks = computed(() => [
 .block {
   text-decoration: none;
   color: inherit;
+  opacity: 0;
+}
+
+.block.show {
+  opacity: 1;
 }
 
 .block:not(:nth-child(2)) {
