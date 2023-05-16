@@ -37,10 +37,10 @@ const stateStore = useStateStore();
           <ul class="nav d-grid gap-2 d-md-none card p-2 mt-3">
             <li v-for="item in navItems" :key="item.name">
               <router-link
-                class="btn btn-primary d-flex align-items-center"
+                class="btn d-flex align-items-center"
                 :to="item.path"
               >
-                <span class="my-0 mx-2" v-text="$t(item.name)" />
+                <span class="my-0" v-text="$t(item.name)" />
               </router-link>
             </li>
             <li
@@ -56,3 +56,9 @@ const stateStore = useStateStore();
     </nav>
   </header>
 </template>
+
+<style scoped>
+.btn {
+  --bs-btn-active-border-color: transparent;
+}
+</style>
