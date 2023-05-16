@@ -5,9 +5,9 @@
       v-if="loading && transactions.length === 0"
       class="m-auto"
     />
-    <div v-else-if="transactions.length === 0" class="m-auto">
+    <h5 v-else-if="transactions.length === 0" class="m-auto my-5">
       Not Found unconfirmed transaction
-    </div>
+    </h5>
     <TransactionList v-else :transactions="transactions" />
   </div>
 </template>
@@ -28,14 +28,31 @@ const variables = computed(() => ({
   limit: limit.value,
 }));
 
-const { result: nodeUnconfirmedTx, loading } =
-  useSubscription<MonitorMempoolsSubscription>(MonitorMempools, variables);
+const timestampKey = ref<NodeJS.Timeout | undefined>();
+const transactions = ref<
+  MonitorMempoolsSubscription["node"][number]["unconfirmed_transactions"][number]["transaction"][]
+>([]);
+const { onResult, loading } = useSubscription<MonitorMempoolsSubscription>(
+  MonitorMempools,
+  variables
+);
 
-const transactions = computed(() => {
-  return (
-    nodeUnconfirmedTx.value?.node
-      .at(0)
-      ?.unconfirmed_transactions.map(({ transaction }) => transaction) || []
-  );
+onResult((result) => {
+  const setTransactions = () => {
+    transactions.value =
+      result.data?.node
+        .at(0)
+        ?.unconfirmed_transactions.map(({ transaction }) => transaction) || [];
+  };
+
+  // Stop if no data
+  if (!result.data) return;
+
+  if (!transactions.value.length) {
+    setTransactions();
+  } else {
+    if (timestampKey.value) clearTimeout(timestampKey.value);
+    timestampKey.value = setTimeout(setTransactions, 5000);
+  }
 });
 </script>
