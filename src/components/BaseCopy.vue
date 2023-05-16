@@ -81,7 +81,7 @@ const copy = async () => {
 .copy {
   font-family: monospace;
   text-decoration: none;
-  color: initial;
+  color: inherit;
 }
 
 .uicon-duplicate {

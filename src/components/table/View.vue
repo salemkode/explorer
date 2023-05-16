@@ -127,7 +127,6 @@ watch(toRef(props, "rows"), () => {
 
   .table {
     --bs-table-border-color: transparent;
-    --bs-table-striped-color: transparent;
     --bs-table-striped-bg: transparent;
     padding: 8px 0 0 !important;
   }
