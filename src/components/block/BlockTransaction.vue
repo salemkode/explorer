@@ -9,14 +9,9 @@
         @previous="emit('update:offset', props.offset - props.limit)"
       />
     </h3>
-    <LoadingSpinner
-      v-if="loading && transactions.length === 0"
-      class="m-auto"
-    />
-    <div v-else-if="transactions.length === 0" class="text-center my-5 py-5">
-      Not Found Transactions
-    </div>
-    <TransactionList v-else :transactions="transactions" />
+    <TransactionList v-if="transactions.length" :transactions="transactions" />
+    <div v-else class="text-center my-5 py-5">Not Found Transactions</div>
+    <LoadingSpinner v-if="loading" class="m-auto my-2" />
   </div>
 </template>
 
