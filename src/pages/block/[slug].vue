@@ -1,14 +1,13 @@
 <template>
-  <LoadingView v-if="loading" />
-  <div v-else-if="result" class="container">
+  <div v-if="result" class="container">
     <div class="block-page overflow-hidden d-lg-grid">
       <div class="column">
-        <content-warp :loading="loading" :items="blockItemWarp" />
+        <content-warp :loading="false" :items="blockItemWarp" />
       </div>
       <div class="column">
         <BlockHeader :height="result.block.at(0)?.height || ''" />
         <BlockTransaction
-          v-model:offset="variable.offsetTxs"
+          v-model:offset="offsetTxs"
           :limit="variable.limitTxs"
           :transactions="transactions"
           :loading="loading"
@@ -16,6 +15,7 @@
       </div>
     </div>
   </div>
+  <LoadingView v-else-if="loading" />
 </template>
 
 <script setup lang="ts">
@@ -28,12 +28,13 @@ import type { contentWarpItem } from "~/types";
 const route = useRoute();
 const blockHashOrHeight = computed(() => route.params.slug as string);
 const stateStore = useStateStore();
+const offsetTxs = ref(0);
 const variable = computed(() => ({
   network: stateStore.network,
   hash: blockHashOrHeight.value,
   height: blockHashOrHeight.value,
   limitTxs: 9,
-  offsetTxs: 0,
+  offsetTxs: offsetTxs.value,
 }));
 const { result, loading } = useQuery<GetBlockQuery>(GetBlock, variable);
 const blockItemWarp = computed<contentWarpItem[]>(() => {
