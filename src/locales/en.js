@@ -19,8 +19,7 @@ export default {
   mainmenu_donate_us: "Donate to us",
 
   index_page_header: "Bitcoin Cash Explorer",
-  index_page_subheader:
-    "Explore Bitcoin Cash",
+  index_page_subheader: "Explore Bitcoin Cash",
   index_page_subtext: "CashTokens support with transactions analytics.",
   index_page_latest_transactions: "Latest Transactions",
   index_page_transaction_charts: "Transactions Charts",
@@ -73,6 +72,7 @@ export default {
   transactions_chart: "Transactions Chart",
   txid: "Transaction ID",
   tx: "Transaction",
+  uris: "Uris",
   category: "Token category",
   cash_token: "Cash token",
   token_register: "Token Register",

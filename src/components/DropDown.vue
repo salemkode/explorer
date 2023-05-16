@@ -5,12 +5,12 @@
     type="button"
     @click="openDropDown"
   >
-    Dropdown
+    {{ title }}
     <ul
       ref="floating"
       :style="{
         position: strategy,
-        top: `${y || 0}px`,
+        top: `${(y || 0) + 10}px`,
         left: `${x || 0}px`,
         width: '300px',
       }"
@@ -31,6 +31,7 @@ const open = ref(false);
 const reference = ref(null);
 const floating = ref(null);
 defineProps<{
+  title: string;
   items: {
     name: string;
     href: string;

@@ -47,16 +47,13 @@
         @previous="maxPagination--"
       />
       <div class="d-flex mt-3">
-        <DropDown class="d-md-none" :items="uris" />
+        <DropDown class="d-md-none" :title="$t('uris')" :items="uris" />
         <a
           v-for="url in uris"
           :key="url.name"
           :href="url.href"
           target="_blank"
-          class="btn d-none"
-          :class="{
-            'd-md-block': url.href,
-          }"
+          class="btn d-none d-md-block"
           v-text="$t(url.name)"
         />
         <a
@@ -149,7 +146,7 @@ const uris = computed(() => {
       name: "raw",
       href: props.url,
     },
-  ];
+  ].filter((url) => Boolean(url.href));
 });
 
 const registryListIndex = computed(() => {
