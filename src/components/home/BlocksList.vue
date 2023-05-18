@@ -2,7 +2,7 @@
   <div class="card">
     <h3 class="p-3">Block chain blocks</h3>
     <div v-if="blockList.type == 'error'" class="my-5 py-5 text-center">
-      <small>Not Found block list</small>
+      <h5>Not Found block list</h5>
     </div>
     <div v-else ref="element" class="blocks px-3">
       <TransitionGroup name="list">
@@ -64,7 +64,7 @@ const blockList = computed(() => {
   } else if (loading.value) {
     return {
       type: "loading",
-      value: Array.from({ length: 7 }, () => t("loading")),
+      value: Array.from({ length: variables.value.limit }, () => t("loading")),
     } as const;
   } else {
     return {
