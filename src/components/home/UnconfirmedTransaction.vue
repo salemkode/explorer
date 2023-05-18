@@ -5,9 +5,9 @@
       v-if="loading && transactions.length === 0"
       class="m-auto"
     />
-    <h5 v-else-if="transactions.length === 0" class="m-auto my-5">
-      Not Found unconfirmed transaction
-    </h5>
+    <div v-else-if="transactions.length === 0" class="my-5 py-5 text-center">
+      <h5>Not Found unconfirmed transaction</h5>
+    </div>
     <TransactionList v-else :transactions="transactions" />
   </div>
 </template>
@@ -48,7 +48,7 @@ onResult((result) => {
   // Stop if no data
   if (!result.data) return;
 
-  if (!transactions.value.length) {
+  if (transactions.value.length !== limit.value) {
     setTransactions();
   } else {
     if (timestampKey.value) clearTimeout(timestampKey.value);
