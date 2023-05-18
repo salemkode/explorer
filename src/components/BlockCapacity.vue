@@ -15,7 +15,7 @@ const props = defineProps<{
 }>();
 
 const size = computed(() => {
-  return `${+(props.sizeBytes || 0) / 10_485}%`;
+  return `${+(props.sizeBytes || 0) / 33_554_432}%`;
 });
 </script>
 
