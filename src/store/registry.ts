@@ -91,6 +91,14 @@ export const useRegistryStore = defineStore(
     };
 
     onMounted(() => {
+      // Remove default providers when removed from defaultProviders
+      registryList.value.forEach((registry, index) => {
+        if (registry.default && !defaultProviders.includes(registry.url)) {
+          registryList.value.splice(index, 1);
+        }
+      });
+
+      // Add default providers
       const providerSet = new Set(defaultProviders);
       registryList.value.forEach(({ url }) => providerSet.add(url));
 
