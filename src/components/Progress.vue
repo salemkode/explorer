@@ -43,7 +43,6 @@ const props = defineProps({
     validator: (value: number) => value >= 0 && value <= 100,
   },
 });
-
 const strokeDashoffset = computed(() => {
   const p = props.percentage;
   const off = -51 - (51 / 100) * p;
@@ -55,8 +54,9 @@ const hoverStrokeDashoffset = ref(0);
 setInterval(() => {
   if (props.percentage !== 100) {
     hoverStrokeDashoffset.value -= 51;
-  } else if (hoverStrokeDashoffset.value % -51 !== 0) {
-    hoverStrokeDashoffset.value -= 51;
+  } else {
+    hoverStrokeDashoffset.value -=
+      (hoverStrokeDashoffset.value / 51) % 2 ? 51 : 0;
   }
 }, 1000);
 </script>
