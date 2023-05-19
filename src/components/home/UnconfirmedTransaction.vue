@@ -1,6 +1,6 @@
 <template>
   <div class="transaction-list card">
-    <h3 class="p-3">Last transaction</h3>
+    <h3 class="p-3">Latest transactions</h3>
     <LoadingSpinner
       v-if="loading && transactions.length === 0"
       class="m-auto"

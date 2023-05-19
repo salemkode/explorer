@@ -27,7 +27,7 @@ const addRegisters = async () => {
       Control who you want to verify the tokens from and who you take the token
       data from.
     </p>
-    <b class="m-1"> You must be trust of registers provider. </b>
+    <b class="m-1"> You must trust the provider. </b>
     <div class="input-group">
       <input
         v-model="url"
