@@ -17,8 +17,9 @@ export const toObject = (value: unknown) => {
 };
 export const calculatePrice = (sat: bigNum, price: bigNum) => {
   const bchNum = satToBch(sat);
-  const bigNum = BigNumber(bchNum);
-  return bigNum.multipliedBy(price).decimalPlaces(3);
+  const bigNum = BigNumber(bchNum).multipliedBy(price);
+  const decimal = bigNum.isLessThanOrEqualTo(1) ? 3 : 2;
+  return bigNum.decimalPlaces(decimal).toString();
 };
 
 export const numberWithCommas = (num: bigNum) => {
