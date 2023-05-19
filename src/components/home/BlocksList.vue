@@ -14,6 +14,7 @@
         >
           <BlockCapacity
             :size-bytes="typeof block === 'string' ? 0 : +block.size_bytes"
+            :loading="typeof block === 'string'"
             class="me-3"
           />
           <span v-if="typeof block === 'string'" v-text="$t('loading')" />

@@ -17,7 +17,11 @@
         :to="block.loading ? undefined : `/block/${block.height}`"
         class="block-container nav-link"
       >
-        <BlockCapacity :size-bytes="block.size_bytes" class="block" />
+        <BlockCapacity
+          :size-bytes="block.size_bytes"
+          :loading="block.loading"
+          class="block"
+        />
         <Transition name="fade" mode="out-in">
           <small :key="block.height" v-text="block.height" />
         </Transition>
