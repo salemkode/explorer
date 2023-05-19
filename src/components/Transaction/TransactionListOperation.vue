@@ -9,8 +9,8 @@
         style="font-size: 12.8px"
       >
         <div class="d-flex">
-          <b style="font-size: 20px" class="pe-2">
-            {{ i + 1 }}
+          <b class="pe-2 mt-1 order-number">
+            {{ (i < 9 ? "0" : "") + (i + 1) }}
           </b>
           <div>
             <BaseCopy
@@ -39,36 +39,12 @@
                 • {{ utxo.tokenAmount }}
                 {{ registryStore.getToken(utxo.category)?.token?.symbol }}
               </div>
-              <div class="d-flex flex-wrap mt-2">
-                <div
-                  v-if="utxo.category && utxo.tokenAmount"
-                  class="badge text-bg-dark d-flex align-items-center me-1 mb-1"
-                >
-                  <NuxtLink class="text-white" :to="`/token/${utxo.category}`">
-                    {{ shortTx(utxo.category) }}
-                  </NuxtLink>
-                  <template v-if="+utxo.tokenAmount">
-                    <div class="mx-1">•</div>
-                    {{ +utxo.tokenAmount }}&nbsp;
-                    <span>
-                      {{ registryStore.getToken(utxo.category)?.token?.symbol }}
-                    </span>
-                  </template>
-                </div>
-                <div
-                  v-if="utxo.tokenCommitment"
-                  class="badge text-bg-dark me-1 mb-1"
-                >
-                  NFT commitment:
-                  {{ utxo.tokenCommitment }}
-                </div>
-                <div
-                  v-if="utxo.tokenCapability"
-                  class="badge text-bg-dark me-1 mb-1"
-                >
-                  {{ utxo.tokenCapability }} nft
-                </div>
-              </div>
+              <TransactionOperationToken
+                :category="utxo.category"
+                :token-amount="utxo.tokenAmount"
+                :token-capability="utxo.tokenCapability"
+                :token-commitment="utxo.tokenCommitment"
+              />
             </template>
           </div>
         </div>
@@ -81,7 +57,6 @@
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
 import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
-import { shortTx } from "~/module/utils";
 import { useStateStore, useRegistryStore } from "~/store";
 import type { Utxo } from "~/types";
 
@@ -168,3 +143,10 @@ const getAddress = (lockingBytecode: string) => {
   );
 };
 </script>
+
+<style scoped>
+.order-number {
+  font-size: 14px;
+  min-width: 35px;
+}
+</style>
