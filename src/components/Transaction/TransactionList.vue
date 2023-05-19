@@ -56,13 +56,14 @@
         </div>
 
         <SliderUpDown :active="showOperation.get(transaction.hash)">
-          <div class="transaction-list-operation">
+          <div class="transaction-list-operation d-lg-grid">
             <TransactionListOperation
               name="from"
               :utxos="transaction.inputsUtxo"
               :is-coin-base="transaction.isCoinBase"
             />
-            <div class="line" />
+            <div class="line d-none d-lg-block" />
+            <div class="line-row d-lg-none" />
             <TransactionListOperation name="to" :utxos="transaction.outputs" />
           </div>
         </SliderUpDown>
@@ -218,13 +219,17 @@ $grid-breakpoints: (
     background-color: var(--bs-border-color);
   }
 
+  .line-row {
+    height: 1px;
+    background-color: var(--bs-border-color);
+  }
+
   .angle {
     transition: transform 0.5s;
   }
 
   .transaction-list-operation {
     border-width: 1px 0;
-    display: grid;
     grid-template-columns: 1fr auto 1fr;
   }
 }
