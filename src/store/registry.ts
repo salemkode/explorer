@@ -12,6 +12,7 @@ import type { Registry, RegistryProvider, tokenCapability } from "~/types";
 
 export const defaultProviders = [
   "https://otr.cash/.well-known/bitcoin-cash-metadata-registry.json",
+  `${location.origin}/registry.json`,
 ];
 export const useRegistryStore = defineStore(
   "registry",
