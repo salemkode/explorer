@@ -31,6 +31,7 @@ const onSortEnd = (event: Sortable.SortableEvent) => {
 onMounted(() => {
   if (!list.value) return;
   Sortable.create(list.value, {
+    animation: 200,
     onEnd: onSortEnd,
   });
 });

@@ -13,6 +13,7 @@ import type { Registry, RegistryProvider, tokenCapability } from "~/types";
 export const defaultProviders = [
   "https://otr.cash/.well-known/bitcoin-cash-metadata-registry.json",
   `${location.origin}/registry.json`,
+  "op_return",
 ];
 export const useRegistryStore = defineStore(
   "registry",
@@ -31,12 +32,17 @@ export const useRegistryStore = defineStore(
     const registryProviders = reactive(new Map<string, Registry>());
     const loadingProviders = ref(true);
     const registryList = ref([] as RegistryProvider[]);
-
     const isRegistryProviderExist = (url: string) => {
       return !!registryList.value.find((item) => item.url === url);
     };
 
     const addRegistryProvider = async (url: string, _default = false) => {
+      if (url === "op_return") {
+        return {
+          status: "Success",
+        } as const;
+      }
+
       // Check is url valid using regex
       const urlPattern =
         /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
@@ -98,6 +104,15 @@ export const useRegistryStore = defineStore(
           registryList.value.splice(index, 1);
         }
       });
+
+      // Add op_return to registryList
+      !registryList.value.find(({ url }) => url === "op_return") &&
+        registryList.value.unshift({
+          name: "OpReturn",
+          default: true,
+          enable: true,
+          url: "op_return",
+        });
 
       // Add default providers
       const providerSet = new Set(defaultProviders);
@@ -176,28 +191,22 @@ export const useRegistryStore = defineStore(
 
     const getRegistryHasCategory = (category: string) => {
       const opreturnResult = opreturns.get(category);
-      if (typeof opreturnResult === "object") {
-        return {
-          type: "opreturn",
-          registry: opreturnResult,
-        } as const;
-      } else {
-        const registry = Array.from(
-          registryProviders,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ([_, registry]) => registry
-        ).find(({ identities }) =>
-          identities ? identities[category] : undefined
-        );
+      // for in array
+      for (let i = 0; i < registryList.value.length; i++) {
+        const { name, url } = registryList.value[i];
+        const registry =
+          url === "op_return" ? opreturnResult : registryProviders.get(url);
 
-        if (!registry) {
-          return;
+        if (
+          typeof registry === "object" &&
+          registry.identities &&
+          registry.identities[category]
+        ) {
+          return {
+            name,
+            registry,
+          };
         }
-
-        return {
-          type: "registry",
-          registry,
-        } as const;
       }
     };
 
@@ -207,7 +216,7 @@ export const useRegistryStore = defineStore(
         const identity = getTokenFromRegister(registry.registry, category);
         if (identity) {
           return {
-            type: registry.type,
+            name: registry.name,
             identity,
           };
         }

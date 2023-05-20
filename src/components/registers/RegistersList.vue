@@ -2,6 +2,7 @@
 import { useRegistryStore } from "~/store";
 
 const registryStore = useRegistryStore();
+const change = ref(0);
 const swapList = ({
   newIndex,
   oldIndex,
@@ -9,15 +10,19 @@ const swapList = ({
   newIndex: number;
   oldIndex: number;
 }) => {
-  const temp = registryStore.registryList[newIndex];
-  registryStore.registryList[newIndex] = registryStore.registryList[oldIndex];
-  registryStore.registryList[oldIndex] = temp;
+  const [removed] = registryStore.registryList.splice(oldIndex, 1);
+  registryStore.registryList.splice(newIndex, 0, removed);
+  change.value++;
 };
 </script>
 
 <template>
   <div v-if="registryStore.registryList.length >= 2">
     <h4 class="my-2">Register order</h4>
-    <SortableList :items="registryStore.registryList" @sort-end="swapList" />
+    <SortableList
+      :key="change"
+      :items="registryStore.registryList"
+      @sort-end="swapList"
+    />
   </div>
 </template>

@@ -1,15 +1,22 @@
 <template>
   <h5>Verifying by</h5>
-  <ul class="list-group">
-    <li
+  <div class="d-flex flex-column">
+    <div
       v-for="(registry, name) in providers"
       :key="name"
-      :class="itemClass"
+      class="card flex-row px-2 py-1 mb-1 justify-content-between align-items-center"
       :style="{
         order: getOrder(name),
       }"
     >
-      {{ name }}
+      <span
+        class="select-boll"
+        :class="{
+          active: name === select,
+        }"
+      >
+        {{ name }}
+      </span>
       <div
         v-if="registry === true"
         style="width: 18px; height: 18px"
@@ -21,8 +28,8 @@
         class="uicon-unverified text-danger"
       />
       <i v-else class="uicon-verified text-primary" />
-    </li>
-  </ul>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -32,6 +39,7 @@ const registryStore = useRegistryStore();
 
 const props = defineProps<{
   category: string;
+  select: string;
 }>();
 const providers = computed(() => {
   const items: Record<string, Registry | boolean> = {
@@ -55,8 +63,7 @@ const getOrder = (name: string) => {
     (registry) => registry.name === name
   );
 };
-const itemClass =
-  "list-group-item d-flex justify-content-between align-items-center";
+
 const isVerified = (category: string, registry: Registry) => {
   const identities = registry.identities;
   const identity = identities && identities[category];
@@ -72,5 +79,20 @@ const isVerified = (category: string, registry: Registry) => {
 [class^="uicon-"],
 [class*=" uicon-"] {
   font-size: 22px;
+}
+
+.select-boll.active::before {
+  opacity: 1;
+}
+
+.select-boll::before {
+  content: "";
+  opacity: 0;
+  display: inline-block;
+  background-color: var(--bs-primary);
+  width: 10px;
+  height: 10px;
+  border-radius: 1000px;
+  margin-right: 5px;
 }
 </style>

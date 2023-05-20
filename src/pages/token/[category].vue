@@ -23,7 +23,7 @@
         :loading="metadata.loading"
         :identity-snapshot="metadata.identitySnapshot"
       />
-      <TokenProvider :category="category" />
+      <TokenProvider :select="metadata.name" :category="category" />
     </div>
     <div
       class="column d-lg-block"
@@ -70,8 +70,27 @@ const variable = computed(() => ({
   network: stateStore.network,
   tokenCategory: ["\\x" + category.value],
 }));
-const { result: tokenTransaction, loading: tokenTransactionLoading } =
-  useQuery<GetTokenQuery>(GetToken, variable);
+const {
+  result: tokenTransaction,
+  loading: tokenTransactionLoading,
+  onResult,
+  onError,
+} = useQuery<GetTokenQuery>(GetToken, variable);
+
+onError(() => {
+  throw showError({
+    statusCode: 404,
+    message: "This transaction is not found",
+  });
+});
+onResult(() => {
+  if (!tokenTransaction.value || !tokenTransaction.value.transaction.length) {
+    throw showError({
+      statusCode: 404,
+      message: "This transaction is not found",
+    });
+  }
+});
 
 watch(
   [category, tokenTransaction],
@@ -92,7 +111,7 @@ const metadata = computed(() => {
   const registryState = registryStore.getTokenIdentity(category.value);
   return {
     loading: registryStore.loadingProviders || isOpreturnLoading,
-    type: registryState?.type,
+    name: registryState?.name || "",
     identitySnapshot: registryState?.identity,
   };
 });
