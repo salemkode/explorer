@@ -47,8 +47,7 @@ import {
   GetTx,
   GetToken,
 } from "~/module/chaingraph";
-import { formatDateString, calculatePrice } from "~/module/utils";
-import { satToBch } from "~/module/bitcoin";
+import { formatDateString } from "~/module/utils";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid");
@@ -132,10 +131,6 @@ const infoContent = computed(() => {
   const satoshis: string | null | undefined =
     transaction.value.transaction.input_value_satoshis ||
     transaction.value.transaction.output_value_satoshis;
-  const bchValue = satoshis ? `${satToBch(satoshis)}BCH` : "Unknown";
-  const usdValue = satoshis
-    ? `${calculatePrice(satoshis, stateStore.usdPrice || "")}USD`
-    : "Unknown";
   return [
     {
       title: "Transaction hash",
@@ -144,12 +139,8 @@ const infoContent = computed(() => {
       warp: true,
     },
     {
-      title: "Value (BCH)",
-      text: bchValue,
-    },
-    {
-      title: "Value (USD)",
-      text: usdValue,
+      title: "Value",
+      text: satoshis ? stateStore.formatPrice(satoshis) : 0,
     },
     {
       title: "Time",

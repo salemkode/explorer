@@ -25,8 +25,7 @@
             </b>
             <b v-else-if="utxo.type === 'coinbase'"> Block Reward </b>
             <div class="amount">
-              {{ utxo.value }}
-              BCH • ${{ stateStore.calculatePrice(utxo.valueSatoshis || "0") }}
+              ${{ stateStore.calculatePrice(utxo.valueSatoshis || "0") }}
             </div>
             <template v-if="'category' in utxo && utxo.category">
               <div>

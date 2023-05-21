@@ -41,8 +41,7 @@
               </div>
             </small>
             <small class="amount">
-              {{ satToBch(transaction.amount || 0, 3) }}
-              BCH • ${{ stateStore.calculatePrice(transaction.amount || "0") }}
+              ${{ stateStore.formatPrice(transaction.amount || "0") }}
             </small>
           </div>
           <i
@@ -90,7 +89,7 @@ export type transactions = Array<{
 </script>
 
 <script setup lang="ts">
-import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
+import { removeAddressPrefix } from "~/module/bitcoin";
 import { useStateStore } from "~/store";
 
 const key = ref(0);

@@ -1,6 +1,6 @@
 import { hexToBin, lockingBytecodeToCashAddress } from "@bitauth/libauth";
 import { defineStore } from "pinia";
-import { isValidAddress } from "~/module/bitcoin";
+import { isValidAddress, satToBch } from "~/module/bitcoin";
 import * as utils from "~/module/utils";
 import {
   type GetLastBlockSubscription,
@@ -83,6 +83,9 @@ export const useStateStore = defineStore(
       return utils.calculatePrice(sat, usdPrice.value || "");
     };
 
+    const formatPrice = (sat: string) =>
+      `${satToBch(sat, 3)}BCH • ${calculatePrice(sat)}$`;
+
     const lockingBytecodeHexToCashAddress = (
       hexCode: string,
       tokenSupport = true
@@ -104,6 +107,7 @@ export const useStateStore = defineStore(
       usdPrice,
       lastBlockHeight,
       darkmode,
+      formatPrice,
       lockingBytecodeHexToCashAddress,
       search,
       calculatePrice,
