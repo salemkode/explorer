@@ -50,20 +50,20 @@ export const useStateStore = defineStore(
     const usdPrice = ref(0);
     onMounted(async () => {
       const response = await fetch(
-        "https://markets.api.bitcoin.com/rates?c=BCH"
+        "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd"
       ).then((res) => res.json());
-      if (Array.isArray(response)) {
-        const price = utils.toObject(
-          response.find((price) => {
-            const priceObj = utils.toObject(price);
-            if (priceObj && "code" in priceObj && priceObj.code === "USD") {
-              return true;
-            }
-          })
-        );
 
-        if (price && "rate" in price && typeof price.rate === "number")
-          usdPrice.value = price.rate;
+      if (
+        response &&
+        typeof response === "object" &&
+        "bitcoin-cash" in response
+      ) {
+        const bchPrices = response["bitcoin-cash"];
+        if (bchPrices && typeof bchPrices === "object" && "usd" in bchPrices) {
+          if (bchPrices.usd && typeof bchPrices.usd === "number") {
+            usdPrice.value = bchPrices.usd;
+          }
+        }
       }
     });
 
