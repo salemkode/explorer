@@ -2,16 +2,38 @@
   <div class="icon my-1">
     <Transition name="fade" mode="out-in">
       <img
-        :key="status.iconUrl"
-        :src="status.iconUrl"
+        ref="reference"
+        :key="state.iconUrl"
+        :src="state.iconUrl"
         :class="{ small, rounded: props.rounded === true }"
         :width="80"
         :height="80"
         alt="icon"
-        @load="status.loaded = true"
+        class="rounded"
+        @load="state.loaded = true"
         @error="imageLoadError"
+        @click.stop="imageClick"
       />
     </Transition>
+    <div
+      v-if="state.open"
+      class="modal-backdrop fade show"
+      @click.close="state.open = false"
+    />
+    <img
+      v-if="!state.error"
+      :key="state.iconUrl"
+      :src="state.iconUrl"
+      :class="{ small, rounded: props.rounded === true, open: state.open }"
+      :style="{
+        top: `${state.y}px`,
+        left: `${state.x}px`,
+        transition: state.transition,
+      }"
+      class="popover-image rounded"
+      alt="icon"
+      @click.stop="imageClick"
+    />
   </div>
 </template>
 
@@ -19,25 +41,30 @@
 import { toSvg } from "jdenticon";
 import { getHttpsUrl } from "~/module/utils";
 
+const reference = ref<HTMLElement>();
 const props = defineProps<{
   tokenCategory: string;
   small?: boolean;
   icon?: string;
   rounded?: boolean;
 }>();
-const status = reactive({
+const state = reactive({
   loaded: false,
   error: false,
   iconUrl: props.icon,
+  open: false,
+  x: 0,
+  y: 0,
+  transition: "",
 });
 
 watch(
   () => props.icon,
   (url) => {
     if (url) {
-      status.loaded = false;
-      status.error = false;
-      status.iconUrl = getHttpsUrl(url);
+      state.loaded = false;
+      state.error = false;
+      state.iconUrl = getHttpsUrl(url);
     } else {
       imageLoadError();
     }
@@ -48,14 +75,14 @@ watch(
 );
 
 function imageLoadError() {
-  if (status.error) {
+  if (state.error) {
     // Stop for loop error
     return;
   }
 
   // Change error state
-  status.error = true;
-  status.loaded = true;
+  state.error = true;
+  state.loaded = true;
   const svgString = toSvg(props.tokenCategory, 128, {
     lightness: {
       color: [0.39, 0.75],
@@ -68,17 +95,59 @@ function imageLoadError() {
     padding: 0,
     replaceMode: "observe",
   });
-  status.iconUrl = "data:image/svg+xml;base64," + btoa(svgString);
+  state.iconUrl = "data:image/svg+xml;base64," + btoa(svgString);
 }
+
+//
+function getElementPosition(element: HTMLElement) {
+  const rect = element.getBoundingClientRect();
+  return {
+    top: rect.top + window.pageYOffset - window.scrollY,
+    left: rect.left + window.pageXOffset - window.scrollX,
+  };
+}
+
+const imageClick = async () => {
+  if (!reference.value) return;
+  !state.open && (state.transition = "");
+  await nextTick();
+  const { top, left } = getElementPosition(reference.value);
+  state.y = top;
+  state.x = left;
+
+  setTimeout(async () => {
+    await nextTick();
+    state.transition = "all 0.8s ease-in-out";
+    state.open = !state.open;
+  });
+};
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .icon > img {
   --size-image: 80px;
   object-fit: contain;
   width: var(--size-image);
-  max-width: var(--size-image);
-  max-height: var(--size-image);
+  height: var(--size-image);
+
+  &.popover-image {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 100000;
+    width: 80px;
+    height: 80px;
+    opacity: 0;
+
+    &.open {
+      width: 300px;
+      height: 300px;
+      transform: translate(-50%, -50%);
+      top: 50% !important;
+      left: 50% !important;
+      opacity: 1;
+    }
+  }
 }
 
 .icon > img.small {

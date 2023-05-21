@@ -1,15 +1,13 @@
 <template>
   <td>
     <div class="d-flex align-items-center">
-      <NuxtLink :to="column.url" class="d-flex align-items-center">
-        <bcmr-icon
-          v-if="column.token"
-          :token-category="column.token.category"
-          :icon="column.token.icon"
-          small
-          class="mb-2 me-2"
-        />
-      </NuxtLink>
+      <bcmr-icon
+        v-if="column.token"
+        :token-category="column.token.category"
+        :icon="column.token.icon"
+        small
+        class="icon mb-2 me-2"
+      />
 
       <!-- Copyable value of item -->
       <BaseCopy
