@@ -79,12 +79,14 @@ export const useStateStore = defineStore(
       { immediate: true }
     );
 
-    const calculatePrice = (sat: string) => {
+    const calculatePrice = (sat: string | number) => {
       return utils.calculatePrice(sat, usdPrice.value || "");
     };
 
-    const formatPrice = (sat: string) =>
-      `${satToBch(sat, 3)}BCH • ${calculatePrice(sat)}$`;
+    const formatPrice = (sat: string | number) => {
+      if (!sat || sat === "0") return undefined;
+      return `${satToBch(sat, 3)}BCH • $${calculatePrice(sat)}`;
+    };
 
     const lockingBytecodeHexToCashAddress = (
       hexCode: string,

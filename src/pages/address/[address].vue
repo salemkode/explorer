@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { addressToLockingBytecodeHex, satToBch } from "~/module/bitcoin";
+import { addressToLockingBytecodeHex } from "~/module/bitcoin";
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 import { electrum } from "~/module/electrum";
@@ -115,15 +115,11 @@ const addressInfoWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Balance",
-      text: addressResponse.value?.balance.confirmed
-        ? `${satToBch(addressResponse.value?.balance.confirmed)} BCH`
-        : "",
+      text: stateStore.formatPrice(addressResponse.value?.balance.confirmed),
     },
     {
       title: "Unconfirmed Balance",
-      text: addressResponse.value?.balance.unconfirmed
-        ? `${satToBch(addressResponse.value?.balance.unconfirmed)} BCH`
-        : "",
+      text: stateStore.formatPrice(addressResponse.value?.balance.unconfirmed),
     },
     {
       title: "First Transition",

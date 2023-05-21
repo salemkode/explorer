@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { satToBch } from "~/module/bitcoin";
 import { GetBlock, type GetBlockQuery } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
@@ -40,6 +39,7 @@ const { result, loading } = useQuery<GetBlockQuery>(GetBlock, variable);
 const blockItemWarp = computed<contentWarpItem[]>(() => {
   const block = result.value?.block.at(0);
   if (!block) return [];
+
   return [
     {
       title: "Block Hash",
@@ -54,20 +54,20 @@ const blockItemWarp = computed<contentWarpItem[]>(() => {
       warp: true,
     },
     {
+      title: "Input total",
+      text: stateStore.formatPrice(block.input_value_satoshis || "0"),
+    },
+    {
+      title: "Output total",
+      text: stateStore.formatPrice(block.output_value_satoshis || "0"),
+    },
+    {
       title: "Input count",
       text: block.input_count,
     },
     {
-      title: "Input total",
-      text: `${satToBch(block.input_value_satoshis, 3)}BCH`,
-    },
-    {
       title: "Output count",
-      text: block.input_count,
-    },
-    {
-      title: "Output total",
-      text: `${satToBch(block.input_value_satoshis, 3)}BCH`,
+      text: block.output_count,
     },
   ];
 });

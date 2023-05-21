@@ -41,7 +41,7 @@
               </div>
             </small>
             <small class="amount">
-              ${{ stateStore.formatPrice(transaction.amount || "0") }}
+              {{ stateStore.formatPrice(transaction.amount || "0") }}
             </small>
           </div>
           <i

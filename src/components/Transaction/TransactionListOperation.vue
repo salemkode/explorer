@@ -25,7 +25,7 @@
             </b>
             <b v-else-if="utxo.type === 'coinbase'"> Block Reward </b>
             <div class="amount">
-              ${{ stateStore.calculatePrice(utxo.valueSatoshis || "0") }}
+              {{ stateStore.formatPrice(utxo.valueSatoshis || "0") }}
             </div>
             <template v-if="'category' in utxo && utxo.category">
               <div>
@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
-import { removeAddressPrefix, satToBch } from "~/module/bitcoin";
+import { removeAddressPrefix } from "~/module/bitcoin";
 import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
 import { useStateStore, useRegistryStore } from "~/store";
 import type { Utxo } from "~/types";
@@ -114,7 +114,7 @@ const utxos = computed(() => {
         type: "op_return" as const,
         data: binToUtf8(hexToBin(utxo.locking_bytecode.substring(4))),
         valueSatoshis: utxo.value_satoshis,
-        value: satToBch(utxo.value_satoshis || 0, 3),
+        value: stateStore.formatPrice(utxo.value_satoshis || 0),
       };
     }
 
@@ -125,7 +125,7 @@ const utxos = computed(() => {
       category,
       address: getAddress(utxo?.locking_bytecode || ""),
       valueSatoshis: utxo.value_satoshis,
-      value: satToBch(utxo.value_satoshis || 0, 3),
+      value: stateStore.formatPrice(utxo.value_satoshis || 0),
       tokenRegister:
         utxo.token_category &&
         registryStore.getToken(utxo.token_category?.substring(2)),

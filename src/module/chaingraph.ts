@@ -166,6 +166,8 @@ export const GetBlock = gql`
       transaction_count
       input_count
       input_value_satoshis
+      output_count
+      output_value_satoshis
       fee_satoshis
       generated_value_satoshis
       transactions(
