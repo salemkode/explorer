@@ -86,7 +86,6 @@ const copy = async () => {
 
 .uicon-duplicate {
   margin: 0px 2px;
-  cursor: pointer;
   font-size: inherit;
 }
 

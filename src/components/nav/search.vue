@@ -1,7 +1,7 @@
 <template>
   <Transition name="slider">
     <div v-if="openFromOtherHomePage" class="search-bar container">
-      <i class="uicon-search me-2" @click="search" />
+      <i class="uicon-search me-2 text-white pointer" @click="search" />
       <input
         v-model="searchValue"
         type="text"
@@ -43,11 +43,6 @@ button:focus {
   max-height: 200px;
   box-shadow: 0 0 0 100vmax var(--bs-dark);
   clip-path: inset(0 -100vmax);
-}
-
-.search-bar i {
-  color: white;
-  cursor: pointer;
 }
 
 .search-bar input {

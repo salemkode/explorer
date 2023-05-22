@@ -7,7 +7,7 @@
         class="transaction-item"
       >
         <div
-          class="content-warp d-flex p-3 w-100"
+          class="content-warp d-flex p-3 w-100 pointer"
           @click="
             showOperation.set(
               transaction.hash,
@@ -202,7 +202,6 @@ $grid-breakpoints: (
 
 .transaction-item {
   .content-warp {
-    cursor: pointer;
     border: var(--bs-border-color) solid 1px;
     border-width: 1px 0;
 

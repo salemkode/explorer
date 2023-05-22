@@ -7,7 +7,7 @@
       @click="navItem = index"
     >
       <span
-        class="nav-item"
+        class="nav-item pointer d-inline-block"
         :class="{
           active: navItem === index,
         }"
@@ -41,9 +41,6 @@ const navItem = computed({
 
 <style lang="scss" scoped>
 .nav-item {
-  cursor: pointer;
-  display: inline-block;
-
   &.active {
     font-weight: bold;
 
