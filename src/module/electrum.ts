@@ -9,4 +9,3 @@ export const electrum = new ElectrumClient(
 );
 
 await electrum.connect().catch(console.log);
-export type network = "mainnet" | "chipnet";
