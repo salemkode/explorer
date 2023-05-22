@@ -33,7 +33,8 @@ export const useStateStore = defineStore(
     }
 
     const router = useRouter();
-    const search = (keyword: string) => {
+    const search = (_keyword: string) => {
+      const keyword = _keyword.trim();
       if (!keyword) {
         return;
       }
