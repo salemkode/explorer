@@ -9,16 +9,16 @@
         :width="80"
         :height="80"
         alt="icon"
-        class="rounded"
+        class="rounded pointer"
         @load="state.loaded = true"
         @error="imageLoadError"
         @click.stop="imageClick"
       />
     </Transition>
     <div
-      v-if="state.open"
+      v-if="!state.error && state.open"
       class="modal-backdrop fade show"
-      @click.close="state.open = false"
+      @click.stop="state.open && imageClick()"
     />
     <img
       v-if="!state.error"
@@ -30,9 +30,9 @@
         left: `${state.x}px`,
         transition: state.transition,
       }"
-      class="popover-image rounded"
+      class="popover-image rounded pointer"
       alt="icon"
-      @click.stop="imageClick"
+      @click.stop="state.open && imageClick()"
     />
   </div>
 </template>
@@ -135,8 +135,8 @@ const imageClick = async () => {
     left: 50%;
     top: 50%;
     z-index: 100000;
-    width: 80px;
-    height: 80px;
+    width: 0;
+    height: 0;
     opacity: 0;
 
     &.open {
