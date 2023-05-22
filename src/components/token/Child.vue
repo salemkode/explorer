@@ -35,10 +35,9 @@ const { result, loading, error } = useQuery<GetTokenChildQuery>(
   GetTokenChild,
   variable
 );
+const types = computed(() => props.identitySnapshot?.token?.nfts?.parse.types);
 const column = computed(() => {
-  if (
-    Object.keys(props.identitySnapshot?.token?.nfts?.parse.types || {}).length
-  ) {
+  if (Object.keys(types.value || {}).length) {
     return ["token", "address", "capability", "commitment"];
   }
   return ["address", "capability", "commitment"];
@@ -81,15 +80,22 @@ const outputs = computed<tableColumn[][]>(() => {
       });
     }
 
-    if (commitment) {
-      const childInfo =
-        props.identitySnapshot?.token?.nfts?.parse.types[commitment];
+    if (typeof commitment === "string") {
+      const childInfo = types.value ? types.value[commitment] : undefined;
       if (childInfo?.uris?.icon) {
         item.unshift({
           text: childInfo?.name,
           token: {
             category: props.category,
             icon: childInfo.uris.icon,
+          },
+        });
+      } else if (Object.keys(types.value || {}).length) {
+        item.unshift({
+          text: "N/A",
+          token: {
+            category: props.category,
+            icon: "",
           },
         });
       }
