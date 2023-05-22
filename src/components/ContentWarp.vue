@@ -15,7 +15,17 @@
           <div v-if="existItems.length !== index + 1" class="mb-2" />
         </div>
       </template>
-      <slot name="footer"></slot>
+      <div
+        v-if="tokenCategory"
+        class="btn btn-outline-dark mt-4 px-3 p-2 text-start"
+      >
+        <nuxt-link
+          class="nav-link text-decoration-none text-bold"
+          :to="`/token/${tokenCategory}`"
+        >
+          Open token page
+        </nuxt-link>
+      </div>
     </template>
   </div>
 </template>
@@ -31,6 +41,11 @@ const props = defineProps({
     type: Boolean,
     required: true,
     default: false,
+  },
+  tokenCategory: {
+    type: String,
+    required: false,
+    default: "",
   },
 });
 

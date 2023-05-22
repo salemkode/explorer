@@ -7,7 +7,11 @@
       class="d-lg-none mt-3 mb-4"
     />
     <div class="column">
-      <content-warp :loading="TxLoading" :items="infoContent" />
+      <content-warp
+        :loading="TxLoading"
+        :items="infoContent"
+        :token-category="tokenUtxo ? txid : undefined"
+      />
       <bcmr-info
         :loading="TokenLoading || bcmrToken.value.loading"
         :identity-snapshot="bcmrToken.value.identity"
@@ -50,7 +54,7 @@ import {
 import { formatDateString } from "~/module/utils";
 
 const route = useRoute();
-const txid = toRef(route.params, "txid");
+const txid = toRef(route.params, "txid") as Ref<string>;
 const stateStore = useStateStore();
 const variables = computed(() => ({
   network: stateStore.network,
@@ -59,7 +63,7 @@ const variables = computed(() => ({
 
 /* Getting token info */
 const registryStore = useRegistryStore();
-const { result: Token, loading: TokenLoading } = useQuery<GetTokenQuery>(
+const { result: token, loading: TokenLoading } = useQuery<GetTokenQuery>(
   GetToken,
   computed(() => ({
     network: stateStore.network,
@@ -67,7 +71,7 @@ const { result: Token, loading: TokenLoading } = useQuery<GetTokenQuery>(
   }))
 );
 const opreturn = computed(() => {
-  const outputs = Token.value?.transaction.at(0)?.outputs;
+  const outputs = token.value?.transaction.at(0)?.outputs;
   return outputs
     ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
     ?.locking_bytecode.substring(2);
@@ -89,6 +93,9 @@ const {
   onResult,
 } = useQuery<GetTxQuery>(GetTx, variables);
 
+const tokenUtxo = computed(() => {
+  return token.value?.transaction.at(0)?.outputs?.at(0);
+});
 const transaction = computed(() => {
   const node = Tx.value?.node.at(0);
   const unconfirmedTransactions =
@@ -128,6 +135,9 @@ onResult(() => {
 });
 const infoContent = computed(() => {
   if (!transaction.value) return [];
+  const nftCapability = tokenUtxo.value?.nonfungible_token_capability
+    ? `${tokenUtxo.value?.nonfungible_token_capability} NFTs`
+    : "Fungible Tokens";
   const satoshis: string | null | undefined =
     transaction.value.transaction.input_value_satoshis ||
     transaction.value.transaction.output_value_satoshis;
@@ -145,6 +155,10 @@ const infoContent = computed(() => {
     {
       title: "Time",
       text: formatDateString(transaction.value.timestamp),
+    },
+    {
+      title: "Token type",
+      text: tokenUtxo.value ? nftCapability : undefined,
     },
   ];
 });

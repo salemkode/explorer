@@ -2,21 +2,11 @@
   <content-warp v-if="tokenInfo.length" :loading="loading" :items="tokenInfo">
     <template #header>
       <bcmr-icon
-        v-if="props.tokenCategory"
+        v-if="props.tokenCategory && props.identitySnapshot?.uris?.icon"
         :token-category="props.tokenCategory"
         :icon="props.identitySnapshot?.uris?.icon"
-        class="mb-2"
+        class="mb-3"
       />
-    </template>
-    <template #footer>
-      <div v-if="tokenCategory" class="btn p-0 mt-3 text-start">
-        <nuxt-link
-          class="nav-link text-decoration-none text-bold"
-          :to="`/token/${tokenCategory}`"
-        >
-          Open token page
-        </nuxt-link>
-      </div>
     </template>
   </content-warp>
 </template>
