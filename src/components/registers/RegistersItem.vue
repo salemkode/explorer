@@ -56,13 +56,6 @@
           class="btn d-none d-md-block"
           v-text="$t(url.name)"
         />
-        <a
-          v-if="!registryStore.registryList.at(registryListIndex)?.default"
-          class="btn text-danger ms-auto"
-          @click="removeItem"
-        >
-          Remove
-        </a>
       </div>
     </SliderUpDown>
   </div>
@@ -148,15 +141,4 @@ const uris = computed(() => {
     },
   ].filter((url) => Boolean(url.href));
 });
-
-const registryListIndex = computed(() => {
-  return registryStore.registryList.findIndex(({ url }) => url === props.url);
-});
-
-const removeItem = () => {
-  if (registryListIndex.value === -1) return;
-
-  registryStore.registryList.splice(registryListIndex.value, 1);
-  registryStore.registryProviders.delete(props.url);
-};
 </script>

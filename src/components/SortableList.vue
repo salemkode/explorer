@@ -1,14 +1,7 @@
 <template>
   <div>
     <div ref="list">
-      <div
-        v-for="(item, index) in props.items"
-        :key="index"
-        class="card flex-row justify-content-between p-2 mb-2"
-      >
-        {{ item.name }}
-        <i class="uicon-draggable" />
-      </div>
+      <slot />
     </div>
   </div>
 </template>
@@ -16,7 +9,6 @@
 <script setup lang="ts">
 import Sortable from "sortablejs";
 
-const props = defineProps<{ items: { name: string }[] }>();
 const emit = defineEmits<{
   (event: "sort-end", value: { newIndex: number; oldIndex: number }): void;
 }>();
