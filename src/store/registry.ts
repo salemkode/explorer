@@ -193,7 +193,7 @@ export const useRegistryStore = defineStore(
       const opreturnResult = opreturns.get(category);
       // for in array
       for (let i = 0; i < registryList.value.length; i++) {
-        const { name, url } = registryList.value[i];
+        const { url } = registryList.value[i];
         const registry =
           url === "op_return" ? opreturnResult : registryProviders.get(url);
 
@@ -202,25 +202,39 @@ export const useRegistryStore = defineStore(
           registry.identities &&
           registry.identities[category]
         ) {
-          return {
-            name,
-            registry,
-          };
+          return registry;
         }
       }
     };
 
-    const getTokenIdentity = (category: string) => {
-      const registry = getRegistryHasCategory(category);
+    const getTokenIdentity = (category: string, registryUrl?: string) => {
+      const registryFromUrl = (() => {
+        if (!registryUrl) return;
+        if (registryUrl === "op_return") return opreturns.get(category);
+        if (registryUrl) return registryProviders.get(registryUrl);
+      })();
+      const registry =
+        typeof registryFromUrl === "object"
+          ? registryFromUrl
+          : getRegistryHasCategory(category);
+
       if (registry) {
-        const identity = getTokenFromRegister(registry.registry, category);
+        const identity = getTokenFromRegister(registry, category);
         if (identity) {
+          const registryName =
+            typeof registry.registryIdentity === "object" &&
+            registry.registryIdentity.name;
+
           return {
-            name: registry.name,
+            name: registryUrl === "op_return" ? "OpReturn" : registryName || "",
             identity,
           };
         }
       }
+
+      return {
+        name: registryList.value.find(({ url }) => url === registryUrl)?.name,
+      };
     };
 
     const getToken = (
@@ -239,7 +253,7 @@ export const useRegistryStore = defineStore(
           }
         | undefined;
 
-      if (tokenIdentity) {
+      if (tokenIdentity && tokenIdentity.identity) {
         const { identity } = tokenIdentity;
         if (nftType && nftType !== "minting") {
           if (!nftCommitment) {

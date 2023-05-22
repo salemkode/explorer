@@ -1,33 +1,27 @@
 <template>
-  <h5>Verifying by</h5>
-  <div class="d-flex flex-column">
-    <div
-      v-for="(registry, name) in providers"
-      :key="name"
-      class="card flex-row px-2 py-1 mb-1 justify-content-between align-items-center"
-      :style="{
-        order: getOrder(name),
-      }"
-    >
-      <span
-        class="select-boll"
-        :class="{
-          active: name === select,
-        }"
-      >
-        {{ name }}
-      </span>
+  <div class="card p-3">
+    <h5>Registry</h5>
+    <div class="d-flex flex-column">
       <div
-        v-if="registry === true"
-        style="width: 18px; height: 18px"
-        class="spinner-grow"
-        alt=""
-      />
-      <i
-        v-else-if="registry === false || !isVerified(category, registry)"
-        class="uicon-unverified text-danger"
-      />
-      <i v-else class="uicon-verified text-primary" />
+        v-for="[name, registry] in providers"
+        :key="name"
+        class="d-flex py-2 align-items-center pointer registry-item"
+        @click="selectRegistry(registry, name)"
+      >
+        <div v-if="registry === true" class="spinner-grow" alt="" />
+        <i
+          v-else-if="registry === false || !isVerified(category, registry)"
+          class="uicon-unverified text-danger"
+        />
+        <i v-else class="uicon-verified text-primary" />
+        <span class="px-3 me-auto" v-text="name" />
+        <span
+          class="select-boll me-1"
+          :class="{
+            active: name === props.select,
+          }"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -41,28 +35,34 @@ const props = defineProps<{
   category: string;
   select: string;
 }>();
-const providers = computed(() => {
-  const items: Record<string, Registry | boolean> = {
-    OpReturn: registryStore.opreturns.get(props.category) || false,
-  };
+const emit = defineEmits<{
+  (e: "select", url: string): void;
+}>();
 
-  registryStore.registryProviders.forEach((provider) => {
-    if (typeof provider.registryIdentity === "string") {
-      items.AuthChain = provider;
-      return;
-    }
-
-    items[provider.registryIdentity.name] = provider;
-  });
-
-  return items;
-});
+const getRegistryUrl = (name: string) =>
+  registryStore.registryList.find((item) => item.name === name)?.url;
 
 const getOrder = (name: string) => {
   return registryStore.registryList.findIndex(
     (registry) => registry.name === name
   );
 };
+
+const providers = computed(() => {
+  const items: [string, Registry | boolean][] = [
+    ["OpReturn", registryStore.opreturns.get(props.category) || false],
+  ];
+
+  registryStore.registryProviders.forEach((provider) => {
+    if (typeof provider.registryIdentity === "string") {
+      return;
+    }
+
+    items.push([provider.registryIdentity.name, provider]);
+  });
+
+  return items.sort(([name1], [name2]) => getOrder(name1) - getOrder(name2));
+});
 
 const isVerified = (category: string, registry: Registry) => {
   const identities = registry.identities;
@@ -73,6 +73,13 @@ const isVerified = (category: string, registry: Registry) => {
     );
   }
 };
+
+const selectRegistry = (registry: Registry | boolean, name: string) => {
+  if (typeof registry === "object" && !isVerified(props.category, registry)) {
+    return;
+  }
+  emit("select", getRegistryUrl(name) || "");
+};
 </script>
 
 <style scoped>
@@ -81,18 +88,23 @@ const isVerified = (category: string, registry: Registry) => {
   font-size: 22px;
 }
 
-.select-boll.active::before {
+.spinner-grow {
+  min-height: 18px;
+  min-width: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.select-boll.active {
   opacity: 1;
 }
 
-.select-boll::before {
-  content: "";
-  opacity: 0;
-  display: inline-block;
-  background-color: var(--bs-primary);
-  width: 10px;
-  height: 10px;
+.select-boll {
+  background-color: var(--bs-body-color);
+  min-width: 10px;
+  min-height: 10px;
   border-radius: 1000px;
-  margin-right: 5px;
+  transition: opacity 0.5s;
+  opacity: 0;
 }
 </style>

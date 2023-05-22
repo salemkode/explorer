@@ -23,7 +23,11 @@
         :loading="metadata.loading"
         :identity-snapshot="metadata.identitySnapshot"
       />
-      <TokenProvider :select="metadata.name" :category="category" />
+      <TokenProvider
+        :select="metadata.name"
+        :category="category"
+        @select="(url) => (selectedRegistryName = url)"
+      />
     </div>
     <div
       class="column d-lg-block"
@@ -105,10 +109,15 @@ watch(
   { immediate: true }
 );
 
+const selectedRegistryName = ref("");
 const metadata = computed(() => {
   const isOpreturnLoading =
     registryStore.opreturns.get(category.value) === true;
-  const registryState = registryStore.getTokenIdentity(category.value);
+  const registryState = registryStore.getTokenIdentity(
+    category.value,
+    selectedRegistryName.value
+  );
+
   return {
     loading: registryStore.loadingProviders || isOpreturnLoading,
     name: registryState?.name || "",
