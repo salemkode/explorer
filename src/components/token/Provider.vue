@@ -75,10 +75,9 @@ const isVerified = (category: string, registry: Registry) => {
 };
 
 const selectRegistry = (registry: Registry | boolean, name: string) => {
-  if (typeof registry === "object" && !isVerified(props.category, registry)) {
-    return;
+  if (typeof registry === "object" && isVerified(props.category, registry)) {
+    emit("select", getRegistryUrl(name) || "");
   }
-  emit("select", getRegistryUrl(name) || "");
 };
 </script>
 
