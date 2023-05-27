@@ -393,6 +393,54 @@ export const GetToken = gql`
   }
 `;
 
+export const GetAuthChains = gql`
+  query GetAuthChains($tokenCategory: [bytea!]) {
+    transaction(where: { hash: { _in: $tokenCategory } }) {
+      hash
+      authchains {
+        authchain_length
+        migrations(
+          where: {
+            _or: [
+              {
+                transaction: {
+                  outputs: { locking_bytecode_pattern: { _regex: "6a04" } }
+                }
+              }
+              {
+                transaction: {
+                  inputs: {
+                    outpoint_transaction_hash: { _in: $tokenCategory }
+                    outpoint_index: { _eq: 0 }
+                  }
+                }
+              }
+            ]
+          }
+        ) {
+          transaction {
+            hash
+            block_inclusions {
+              block {
+                timestamp
+              }
+            }
+            inputs(where: { outpoint_index: { _eq: 0 } }) {
+              outpoint_transaction_hash
+            }
+            outputs {
+              locking_bytecode
+              fungible_token_amount
+              nonfungible_token_capability
+              nonfungible_token_commitment
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const GetOpreturn = gql`
   query GetOpreturn($network: String, $tokenCategory: bytea) {
     transaction(
