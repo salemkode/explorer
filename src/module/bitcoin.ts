@@ -7,6 +7,8 @@ import {
   decodeBase58Address,
   binToHex,
   binToNumberUint16LE,
+  binToUtf8,
+  hexToBin,
 } from "@bitauth/libauth";
 import type { bigNum } from "~/types";
 
@@ -104,4 +106,43 @@ export const parseBinary = (opReturn: Uint8Array): Uint8Array[] => {
   }
 
   return chunks;
+};
+
+const validateBCMR = (chunks: Uint8Array[]) => {
+  if (
+    (chunks.length === 2 || chunks.length === 3) &&
+    binToUtf8(chunks[0]) === "BCMR"
+  ) {
+    return;
+  }
+  return "Invalid BCMR OP_RETURN";
+};
+
+export const opreturnToAuthChainElement = (opReturnHex: string) => {
+  const chunks = parseBinary(hexToBin(opReturnHex));
+  const result = {
+    contentHash: "",
+    url: "",
+  };
+
+  if (validateBCMR(chunks)) {
+    return "Invalid BCMR OP_RETURN";
+  }
+
+  if (chunks.length === 2) {
+    // IPFS Publication Output
+    result.contentHash = binToHex(chunks[1]);
+    const ipfsCid = binToUtf8(chunks[1]);
+    result.url = `https://dweb.link/ipfs/${ipfsCid}`;
+  } else {
+    // HTTPS Publication Output
+    // content hash is in OP_SHA256 byte order per spec
+    result.contentHash = binToHex(chunks[1].slice());
+    result.url = binToUtf8(chunks[2]);
+    if (result.url.indexOf("https://") < 0) {
+      result.url = `https://${result.url}`;
+    }
+  }
+
+  return result;
 };

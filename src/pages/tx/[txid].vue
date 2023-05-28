@@ -10,11 +10,11 @@
       <content-warp
         :loading="TxLoading"
         :items="infoContent"
-        :token-category="tokenUtxo ? txid : undefined"
+        :token-category="authchainElement ? txid : undefined"
       />
       <bcmr-info
-        :loading="TokenLoading || bcmrToken.value.loading"
-        :identity-snapshot="bcmrToken.value.identity"
+        :loading="false"
+        :identity-snapshot="tokenIdentity.identity"
         :token-category="txid as string"
       />
     </div>
@@ -47,11 +47,12 @@
 import { useStateStore, useRegistryStore } from "~/store";
 import {
   type GetTxQuery,
-  type GetTokenQuery,
+  type GetAuthChainsQuery,
   GetTx,
-  GetToken,
+  GetAuthChains,
 } from "~/module/chaingraph";
 import { formatDateString } from "~/module/utils";
+import { decodeAuthChain } from "~/module/bcmr";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid") as Ref<string>;
@@ -63,27 +64,25 @@ const variables = computed(() => ({
 
 /* Getting token info */
 const registryStore = useRegistryStore();
-const { result: token, loading: TokenLoading } = useQuery<GetTokenQuery>(
-  GetToken,
-  computed(() => ({
-    network: stateStore.network,
-    tokenCategory: ["\\x" + txid.value],
-  }))
-);
-const opreturn = computed(() => {
-  const outputs = token.value?.transaction.at(0)?.outputs;
-  return outputs
-    ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
-    ?.locking_bytecode.substring(2);
-});
-const bcmrToken = computed(() => {
-  const result = registryStore.getTokenOpreturn(
-    txid.value as string,
-    opreturn.value || ""
+const { result: authchain, onResult: onAuthChainResult } =
+  useQuery<GetAuthChainsQuery>(
+    GetAuthChains,
+    computed(() => ({
+      network: stateStore.network,
+      tokenCategory: ["\\x" + txid.value],
+    }))
   );
-
-  return result;
+const authchainElement = computed(
+  () => authchain.value && decodeAuthChain(authchain.value, txid.value)
+);
+onAuthChainResult(() => {
+  if (!authchainElement.value) return;
+  registryStore.addToken(txid.value, authchainElement.value?.opreturn);
 });
+
+const tokenIdentity = computed(() =>
+  registryStore.getTokenIdentity(txid.value)
+);
 
 /* Getting transaction info */
 const {
@@ -93,9 +92,6 @@ const {
   onResult,
 } = useQuery<GetTxQuery>(GetTx, variables);
 
-const tokenUtxo = computed(() => {
-  return token.value?.transaction.at(0)?.outputs?.at(0);
-});
 const transaction = computed(() => {
   const node = Tx.value?.node.at(0);
   const unconfirmedTransactions =
@@ -135,9 +131,8 @@ onResult(() => {
 });
 const infoContent = computed(() => {
   if (!transaction.value) return [];
-  const nftCapability = tokenUtxo.value?.nonfungible_token_capability
-    ? `${tokenUtxo.value?.nonfungible_token_capability} NFTs`
-    : "Fungible Tokens";
+  const nftCapability = authchainElement.value?.genesesTx.nftCapability;
+  const tokenType = nftCapability ? `${nftCapability} NFTs` : "Fungible Tokens";
   const satoshis: string | null | undefined =
     transaction.value.transaction.input_value_satoshis ||
     transaction.value.transaction.output_value_satoshis;
@@ -158,7 +153,7 @@ const infoContent = computed(() => {
     },
     {
       title: "Token type",
-      text: tokenUtxo.value ? nftCapability : undefined,
+      text: authchainElement.value ? tokenType : undefined,
     },
   ];
 });

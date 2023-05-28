@@ -366,36 +366,16 @@ export const GetTokenTxs = gql`
   }
 `;
 
-export const GetToken = gql`
-  query GetToken($network: String, $tokenCategory: [bytea!]) {
+export const GetAuthChains = gql`
+  query GetAuthChains($network: String, $tokenCategory: [bytea!]) {
     transaction(
       where: {
         block_inclusions: {
           block: { accepted_by: { node: { name: { _regex: $network } } } }
         }
-        inputs: {
-          outpoint_transaction_hash: { _in: $tokenCategory }
-          outpoint_index: { _eq: 0 }
-        }
+        hash: { _in: $tokenCategory }
       }
     ) {
-      hash
-      inputs {
-        outpoint_transaction_hash
-      }
-      outputs {
-        fungible_token_amount
-        nonfungible_token_capability
-        nonfungible_token_commitment
-        locking_bytecode
-      }
-    }
-  }
-`;
-
-export const GetAuthChains = gql`
-  query GetAuthChains($tokenCategory: [bytea!]) {
-    transaction(where: { hash: { _in: $tokenCategory } }) {
       hash
       authchains {
         authchain_length
@@ -429,6 +409,7 @@ export const GetAuthChains = gql`
               outpoint_transaction_hash
             }
             outputs {
+              token_category
               locking_bytecode
               fungible_token_amount
               nonfungible_token_capability

@@ -10,7 +10,7 @@
       >
         <div v-if="registry === true" class="spinner-grow" alt="" />
         <i
-          v-else-if="registry === false || !isVerified(category, registry)"
+          v-else-if="!isVerified(category, registry, name === 'AuthChain')"
           class="uicon-unverified text-danger"
         />
         <i v-else class="uicon-verified text-primary" />
@@ -50,7 +50,7 @@ const getOrder = (name: string) => {
 
 const providers = computed(() => {
   const items: [string, Registry | boolean][] = [
-    ["OpReturn", registryStore.opreturns.get(props.category) || false],
+    ["AuthChain", registryStore.authchains.get(props.category) || false],
   ];
 
   registryStore.registryProviders.forEach((provider) => {
@@ -64,11 +64,23 @@ const providers = computed(() => {
   return items.sort(([name1], [name2]) => getOrder(name1) - getOrder(name2));
 });
 
-const isVerified = (category: string, registry: Registry) => {
+const isVerified = (
+  category: string,
+  registry?: Registry | false,
+  authChain = false
+) => {
+  if (!registry) {
+    return false;
+  }
+
+  if (authChain) {
+    return registryStore.authchainsVerified.get(category);
+  }
+
   const identities = registry.identities;
   const identity = identities && identities[category];
   if (identity) {
-    return Object.values(identities[category])?.find(
+    return !!Object.values(identities[category])?.find(
       (identity) => identity.token?.category
     );
   }

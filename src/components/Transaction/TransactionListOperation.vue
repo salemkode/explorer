@@ -54,8 +54,9 @@
 
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
+import { decodeAuthChain } from "~/module/bcmr";
 import { removeAddressPrefix } from "~/module/bitcoin";
-import { GetToken, type GetTokenQuery } from "~/module/chaingraph";
+import { GetAuthChains, type GetAuthChainsQuery } from "~/module/chaingraph";
 import { useStateStore, useRegistryStore } from "~/store";
 import type { Utxo } from "~/types";
 
@@ -73,23 +74,24 @@ watch(
     if (props.utxos.length) {
       props.utxos.forEach((utxo) => {
         const category = utxo.token_category;
-        if (category) {
-          const { onResult } = useQuery<GetTokenQuery>(GetToken, {
-            network: stateStore.network,
-            tokenCategory: [category],
-          });
+        if (!category) return;
+        const { onResult } = useQuery<GetAuthChainsQuery>(GetAuthChains, {
+          network: stateStore.network,
+          tokenCategory: [category],
+        });
 
-          onResult((tokenTransaction) => {
-            const outputs = tokenTransaction.data?.transaction.at(0)?.outputs;
-            const opreturn = outputs
-              ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
-              ?.locking_bytecode.substring(2);
+        onResult((authChain) => {
+          // Get token category
+          const authchainElement = decodeAuthChain(
+            authChain.data,
+            category.substring(2)
+          );
 
-            if (opreturn) {
-              registryStore.addToken(category.substring(2), opreturn);
-            }
-          });
-        }
+          registryStore.addToken(
+            category.substring(2),
+            authchainElement.opreturn
+          );
+        });
       });
     }
   },

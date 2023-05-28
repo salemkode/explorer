@@ -15,12 +15,13 @@
 <script setup lang="ts">
 import {
   type GetAddressNfTsQuery,
-  type GetTokenQuery,
+  type GetAuthChainsQuery,
   GetAddressNFTs,
-  GetToken,
+  GetAuthChains,
 } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
 import { useStateStore, useRegistryStore } from "~/store";
+import { decodeAuthChain } from "~/module/bcmr";
 
 const limit = ref(9);
 const offset = ref(0);
@@ -54,22 +55,20 @@ onResult((transaction) => {
     .map((nft) => nft.token_category)
     .filter(Boolean);
 
-  const { onResult } = useQuery<GetTokenQuery>(GetToken, {
+  const { onResult } = useQuery<GetAuthChainsQuery>(GetAuthChains, {
     network: stateStore.network,
-    tokenCategory: new Set(tokenCategories),
+    tokenCategory: Array.from(new Set(tokenCategories)),
   });
 
-  onResult((tokenTransaction) => {
-    tokenTransaction.data.transaction.forEach((transaction) => {
+  onResult((authChain) => {
+    tokenCategories.forEach((category) => {
       // Get token category
-      const category = transaction.inputs[0].outpoint_transaction_hash;
-      const opreturn = transaction.outputs
-        ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
-        ?.locking_bytecode.substring(2);
+      const authchainElement = decodeAuthChain(
+        authChain.data,
+        category.substring(2)
+      );
 
-      if (opreturn) {
-        registryStore.addToken(category.substring(2), opreturn);
-      }
+      registryStore.addToken(category.substring(2), authchainElement.opreturn);
     });
   });
 });

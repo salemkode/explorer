@@ -1,35 +1,21 @@
-import {
-  binToUtf8,
-  utf8ToBin,
-  binToHex,
-  hexToBin,
-  sha256,
-} from "@bitauth/libauth";
+import { utf8ToBin, binToHex, sha256 } from "@bitauth/libauth";
 import { defineStore } from "pinia";
-import { parseBinary } from "~/module/bitcoin";
+import { opreturnToAuthChainElement } from "~/module/bitcoin";
 import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, RegistryProvider, tokenCapability } from "~/types";
 
 export const defaultProviders = [
   "https://otr.cash/.well-known/bitcoin-cash-metadata-registry.json",
   `${location.origin}/registry.json`,
-  "op_return",
+  "auth_chain",
 ];
 export const useRegistryStore = defineStore(
   "registry",
   () => {
-    const opreturnsRef = shallowRef(new Map<string, Registry | boolean>());
-    const opreturns = {
-      get: (key: string) => opreturnsRef.value.get(key),
-      set(key: string, value: boolean | Registry) {
-        opreturnsRef.value.set(key, value);
-        triggerRef(opreturnsRef);
-        return opreturnsRef.value;
-      },
-    };
-    const opreturnsVerified = reactive(new Map<string, boolean>());
+    const authchains = shallowReactive(new Map<string, Registry | boolean>());
+    const authchainsVerified = shallowReactive(new Map<string, boolean>());
+    const registryProviders = shallowReactive(new Map<string, Registry>());
 
-    const registryProviders = reactive(new Map<string, Registry>());
     const loadingProviders = ref(true);
     const registryList = ref([] as RegistryProvider[]);
     const isRegistryProviderExist = (url: string) => {
@@ -37,7 +23,7 @@ export const useRegistryStore = defineStore(
     };
 
     const addRegistryProvider = async (url: string, _default = false) => {
-      if (url === "op_return") {
+      if (url === "auth_chain") {
         return {
           status: "Success",
         } as const;
@@ -105,13 +91,13 @@ export const useRegistryStore = defineStore(
         }
       });
 
-      // Add op_return to registryList
-      !registryList.value.find(({ url }) => url === "op_return") &&
+      // Add authChain to registryList
+      !registryList.value.find(({ url }) => url === "auth_chain") &&
         registryList.value.unshift({
-          name: "OpReturn",
+          name: "AuthChain",
           default: true,
           enable: true,
-          url: "op_return",
+          url: "auth_chain",
         });
 
       // Add default providers
@@ -127,45 +113,6 @@ export const useRegistryStore = defineStore(
         loadingProviders.value = false;
       });
     });
-
-    const validateBCMR = (chunks: Uint8Array[]) => {
-      if (
-        (chunks.length === 2 || chunks.length === 3) &&
-        binToUtf8(chunks[0]) === "BCMR"
-      ) {
-        return;
-      }
-      return "Invalid BCMR OP_RETURN";
-    };
-
-    const opreturnToAuthChain = (opReturnHex: string) => {
-      const chunks = parseBinary(hexToBin(opReturnHex));
-      const result = {
-        contentHash: "",
-        url: "",
-      };
-
-      if (validateBCMR(chunks)) {
-        return "Invalid BCMR OP_RETURN";
-      }
-
-      if (chunks.length === 2) {
-        // IPFS Publication Output
-        result.contentHash = binToHex(chunks[1]);
-        const ipfsCid = binToUtf8(chunks[1]);
-        result.url = `https://dweb.link/ipfs/${ipfsCid}`;
-      } else {
-        // HTTPS Publication Output
-        // content hash is in OP_SHA256 byte order per spec
-        result.contentHash = binToHex(chunks[1].slice());
-        result.url = binToUtf8(chunks[2]);
-        if (result.url.indexOf("https://") < 0) {
-          result.url = `https://${result.url}`;
-        }
-      }
-
-      return result;
-    };
 
     const getTokenFromRegister = (
       registry: Registry,
@@ -190,12 +137,12 @@ export const useRegistryStore = defineStore(
     };
 
     const getRegistryHasCategory = (category: string) => {
-      const opreturnResult = opreturns.get(category);
+      const opreturnResult = authchains.get(category);
       // for in array
       for (let i = 0; i < registryList.value.length; i++) {
         const { url } = registryList.value[i];
         const registry =
-          url === "op_return" ? opreturnResult : registryProviders.get(url);
+          url === "auth_chain" ? opreturnResult : registryProviders.get(url);
 
         if (
           typeof registry === "object" &&
@@ -210,7 +157,7 @@ export const useRegistryStore = defineStore(
     const getTokenIdentity = (category: string, registryUrl?: string) => {
       const registryFromUrl = (() => {
         if (!registryUrl) return;
-        if (registryUrl === "op_return") return opreturns.get(category);
+        if (registryUrl === "auth_chain") return authchains.get(category);
         if (registryUrl) return registryProviders.get(registryUrl);
       })();
       const registry =
@@ -226,7 +173,8 @@ export const useRegistryStore = defineStore(
             registry.registryIdentity.name;
 
           return {
-            name: registryUrl === "op_return" ? "OpReturn" : registryName || "",
+            name:
+              registryUrl === "auth_chain" ? "AuthChain" : registryName || "",
             identity,
           };
         }
@@ -286,55 +234,67 @@ export const useRegistryStore = defineStore(
       }
 
       return {
-        loading: loadingProviders.value || opreturns.get(category) === true,
+        loading: loadingProviders.value || authchains.get(category) === true,
         token,
       };
     };
 
+    const decodeOpreturn = async (
+      tokenCategory: string,
+      opReturnHex: string
+    ) => {
+      // Check is opReturnHex is valid BCMR OP_RETURN
+      const authChainElement = opreturnToAuthChainElement(opReturnHex);
+      if (typeof authChainElement === "string") return;
+
+      const response = await fetch(authChainElement.url);
+      if (response.status === 200) {
+        const bcmrContent = await response.text();
+        const hashContent = binToHex(sha256.hash(utf8ToBin(bcmrContent)));
+        try {
+          // Parse BCMR registry
+          const registry = JSON.parse(bcmrContent);
+
+          // Validate BCMR registry schema
+          const validRegistry = await validateBcmrSchema(registry);
+          if (!validRegistry.success) return;
+
+          // Validate token category
+          if (getTokenFromRegister(validRegistry.value, tokenCategory)) {
+            return {
+              registry: validRegistry.value,
+              verified: hashContent === authChainElement.contentHash,
+            };
+          }
+        } catch (error) {
+          console.log("Parsing error: ", error);
+        }
+      }
+    };
+
     const addToken = (tokenCategory: string, opReturnHex: string) => {
-      if (opreturns.get(tokenCategory) !== undefined) {
+      if (!tokenCategory || !opReturnHex) return;
+      // Check is token already added
+      if (authchains.get(tokenCategory) !== undefined) {
         return;
       }
-      const authChain = opreturnToAuthChain(opReturnHex);
-      if (typeof authChain !== "string") {
-        (async () => {
-          opreturns.set(tokenCategory, true);
-          const response = await fetch(authChain.url);
-          if (response.status === 200) {
-            opreturns.set(tokenCategory, false);
-            const bcmrContent = await response.text();
-            const hashContent = binToHex(sha256.hash(utf8ToBin(bcmrContent)));
-            opreturnsVerified.set(
-              tokenCategory,
-              hashContent === authChain.contentHash
-            );
-            try {
-              // Parse BCMR registry
-              const registry = JSON.parse(bcmrContent);
 
-              // Validate BCMR registry
-              const validRegistry = await validateBcmrSchema(registry);
-              if (!validRegistry.success) return;
-
-              // Validate token category
-              if (getTokenFromRegister(validRegistry.value, tokenCategory)) {
-                opreturns.set(tokenCategory, validRegistry.value);
-              }
-            } catch (error) {
-              console.log("Parsing error: ", error);
-            }
+      authchains.set(tokenCategory, true);
+      decodeOpreturn(tokenCategory, opReturnHex)
+        .then((result) => {
+          if (result) {
+            authchains.set(tokenCategory, result.registry);
+            authchainsVerified.set(tokenCategory, result.verified);
+          } else {
+            authchains.set(tokenCategory, false);
           }
-        })().finally(() => {
-          // End loading
-          if (opreturns.get(tokenCategory) === true)
-            opreturns.set(tokenCategory, false);
-        });
-      }
+        })
+        .catch(() => authchains.set(tokenCategory, false));
     };
 
     const getTokenOpreturn = (tokenCategory: string, opReturnHex: string) => {
       const result = computed(() => {
-        const registry = opreturns.get(tokenCategory);
+        const registry = authchains.get(tokenCategory);
         if (registry === true) {
           return {
             verified: false,
@@ -343,7 +303,7 @@ export const useRegistryStore = defineStore(
           };
         } else {
           return {
-            verified: !!opreturnsVerified.get(tokenCategory),
+            verified: !!authchainsVerified.get(tokenCategory),
             loading: false,
             identity: registry
               ? getTokenFromRegister(registry, tokenCategory)
@@ -351,7 +311,7 @@ export const useRegistryStore = defineStore(
           };
         }
       });
-      if (opreturns.get(tokenCategory) !== undefined) {
+      if (authchains.get(tokenCategory) !== undefined) {
         return result;
       }
       addToken(tokenCategory, opReturnHex);
@@ -359,9 +319,8 @@ export const useRegistryStore = defineStore(
     };
 
     return {
-      opreturnsRef,
-      opreturns,
-      opreturnsVerified,
+      authchains,
+      authchainsVerified,
       registryProviders,
       loadingProviders,
       registryList,
@@ -371,7 +330,6 @@ export const useRegistryStore = defineStore(
       getTokenIdentity,
       getTokenOpreturn,
       getTokenFromRegister,
-      opreturnToAuthChain,
     };
   },
   {

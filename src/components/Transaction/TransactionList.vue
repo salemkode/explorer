@@ -103,7 +103,7 @@ watch(props, () => {
 const stateStore = useStateStore();
 
 const getTransferAddress = (utxos: Utxo[]) => {
-  // remove op_return
+  // remove op_returns
   const utxosAddress = utxos.filter(
     ({ locking_bytecode }) => !locking_bytecode.startsWith("6a")
   );
