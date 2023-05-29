@@ -12,8 +12,8 @@
           active: navItem === index,
         }"
       >
-        {{ $t(item) }}
-        <div class="nav-line bg-primary mt-1" />
+        <div class="pt-2 mt-1" v-text="$t(item)" />
+        <div class="nav-line bg-primary mt-2" />
       </span>
     </div>
   </div>
@@ -56,5 +56,10 @@ const navItem = computed({
     transform: scaleX(1.3);
     transition: opacity 0.5s;
   }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
 }
 </style>

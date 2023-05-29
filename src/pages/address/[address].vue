@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-parsing-error -->
 <template>
   <div
     v-if="lockingBytecode && tokenAddress"
@@ -12,36 +13,18 @@
     </div>
     <div class="column">
       <AddressHeader :address="routeAddress" class="d-none d-lg-flex" />
-      <NavPills
-        v-model:select="navItem"
-        :items="['transaction', 'cash_token']"
-      />
-      <div class="d-flex flex-column">
-        <Transition name="fade">
-          <div
-            v-show="navItem === 0"
-            :style="{
-              order: navItem === 0 ? 1 : 0,
-            }"
-          >
-            <AddressTransaction
-              v-if="addressResponse.history.length"
-              :history="addressResponse.history"
-            />
-          </div>
-        </Transition>
-        <Transition name="fade">
-          <div
-            v-show="navItem === 1"
-            :style="{
-              order: navItem === 1 ? 1 : 0,
-            }"
-          >
-            <AddressNFTs :locking-bytecode="lockingBytecode" />
-            <AddressTokens class="mt-4" :locking-bytecode="lockingBytecode" />
-          </div>
-        </Transition>
-      </div>
+      <VTabs :items="navItems">
+        <template #transaction>
+          <AddressTransaction
+            v-if="addressResponse.history.length"
+            :history="addressResponse.history"
+          />
+        </template>
+        <template #cash_token>
+          <AddressNFTs :locking-bytecode="lockingBytecode" />
+          <AddressTokens class="mt-4" :locking-bytecode="lockingBytecode" />
+        </template>
+      </VTabs>
     </div>
   </div>
 </template>
@@ -52,7 +35,7 @@ import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 import { electrum } from "~/module/electrum";
 
-const navItem = ref(0);
+const navItems = ["transaction", "cash_token"] as const;
 // Get address from router param using useRouter
 const route = useRoute();
 const stateStore = useStateStore();
