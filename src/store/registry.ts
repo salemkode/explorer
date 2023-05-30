@@ -141,31 +141,45 @@ export const useRegistryStore = defineStore(
       // for in array
       for (let i = 0; i < registryList.value.length; i++) {
         const { url } = registryList.value[i];
-        const registry =
-          url === "auth_chain" ? opreturnResult : registryProviders.get(url);
+        const isAuthChain = url === "auth_chain";
+        const registry = isAuthChain
+          ? opreturnResult
+          : registryProviders.get(url);
 
         if (
           typeof registry === "object" &&
           registry.identities &&
           registry.identities[category]
         ) {
-          return registry;
+          return {
+            isAuthChain,
+            registry,
+          };
         }
       }
     };
 
     const getTokenIdentity = (category: string, registryUrl?: string) => {
       const registryFromUrl = (() => {
-        if (!registryUrl) return;
-        if (registryUrl === "auth_chain") return authchains.get(category);
-        if (registryUrl) return registryProviders.get(registryUrl);
-      })();
-      const registry =
-        typeof registryFromUrl === "object"
-          ? registryFromUrl
-          : getRegistryHasCategory(category);
+        if (registryUrl === "auth_chain") {
+          return {
+            isAuthChain: true,
+            registry: authchains.get(category),
+          };
+        }
 
-      if (registry) {
+        if (registryUrl) {
+          return {
+            isAuthChain: false,
+            registry: registryProviders.get(registryUrl),
+          };
+        }
+
+        return getRegistryHasCategory(category);
+      })();
+      const { registry, isAuthChain } = registryFromUrl || {};
+
+      if (registry && typeof registry === "object") {
         const identity = getTokenFromRegister(registry, category);
         if (identity) {
           const registryName =
@@ -173,8 +187,7 @@ export const useRegistryStore = defineStore(
             registry.registryIdentity.name;
 
           return {
-            name:
-              registryUrl === "auth_chain" ? "AuthChain" : registryName || "",
+            name: isAuthChain ? "AuthChain" : registryName || "",
             identity,
           };
         }
