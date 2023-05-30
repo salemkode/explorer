@@ -15,17 +15,13 @@
           <div v-if="existItems.length !== index + 1" class="mb-2" />
         </div>
       </template>
-      <div
+      <nuxt-link
         v-if="tokenCategory"
-        class="btn btn-outline-dark mt-4 px-3 p-2 text-start"
+        class="nav-link text-decoration-none text-bold btn btn-outline-dark mt-4 px-3 p-2 text-start"
+        :to="`/token/${tokenCategory}`"
       >
-        <nuxt-link
-          class="nav-link text-decoration-none text-bold"
-          :to="`/token/${tokenCategory}`"
-        >
-          Open token page
-        </nuxt-link>
-      </div>
+        Open token page
+      </nuxt-link>
     </template>
   </div>
 </template>
