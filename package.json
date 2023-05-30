@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "vue-tsc && nuxt build",
+    "build": "nuxt build",
     "build:font": "node ./script/iconGenerate.js",
     "typecheck": "vue-tsc",
     "typecheck:w": "vue-tsc -w",

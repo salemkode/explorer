@@ -17,7 +17,7 @@
       </template>
       <nuxt-link
         v-if="tokenCategory"
-        class="nav-link text-decoration-none text-bold btn btn-outline-dark mt-4 px-3 p-2 text-start"
+        class="btn btn-outline-dark mt-4 px-3 p-2 text-start"
         :to="`/token/${tokenCategory}`"
       >
         Open token page
