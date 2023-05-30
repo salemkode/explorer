@@ -11,6 +11,7 @@ import {
   hexToBin,
 } from "@bitauth/libauth";
 import type { bigNum } from "~/types";
+import { getHttpsUrl } from "./utils";
 
 export const calculateDecimal = (num: bigNum, decimal: number) => {
   const bigNum = BigNumber(num);
@@ -139,7 +140,9 @@ export const opreturnToAuthChainElement = (opReturnHex: string) => {
     // content hash is in OP_SHA256 byte order per spec
     result.contentHash = binToHex(chunks[1].slice());
     result.url = binToUtf8(chunks[2]);
-    if (result.url.indexOf("https://") < 0) {
+    if (result.url.startsWith("ipfs://")) {
+      result.url = getHttpsUrl(result.url);
+    } else if (!result.url.startsWith("https://")) {
       result.url = `https://${result.url}`;
     }
   }
