@@ -67,6 +67,10 @@ export const decodeAuthChain = (
       }
     });
 
+  if (genesesTx.genesisSupply === 0 && !genesesTx.nftCapability) {
+    return undefined;
+  }
+
   return {
     genesesTx,
     opreturn: result.opreturn,

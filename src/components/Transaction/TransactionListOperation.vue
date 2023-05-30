@@ -86,6 +86,7 @@ watch(
             authChain.data,
             category.substring(2)
           );
+          if (!authchainElement) return;
 
           registryStore.addToken(
             category.substring(2),

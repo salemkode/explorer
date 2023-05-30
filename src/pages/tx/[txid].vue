@@ -72,9 +72,10 @@ const { result: authchain, onResult: onAuthChainResult } =
       tokenCategory: ["\\x" + txid.value],
     }))
   );
-const authchainElement = computed(
-  () => authchain.value && decodeAuthChain(authchain.value, txid.value)
-);
+const authchainElement = computed(() => {
+  if (!authchain.value) return;
+  return decodeAuthChain(authchain.value, txid.value);
+});
 onAuthChainResult(() => {
   if (!authchainElement.value) return;
   registryStore.addToken(txid.value, authchainElement.value?.opreturn);
