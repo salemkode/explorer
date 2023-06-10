@@ -68,17 +68,31 @@ export const useStateStore = defineStore(
       }
     });
 
-    const darkmode = ref(false);
-    watch(
-      darkmode,
-      () => {
-        if (utils.isServer) return;
-        document
-          .querySelector("html")
-          ?.setAttribute("data-bs-theme", darkmode.value ? "dark" : "light");
+    const darkmodeChange = ref(false);
+    const _darkmodeRef = ref(false);
+    const darkmode = computed({
+      get: () => _darkmodeRef.value,
+      set: (value) => {
+        darkmodeChange.value = true;
+        _darkmodeRef.value = value;
       },
-      { immediate: true }
-    );
+    });
+    onMounted(() => {
+      if (utils.isServer || darkmodeChange.value) return;
+      const deviceTheme = window.matchMedia("(prefers-color-scheme: dark)");
+      deviceTheme.addEventListener(
+        "change",
+        (e) => (_darkmodeRef.value = e.matches)
+      );
+
+      _darkmodeRef.value = deviceTheme.matches;
+    });
+    watch(_darkmodeRef, () => {
+      if (utils.isServer) return;
+      document
+        .querySelector("html")
+        ?.setAttribute("data-bs-theme", darkmode.value ? "dark" : "light");
+    });
 
     const calculatePrice = (sat: string | number) => {
       return utils.calculatePrice(sat, usdPrice.value || "");
@@ -110,6 +124,8 @@ export const useStateStore = defineStore(
       usdPrice,
       lastBlockHeight,
       darkmode,
+      darkmodeChange,
+      _darkmodeRef,
       formatPrice,
       lockingBytecodeHexToCashAddress,
       search,
@@ -119,8 +135,8 @@ export const useStateStore = defineStore(
   },
   {
     persist: {
-      storage: window.localStorage,
-      paths: ["darkmode"],
+      storage: localStorage,
+      paths: ["darkmodeChange", "_darkmodeRef"],
     },
   }
 );
