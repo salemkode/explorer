@@ -1,4 +1,6 @@
+import { binToUtf8, hexToBin } from "@bitauth/libauth";
 import { type GetAuthChainsQuery } from "~/graphql/graphql";
+import { opreturnToAuthChainElement } from "./bitcoin";
 
 /**
  * Retrieves the genesis transaction and opreturn for a given category from an authchain.
@@ -59,7 +61,13 @@ export const decodeAuthChain = (
         ?.find((vout) => vout.locking_bytecode.startsWith("\\x6a"))
         ?.locking_bytecode.substring(2);
       const timestamp = transaction?.block_inclusions.at(0)?.block.timestamp;
-      if (timestamp && opreturn && +result.timestamp < +timestamp) {
+      const registryElement = opreturn && opreturnToAuthChainElement(opreturn);
+      if (
+        timestamp &&
+        registryElement &&
+        typeof registryElement !== "string" &&
+        +result.timestamp < +timestamp
+      ) {
         result = {
           timestamp: timestamp,
           opreturn,
