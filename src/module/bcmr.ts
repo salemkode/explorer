@@ -1,4 +1,3 @@
-import { binToUtf8, hexToBin } from "@bitauth/libauth";
 import { type GetAuthChainsQuery } from "~/graphql/graphql";
 import { opreturnToAuthChainElement } from "./bitcoin";
 
