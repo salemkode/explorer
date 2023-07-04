@@ -34,7 +34,7 @@ const removeItem = (index: number) => {
         :key="index"
         class="d-flex p-2 mb-2"
       >
-        <i class="uicon-draggable" />
+        <i class="uicon-draggable" style="cursor: grab" />
         <span class="me-auto px-3" v-text="item.name" />
         <i
           v-show="!registryStore.registryList.at(index)?.default"
