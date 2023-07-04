@@ -51,7 +51,7 @@ export const isIpfs = (url: string): boolean => {
 
 export const getHttpsUrl = (url: string) => {
   if (isIpfs(url)) {
-    return `https://dweb.link/ipfs/${url.substring(7)}`;
+    return `https://ipfs.pat.mn/ipfs/${url.substring(7)}`;
   } else {
     return url;
   }
