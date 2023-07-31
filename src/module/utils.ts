@@ -43,7 +43,7 @@ export const formatDateString = (date: Date) => {
 export const shortTx = (text: string) =>
   `${text.slice(0, 8)}...${text.slice(-5)}`;
 
-export const isServer = process.server;
+export const isServer = !!process.server;
 
 export const isIpfs = (url: string): boolean => {
   return url.startsWith("ipfs://");
