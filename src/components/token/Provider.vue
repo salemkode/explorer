@@ -3,16 +3,20 @@
     <h5>Registry</h5>
     <div class="d-flex flex-column">
       <div
-        v-for="[name, registry] in providers"
+        v-for="{ name, registry, loading, isValidHash } in providers"
         :key="name"
         class="d-flex py-2 align-items-center pointer registry-item"
-        @click="selectRegistry(registry, name)"
+        @click="selectRegistry(name, registry)"
       >
-        <div v-if="registry === true" class="spinner-grow" alt="" />
-        <i
-          v-else-if="!isVerified(category, registry, name === 'AuthChain')"
-          class="uicon-unverified text-danger"
-        />
+        <div v-if="loading" class="spinner-grow" alt="" />
+        <PopOver
+          v-else-if="!registry || !isValidHash"
+          :msg="
+            !isValidHash ? 'metadata hash matches' : 'not found in registry'
+          "
+        >
+          <i class="uicon-unverified text-danger" />
+        </PopOver>
         <i v-else class="uicon-verified text-primary" />
         <span class="px-3 me-auto" v-text="name" />
         <span
@@ -42,39 +46,15 @@ const emit = defineEmits<{
 const getRegistryUrl = (name: string) =>
   registryStore.registryList.find((item) => item.name === name)?.url;
 
-const getOrder = (name: string) => {
+const getOrder = (name: string, url?: string) => {
   return registryStore.registryList.findIndex(
-    (registry) => registry.name === name
+    (registry) => registry.name === name || registry.url === url
   );
 };
 
-const providers = computed(() => {
-  const items: [string, Registry | boolean][] = [
-    ["AuthChain", registryStore.authchains.get(props.category) || false],
-  ];
-
-  registryStore.registryProviders.forEach((provider) => {
-    if (typeof provider.registryIdentity === "string") {
-      return;
-    }
-
-    items.push([provider.registryIdentity.name, provider]);
-  });
-
-  return items.sort(([name1], [name2]) => getOrder(name1) - getOrder(name2));
-});
-
-const isVerified = (
-  category: string,
-  registry?: Registry | false,
-  authChain = false
-) => {
+const hasCategory = (registry: Registry, category: string) => {
   if (!registry) {
     return false;
-  }
-
-  if (authChain) {
-    return registryStore.authchainsVerified.get(category);
   }
 
   const identities = registry.identities;
@@ -86,8 +66,49 @@ const isVerified = (
   }
 };
 
-const selectRegistry = (registry: Registry | boolean, name: string) => {
-  if (typeof registry === "object" && isVerified(props.category, registry)) {
+type ProviderItem = {
+  name: string;
+  registry?: Registry;
+  isValidHash?: boolean;
+  loading?: boolean;
+  url?: string;
+};
+const providers = computed(() => {
+  const authChainProviders = registryStore.authchains.get(props.category);
+  const items: ProviderItem[] = [
+    {
+      name: "AuthChain",
+      registry:
+        typeof authChainProviders === "object" ? authChainProviders : undefined,
+      isValidHash: registryStore.authchainsVerified.get(props.category),
+      loading: authChainProviders === true,
+    },
+  ];
+
+  registryStore.registryProviders.forEach((registryProvider, url) => {
+    if (typeof registryProvider.registryIdentity === "string") {
+      return;
+    }
+
+    items.push({
+      name: registryProvider.registryIdentity.name,
+      registry: hasCategory(registryProvider, props.category)
+        ? registryProvider
+        : undefined,
+      isValidHash: true,
+      loading: registryStore.loadingProviders,
+      url,
+    });
+  });
+
+  return items.sort(
+    ({ name: name1, url: url1 }, { name: name2, url: url2 }) =>
+      getOrder(name1, url1) - getOrder(name2, url2)
+  );
+});
+
+const selectRegistry = (name: string, registry?: Registry) => {
+  if (typeof registry === "object" && hasCategory(registry, props.category)) {
     emit("select", getRegistryUrl(name) || "");
   }
 };
