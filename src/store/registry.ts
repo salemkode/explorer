@@ -270,7 +270,8 @@ export const useRegistryStore = defineStore(
 
           // Validate BCMR registry schema
           const validRegistry = await validateBcmrSchema(registry);
-          if (!validRegistry.success) return;
+          if (!validRegistry.success)
+            return console.log("Invalid schema ", validRegistry.value);
 
           // Validate token category
           if (getTokenFromRegister(validRegistry.value, tokenCategory)) {

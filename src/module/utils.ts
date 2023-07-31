@@ -73,12 +73,13 @@ export const validateBcmrSchema = async (value: unknown) => {
   if (validate_bcmr(value)) {
     return {
       success: true,
-      value: value as Registry,
+      value: value,
     } as const;
   }
 
   return {
     success: false,
+    value: validate_bcmr.errors,
   } as const;
 };
 
