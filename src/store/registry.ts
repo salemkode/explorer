@@ -198,57 +198,62 @@ export const useRegistryStore = defineStore(
       };
     };
 
+    type getTokenReturn = {
+      loading: boolean;
+      token?: {
+        name: string;
+        description?: string;
+        symbol?: string;
+        icon?: string;
+        decimals: number;
+      };
+    };
     const getToken = (
       category: string,
       nftType?: tokenCapability,
       nftCommitment?: string
-    ) => {
+    ): getTokenReturn => {
       const tokenIdentity = getTokenIdentity(category);
-      let token:
-        | {
-            name: string;
-            description?: string;
-            symbol?: string;
-            icon?: string;
-            decimals: number;
-          }
-        | undefined;
 
-      if (tokenIdentity && tokenIdentity.identity) {
-        const { identity } = tokenIdentity;
-        if (nftType && nftType !== "minting") {
-          if (!nftCommitment) {
-            return {
-              loading: false,
-              token: undefined,
-            };
-          }
-          const nftTypes = identity.token?.nfts?.parse.types || {};
-          const child = nftTypes[nftCommitment];
+      // Check is token already added
+      if (!tokenIdentity || !tokenIdentity.identity) {
+        // Check is loading
+        const loadingAuthChain = authchains.get(category) === true;
+        return {
+          loading: loadingProviders.value || loadingAuthChain,
+        };
+      }
 
-          if (child) {
-            token = {
+      const { identity } = tokenIdentity;
+
+      // TODO: create a function to get child token metadata
+      if (nftType && nftType !== "minting" && nftCommitment) {
+        const nftTypes = identity.token?.nfts?.parse.types || {};
+        const child = nftTypes[nftCommitment];
+
+        if (child) {
+          return {
+            loading: false,
+            token: {
               name: child.name,
               description: child.description,
               icon: child.uris ? child.uris["icon"] : undefined,
               symbol: undefined,
               decimals: 0,
-            };
-          }
-        } else {
-          token = {
-            name: identity.name,
-            description: identity.description,
-            symbol: identity.token?.symbol,
-            icon: identity.uris ? identity.uris["icon"] : undefined,
-            decimals: identity.token?.decimals || 0,
+            },
           };
         }
       }
 
       return {
-        loading: loadingProviders.value || authchains.get(category) === true,
-        token,
+        loading: false,
+        token: {
+          name: identity.name,
+          description: identity.description,
+          symbol: identity.token?.symbol,
+          icon: identity.uris ? identity.uris["icon"] : undefined,
+          decimals: identity.token?.decimals || 0,
+        },
       };
     };
 
