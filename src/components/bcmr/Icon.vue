@@ -140,8 +140,8 @@ const imageClick = async () => {
     opacity: 0;
 
     &.open {
-      width: 300px;
-      height: 300px;
+      width: 70%;
+      height: 70%;
       transform: translate(-50%, -50%);
       top: 50% !important;
       left: 50% !important;
