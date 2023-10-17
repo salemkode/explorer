@@ -143,7 +143,15 @@ export const opreturnToAuthChainElement = (opReturnHex: string) => {
     if (result.url.startsWith("ipfs://")) {
       result.url = getHttpsUrl(result.url);
     } else if (!result.url.startsWith("https://")) {
-      result.url = `https://${result.url}`;
+      /*
+        https://github.com/bitjson/chip-bcmr#https-publication-outputs
+        the URL segment following the hostname, beginning with
+        must be assumed to use the Well-Known URI for that domain. E.g.
+      */
+      const urlObj = new URL(`https://${result.url}`);
+      if (urlObj.pathname === "/")
+        urlObj.pathname = "/.well-known/bitcoin-cash-metadata-registry.json";
+      result.url = urlObj.toString();
     }
   }
 
