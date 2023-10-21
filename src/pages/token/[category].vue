@@ -61,10 +61,10 @@
 
 <script setup lang="ts">
 import { useStateStore, useRegistryStore } from "~/store";
-import { GetAuthChains, type GetAuthChainsQuery } from "~/module/chaingraph";
 import type { contentWarpItem } from "~/types";
 import { calculateDecimal } from "~/module/bitcoin";
 import { decodeAuthChain } from "~/module/bcmr";
+import { useAuthChains } from "~/hooks/authchains";
 
 const route = useRoute();
 const category = computed(() => route.params.category as string);
@@ -72,16 +72,12 @@ const category = computed(() => route.params.category as string);
 const registryStore = useRegistryStore();
 const stateStore = useStateStore();
 const navItem = ref(0);
-const variable = computed(() => ({
-  network: stateStore.network,
-  tokenCategory: ["\\x" + category.value],
-}));
 const {
   result: authchain,
   loading: authchainLoading,
   onResult,
   onError,
-} = useQuery<GetAuthChainsQuery>(GetAuthChains, variable);
+} = useAuthChains(toRef(() => ["\\x" + category.value]));
 
 const authchainElement = computed(
   () => authchain.value && decodeAuthChain(authchain.value, category.value)
@@ -99,11 +95,6 @@ onResult(() => {
       message: "This transaction is not found",
     });
   }
-});
-
-watchEffect(() => {
-  authchainElement.value?.opreturn &&
-    registryStore.addToken(category.value, authchainElement.value.opreturn);
 });
 
 const selectedRegistryName = ref("");

@@ -15,14 +15,12 @@
 <script setup lang="ts">
 import {
   type GetAddressTokensQuery,
-  type GetAuthChainsQuery,
   GetAddressTokens,
-  GetAuthChains,
 } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
 import { useStateStore, useRegistryStore } from "~/store";
 import { calculateDecimal } from "~/module/bitcoin";
-import { decodeAuthChain } from "~/module/bcmr";
+import { useAuthChains } from "~/hooks/authchains";
 
 const limit = ref(9);
 const offset = ref(0);
@@ -42,7 +40,6 @@ const {
   result: transaction,
   error,
   loading,
-  onResult,
 } = useQuery<GetAddressTokensQuery>(GetAddressTokens, variables);
 const hasNextPage = computed(() => {
   if (transaction.value) {
@@ -104,27 +101,12 @@ const transactions = computed<tableColumn[][]>(() => {
   return items;
 });
 
-onResult((transaction) => {
-  const tokenCategories = transaction.data.search_output
-    .map((token) => token.token_category)
-    .filter(Boolean);
-
-  const { onResult } = useQuery<GetAuthChainsQuery>(GetAuthChains, {
-    network: stateStore.network,
-    tokenCategory: Array.from(new Set(tokenCategories)),
-  });
-
-  onResult((authChain) => {
-    tokenCategories.forEach((category) => {
-      // Get token category
-      const authchainElement = decodeAuthChain(
-        authChain.data,
-        category.substring(2)
-      );
-      if (!authchainElement) return;
-
-      registryStore.addToken(category.substring(2), authchainElement.opreturn);
-    });
-  });
-});
+useAuthChains(
+  toRef(
+    () =>
+      transaction.value?.search_output
+        .map((token) => token.token_category)
+        .filter(Boolean) || []
+  )
+);
 </script>

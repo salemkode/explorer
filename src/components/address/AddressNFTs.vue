@@ -13,15 +13,10 @@
 </template>
 
 <script setup lang="ts">
-import {
-  type GetAddressNfTsQuery,
-  type GetAuthChainsQuery,
-  GetAddressNFTs,
-  GetAuthChains,
-} from "@/module/chaingraph";
+import { type GetAddressNfTsQuery, GetAddressNFTs } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
 import { useStateStore, useRegistryStore } from "~/store";
-import { decodeAuthChain } from "~/module/bcmr";
+import { useAuthChains } from "~/hooks/authchains";
 
 const limit = ref(9);
 const offset = ref(0);
@@ -37,42 +32,26 @@ const variables = computed(() => ({
   limit: limit.value,
 }));
 
-const {
-  result: transaction,
-  error,
-  loading,
-  onResult,
-} = useQuery<GetAddressNfTsQuery>(GetAddressNFTs, variables);
 const hasNextPage = computed(() => {
   if (transaction.value) {
     return transaction.value.search_output.length === limit.value;
   }
   return false;
 });
+const {
+  result: transaction,
+  error,
+  loading,
+} = useQuery<GetAddressNfTsQuery>(GetAddressNFTs, variables);
 
-onResult((transaction) => {
-  const tokenCategories = transaction.data.search_output
-    .map((nft) => nft.token_category)
-    .filter(Boolean);
-
-  const { onResult } = useQuery<GetAuthChainsQuery>(GetAuthChains, {
-    network: stateStore.network,
-    tokenCategory: Array.from(new Set(tokenCategories)),
-  });
-
-  onResult((authChain) => {
-    tokenCategories.forEach((category) => {
-      // Get token category
-      const authchainElement = decodeAuthChain(
-        authChain.data,
-        category.substring(2)
-      );
-      if (!authchainElement) return;
-
-      registryStore.addToken(category.substring(2), authchainElement.opreturn);
-    });
-  });
-});
+useAuthChains(
+  toRef(
+    () =>
+      transaction.value?.search_output
+        .map((nft) => nft.token_category)
+        .filter(Boolean) || []
+  )
+);
 const transactions = computed(() => {
   if (!transaction.value) {
     return [];
