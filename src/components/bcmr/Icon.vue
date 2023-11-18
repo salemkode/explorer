@@ -2,7 +2,7 @@
   <div class="icon my-1">
     <div ref="reference" class="flex pointer" @click.stop="openPopUp">
       <Image
-        :key="state.href"
+        :key="iconURL"
         :size="small ? 24 : 80"
         :href="iconURL"
         :failure-href="IdentIcon"
@@ -12,46 +12,66 @@
     <div
       v-if="state.open"
       class="modal-backdrop fade show"
-      @click.stop="closePopUp()"
+      @click="closePopUp()"
     />
     <Transition name="popup">
-      <img
+      <Image
         v-show="state.open"
         :key="iconURL"
-        :src="iconURL"
+        :href="imageURL"
+        :failure-href="iconURL"
         :style="{
-          '--x': `${state.x}px`,
-          '--y': `${state.y}px`,
+          '--x': `${position.x}px`,
+          '--y': `${position.y}px`,
           '--image-size': `${small ? 24 : 80}px`,
         }"
-        class="popover-image pointer"
-        alt="icon"
-        @click.stop="closePopUp()"
+        class="popover-image"
+        @click="closePopUp()"
       />
     </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-// TODO: add reset when icon change
 import { svgToBase64, getHttpsUrl } from "~/module/utils";
 import { createIdenticon } from "~/module/IconGenerator";
+import { useRegistryStore } from "~/store";
+import type { Capability } from "~/types";
 
+const registryStore = useRegistryStore();
 const reference = ref<HTMLElement>();
 const props = defineProps<{
   tokenCategory: string;
+  commitment?: string;
+  capability?: Capability;
   small?: boolean;
-  icon?: string;
 }>();
+
 const state = reactive({
-  href: props.icon,
   open: false,
   success: false,
-  x: 0,
-  y: 0,
+});
+const resetState = () => {
+  state.open = false;
+  state.success = false;
+};
+const tokenInfo = computed(() => {
+  // Reset state when tokenInfo changes
+  resetState();
+
+  return registryStore.getToken(
+    props.tokenCategory,
+    props.capability,
+    props.commitment
+  ).token;
 });
 
-const iconURL = computed(() => (props.icon ? getHttpsUrl(props.icon) : ""));
+const iconURL = computed(() =>
+  tokenInfo.value?.icon ? getHttpsUrl(tokenInfo.value?.icon) : ""
+);
+const imageURL = computed(() =>
+  tokenInfo.value?.image ? getHttpsUrl(tokenInfo.value?.image) : ""
+);
 const IdentIcon = computed(() =>
   svgToBase64(createIdenticon(props.tokenCategory))
 );
@@ -64,18 +84,28 @@ function getElementPosition(element: HTMLElement) {
   };
 }
 
-const openPopUp = () => {
+const position = reactive({
+  x: 0,
+  y: 0,
+});
+const updatePosition = () => {
   // `reference.value` Check if the reference value is not null
-  // `state.success` Check if the image is loaded successfully
-  if (reference.value && state.success) {
+  if (reference.value) {
     const { top, left } = getElementPosition(reference.value);
-    state.y = top;
-    state.x = left;
+    position.x = left;
+    position.y = top;
+  }
+};
+const openPopUp = () => {
+  // `state.success` Check if the image is loaded successfully
+  if (state.success) {
+    updatePosition();
     state.open = true;
   }
 };
 
 const closePopUp = () => {
+  updatePosition();
   state.open = false;
 };
 </script>
@@ -83,16 +113,16 @@ const closePopUp = () => {
 <style lang="scss" scoped>
 .icon > img {
   object-fit: contain;
+}
 
-  &.popover-image {
-    position: fixed;
-    z-index: 100000;
-    width: 70%;
-    height: 70%;
-    transform: translate(-50%, -50%);
-    top: 50%;
-    left: 50%;
-  }
+.popover-image {
+  position: fixed;
+  z-index: 100000;
+  width: 70%;
+  height: 70%;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
 }
 
 .popup-enter-active {

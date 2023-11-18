@@ -4,7 +4,8 @@
       <bcmr-icon
         v-if="column.token"
         :token-category="column.token.category"
-        :icon="column.token.icon"
+        :commitment="column.token.commitment"
+        :capability="column.token.capability"
         small
         class="icon mb-2 me-2"
       />

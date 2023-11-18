@@ -6,8 +6,6 @@
       :src="state.href"
       :width="props.size"
       :height="props.size"
-      alt="icon"
-      class="rounded pointer"
       v-bind="props"
       @load="handleImageLoaded"
       @error="imageLoadError"
@@ -18,7 +16,7 @@
 <script setup lang="ts">
 const emit = defineEmits(["success"]);
 interface ImageComponentProps {
-  size: number;
+  size?: number;
   href: string;
   failureHref: string;
 }

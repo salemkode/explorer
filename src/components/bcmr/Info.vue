@@ -4,7 +4,6 @@
       <bcmr-icon
         v-if="props.tokenCategory && props.identitySnapshot?.uris?.icon"
         :token-category="props.tokenCategory"
-        :icon="props.identitySnapshot?.uris?.icon"
         class="mb-3"
       />
     </template>

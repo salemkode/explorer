@@ -10,6 +10,7 @@ export type RegistryProvider = {
   default: boolean;
 };
 
+export type Capability = "none" | "mutable" | "minting" | undefined;
 export interface tableColumn {
   text: string | number;
   short?: boolean;
@@ -17,7 +18,8 @@ export interface tableColumn {
   url?: string;
   token?: {
     category: string;
-    icon: string;
+    capability?: capability;
+    commitment?: string;
   };
 }
 
