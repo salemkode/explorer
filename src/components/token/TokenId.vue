@@ -1,10 +1,7 @@
 <template>
   <div class="card text-break">
     <div class="d-flex flex-column align-items-md-center p-3 flex-md-row">
-      <bcmr-icon
-        :token-category="category"
-        :icon="identitySnapshot?.uris?.icon"
-      />
+      <bcmr-icon :token-category="category" />
       <span class="mx-2" />
       <div>
         <h6 v-text="tokenName" />

@@ -1,177 +1,152 @@
 <template>
   <div class="icon my-1">
-    <Transition name="fade" mode="out-in">
-      <img
-        ref="reference"
-        :key="state.iconUrl"
-        :src="state.iconUrl"
-        :class="{ small, rounded: props.rounded === true }"
-        :width="80"
-        :height="80"
-        alt="icon"
-        class="rounded pointer"
-        @load="state.loaded = true"
-        @error="imageLoadError"
-        @click.stop="imageClick"
+    <div ref="reference" class="flex pointer" @click.stop="openPopUp">
+      <Image
+        :key="iconURL"
+        :size="small ? 24 : 80"
+        :href="iconURL"
+        :failure-href="IdentIcon"
+        @success="state.success = true"
+      />
+    </div>
+    <div
+      v-if="state.open"
+      class="modal-backdrop fade show"
+      @click="closePopUp()"
+    />
+    <Transition name="popup">
+      <Image
+        v-show="state.open"
+        :key="iconURL"
+        :href="imageURL"
+        :failure-href="iconURL"
+        :style="{
+          '--x': `${position.x}px`,
+          '--y': `${position.y}px`,
+          '--image-size': `${small ? 24 : 80}px`,
+        }"
+        class="popover-image"
+        @click="closePopUp()"
       />
     </Transition>
-    <div
-      v-if="!state.error && state.open"
-      class="modal-backdrop fade show"
-      @click.stop="state.open && imageClick()"
-    />
-    <img
-      v-if="!state.error"
-      :key="state.iconUrl"
-      :src="state.iconUrl"
-      :class="{ small, rounded: props.rounded === true, open: state.open }"
-      :style="{
-        top: `${state.y}px`,
-        left: `${state.x}px`,
-        transition: state.transition,
-      }"
-      class="popover-image rounded pointer"
-      alt="icon"
-      @click.stop="state.open && imageClick()"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { toSvg } from "jdenticon";
-import { getHttpsUrl } from "~/module/utils";
+import { svgToBase64, getHttpsUrl } from "~/module/utils";
+import { createIdenticon } from "~/module/IconGenerator";
+import { useRegistryStore } from "~/store";
+import type { Capability } from "~/types";
 
+const registryStore = useRegistryStore();
 const reference = ref<HTMLElement>();
 const props = defineProps<{
   tokenCategory: string;
+  commitment?: string;
+  capability?: Capability;
   small?: boolean;
-  icon?: string;
-  rounded?: boolean;
 }>();
+
 const state = reactive({
-  loaded: false,
-  error: false,
-  iconUrl: props.icon,
   open: false,
-  x: 0,
-  y: 0,
-  transition: "",
+  success: false,
+});
+const resetState = () => {
+  state.open = false;
+  state.success = false;
+};
+const tokenInfo = computed(() => {
+  // Reset state when tokenInfo changes
+  resetState();
+
+  return registryStore.getToken(
+    props.tokenCategory,
+    props.capability,
+    props.commitment
+  ).token;
 });
 
-watch(
-  () => props.icon,
-  (url) => {
-    if (url) {
-      state.loaded = false;
-      state.error = false;
-      state.iconUrl = getHttpsUrl(url);
-    } else {
-      imageLoadError();
-    }
-  },
-  {
-    immediate: true,
-  }
+const iconURL = computed(() =>
+  tokenInfo.value?.icon ? getHttpsUrl(tokenInfo.value?.icon) : ""
 );
-
-function imageLoadError() {
-  if (state.error) {
-    // Stop for loop error
-    return;
-  }
-
-  // Change error state
-  state.error = true;
-  state.loaded = true;
-  const svgString = toSvg(props.tokenCategory, 128, {
-    lightness: {
-      color: [0.39, 0.75],
-      grayscale: [0.27, 0.9],
-    },
-    saturation: {
-      color: 0.8,
-      grayscale: 0.1,
-    },
-    padding: 0,
-    replaceMode: "observe",
-  });
-  state.iconUrl = "data:image/svg+xml;base64," + btoa(svgString);
-}
-
-//
+const imageURL = computed(() =>
+  tokenInfo.value?.image ? getHttpsUrl(tokenInfo.value?.image) : ""
+);
+const IdentIcon = computed(() =>
+  svgToBase64(createIdenticon(props.tokenCategory))
+);
+// TODO: move to custom file
 function getElementPosition(element: HTMLElement) {
   const rect = element.getBoundingClientRect();
   return {
-    top: rect.top + window.pageYOffset - window.scrollY,
-    left: rect.left + window.pageXOffset - window.scrollX,
+    top: rect.top + window.scrollY - window.scrollY,
+    left: rect.left + window.scrollX - window.scrollX,
   };
 }
 
-const imageClick = async () => {
-  if (!reference.value) return;
-  !state.open && (state.transition = "");
-  await nextTick();
-  const { top, left } = getElementPosition(reference.value);
-  state.y = top;
-  state.x = left;
+const position = reactive({
+  x: 0,
+  y: 0,
+});
+const updatePosition = () => {
+  // `reference.value` Check if the reference value is not null
+  if (reference.value) {
+    const { top, left } = getElementPosition(reference.value);
+    position.x = left;
+    position.y = top;
+  }
+};
+const openPopUp = () => {
+  // `state.success` Check if the image is loaded successfully
+  if (state.success) {
+    updatePosition();
+    state.open = true;
+  }
+};
 
-  setTimeout(async () => {
-    await nextTick();
-    state.transition = "all 0.8s ease-in-out";
-    state.open = !state.open;
-  });
+const closePopUp = () => {
+  updatePosition();
+  state.open = false;
 };
 </script>
 
 <style lang="scss" scoped>
 .icon > img {
-  --size-image: 80px;
   object-fit: contain;
-  width: var(--size-image);
-  height: var(--size-image);
+}
 
-  &.popover-image {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    z-index: 100000;
-    width: 0;
-    height: 0;
-    opacity: 0;
+.popover-image {
+  position: fixed;
+  z-index: 100000;
+  width: 70%;
+  height: 70%;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+}
 
-    &.open {
-      width: 70%;
-      height: 70%;
-      transform: translate(-50%, -50%);
-      top: 50% !important;
-      left: 50% !important;
-      opacity: 1;
-    }
+.popup-enter-active {
+  animation: popup 1s both;
+}
+
+.popup-leave-active {
+  animation: popup 1s reverse;
+}
+
+@keyframes popup {
+  0% {
+    width: var(--image-size);
+    height: var(--image-size);
+    top: var(--y, 0);
+    left: var(--x, 0);
+    transform: translate(0%, 0%);
   }
-}
-
-.icon > img.small {
-  --size-image: 24px;
-}
-
-.icon .loading {
-  border-radius: 5px;
-  background: linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0),
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 0) 80%
-    ),
-    lightgray;
-  background-repeat: repeat-y;
-  background-size: 50px 500px;
-  background-position: -50% 0;
-  animation: shine 2s infinite linear alternate;
-}
-
-@keyframes shine {
-  to {
-    background-position: 150% 0;
+  100% {
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    top: 50%;
+    left: 50%;
   }
 }
 </style>

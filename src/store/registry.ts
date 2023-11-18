@@ -1,5 +1,6 @@
 import { utf8ToBin, binToHex, sha256 } from "@bitauth/libauth";
 import { defineStore } from "pinia";
+import { getChildToken } from "~/module/bcmr";
 import { opreturnToAuthChainElement } from "~/module/bitcoin";
 import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, RegistryProvider, tokenCapability } from "~/types";
@@ -198,25 +199,14 @@ export const useRegistryStore = defineStore(
       };
     };
 
-    type getTokenReturn = {
-      loading: boolean;
-      token?: {
-        name: string;
-        description?: string;
-        symbol?: string;
-        icon?: string;
-        decimals: number;
-      };
-    };
     const getToken = (
       category: string,
-      nftType?: tokenCapability,
+      capability?: tokenCapability,
       nftCommitment?: string
-    ): getTokenReturn => {
+    ) => {
       const tokenIdentity = getTokenIdentity(category);
-
       // Check is token already added
-      if (!tokenIdentity || !tokenIdentity.identity) {
+      if (!tokenIdentity.identity) {
         // Check is loading
         const loadingAuthChain = authchains.get(category) === true;
         return {
@@ -225,33 +215,17 @@ export const useRegistryStore = defineStore(
       }
 
       const { identity } = tokenIdentity;
-
-      // TODO: create a function to get child token metadata
-      if (nftType && nftType !== "minting" && nftCommitment) {
-        const nftTypes = identity.token?.nfts?.parse.types || {};
-        const child = nftTypes[nftCommitment];
-
-        if (child) {
-          return {
-            loading: false,
-            token: {
-              name: child.name,
-              description: child.description,
-              icon: child.uris ? child.uris["icon"] : undefined,
-              symbol: undefined,
-              decimals: 0,
-            },
-          };
-        }
-      }
+      const metadata =
+        getChildToken(identity, capability, nftCommitment) || identity;
 
       return {
         loading: false,
         token: {
-          name: identity.name,
-          description: identity.description,
+          name: metadata.name,
+          description: metadata.description,
+          icon: metadata.uris?.icon,
+          image: metadata.uris?.image,
           symbol: identity.token?.symbol,
-          icon: identity.uris ? identity.uris["icon"] : undefined,
           decimals: identity.token?.decimals || 0,
         },
       };

@@ -74,7 +74,8 @@ const transactions = computed(() => {
           : metadata?.token?.name || "No name",
         token: {
           category: category,
-          icon: metadata?.token?.icon || "",
+          commitment: commitment,
+          capability: nft.nonfungible_token_capability || undefined,
         },
         url: `/token/${category}`,
       },

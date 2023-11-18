@@ -6,10 +6,12 @@
   >
     <div class="content d-flex flex-column flex-md-row gap-3">
       <div>
-        <BcmrIcon
+        <Image
+          :href="registry.registryIdentity.uris?.icon || ''"
+          :size="80"
+          :failure-href="EmptyImage"
           :token-category="registry.registryIdentity.name"
           :icon="registry.registryIdentity.uris?.icon || ''"
-          rounded
         />
       </div>
       <div v-if="typeof registry.registryIdentity !== 'string'" class="w-100">
@@ -65,6 +67,8 @@
 import type { Registry, tableColumn } from "~/types";
 import { formatTimeAgo } from "~/module/utils";
 import { useRegistryStore } from "~/store";
+import EmptyImage from "~/assets/images/emptyImage.svg";
+
 const open = ref(false);
 
 const props = defineProps<{
@@ -88,14 +92,12 @@ const transactions = computed<tableColumn[][]>(() => {
         identity
       );
       if (!metadata) return;
-      const icon = metadata.uris ? metadata.uris["icon"] : "";
       const category = metadata.token?.category || "N/A";
       return [
         {
           text: metadata.name || "N/A",
           token: {
             category,
-            icon: icon || "",
           },
           url: `/token/${category}`,
         },

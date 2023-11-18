@@ -108,3 +108,6 @@ export const formatTimeAgo = (date: string) => {
     duration /= division.amount;
   }
 };
+
+export const svgToBase64 = (svg: string) =>
+  "data:image/svg+xml;base64," + btoa(svg);

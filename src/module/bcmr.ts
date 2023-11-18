@@ -1,5 +1,6 @@
 import { type GetAuthChainsQuery } from "~/graphql/graphql";
 import { opreturnToAuthChainElement } from "./bitcoin";
+import type { IdentitySnapshot, Capability, tokenCapability } from "~/types";
 
 /**
  * Retrieves the genesis transaction and opreturn for a given category from an authchain.
@@ -14,12 +15,7 @@ export const decodeAuthChain = (
     hash: undefined as string | undefined,
     genesisSupply: 0,
     lockingBytecode: undefined as string | undefined,
-    nftCapability: undefined as
-      | "none"
-      | "mutable"
-      | "minting"
-      | null
-      | undefined,
+    nftCapability: undefined as Capability | null | undefined,
   };
 
   let result = {
@@ -82,4 +78,18 @@ export const decodeAuthChain = (
     genesesTx,
     opreturn: result.opreturn,
   };
+};
+
+export const getChildToken = (
+  identitySnapshot: IdentitySnapshot,
+  capability?: tokenCapability,
+  nftCommitment?: string
+) => {
+  if (capability && capability !== "minting" && nftCommitment) {
+    const metadata = identitySnapshot.token?.nfts?.parse.types?.[nftCommitment];
+
+    if (metadata) {
+      return metadata;
+    }
+  }
 };

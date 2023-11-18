@@ -36,11 +36,17 @@ const { result, loading, error } = useQuery<GetTokenChildQuery>(
   variable
 );
 const types = computed(() => props.identitySnapshot?.token?.nfts?.parse.types);
+const showTokenColumn = computed(() => {
+  return Object.keys(types.value || {}).length !== 0;
+});
 const column = computed(() => {
-  if (Object.keys(types.value || {}).length) {
-    return ["token", "address", "capability", "commitment"];
+  const result = ["token", "address", "capability", "commitment"];
+
+  // Remove token column if there is no token info
+  if (!showTokenColumn.value) {
+    result.shift();
   }
-  return ["address", "capability", "commitment"];
+  return result;
 });
 const hasNextPage = computed(() => {
   if (result.value) {
@@ -54,9 +60,11 @@ const outputs = computed<tableColumn[][]>(() => {
   }
 
   let items = result.value?.output.map((output) => {
+    // Convert locking bytecode to cash address
     const address = stateStore.lockingBytecodeHexToCashAddress(
       output.locking_bytecode.substring(2)
     );
+    // Get nonfungible token commitment
     const commitment = output.nonfungible_token_commitment?.substring(2);
     const item: tableColumn[] = [
       {
@@ -67,6 +75,7 @@ const outputs = computed<tableColumn[][]>(() => {
       },
     ];
 
+    // Add address column
     if (typeof address === "string") {
       item.unshift({
         text: removeAddressPrefix(address),
@@ -80,30 +89,22 @@ const outputs = computed<tableColumn[][]>(() => {
       });
     }
 
-    if (typeof commitment === "string") {
-      const childInfo = types.value ? types.value[commitment] : undefined;
-      if (childInfo?.uris?.icon) {
-        item.unshift({
-          text: childInfo?.name,
-          token: {
-            category: props.category,
-            icon: childInfo.uris.icon,
-          },
-        });
-      } else if (Object.keys(types.value || {}).length) {
-        item.unshift({
-          text: "N/A",
-          token: {
-            category: props.category,
-            icon: "",
-          },
-        });
-      }
+    // Add child info column
+    if (showTokenColumn && typeof commitment === "string") {
+      item.unshift({
+        text: types.value?.[commitment].name || "N/A",
+        token: {
+          category: props.category,
+          commitment,
+          capability: output.nonfungible_token_capability || undefined,
+        },
+      });
     }
 
     return item;
   });
 
+  // Remove last item if it reaches the limit
   if (items.length === limit.value) {
     items = items.slice(0, -1);
   }
