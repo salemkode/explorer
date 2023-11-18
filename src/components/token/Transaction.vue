@@ -2,7 +2,7 @@
   <TableView
     title="Token Transactions"
     :rows="transactions"
-    :columns="['txid', 'amount', 'timestamp']"
+    :columns="['txid', 'block_height', 'timestamp']"
     :has-prev-page="!!offset"
     :has-next-page="!!hasNextPage"
     :loading="loading"
