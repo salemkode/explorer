@@ -54,9 +54,8 @@
 
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
-import { decodeAuthChain } from "~/module/bcmr";
+import { useAuthChains } from "~/hooks/authchains";
 import { removeAddressPrefix } from "~/module/bitcoin";
-import { GetAuthChains, type GetAuthChainsQuery } from "~/module/chaingraph";
 import { useStateStore, useRegistryStore } from "~/store";
 import type { Utxo } from "~/types";
 
@@ -68,38 +67,11 @@ const props = defineProps<{
   isCoinBase?: boolean;
 }>();
 
-watch(
-  props,
-  () => {
-    if (props.utxos.length) {
-      props.utxos.forEach((utxo) => {
-        const category = utxo.token_category;
-        if (!category) return;
-        const { onResult } = useQuery<GetAuthChainsQuery>(GetAuthChains, {
-          network: stateStore.network,
-          tokenCategory: [category],
-        });
-
-        onResult((authChain) => {
-          // Get token category
-          const authchainElement = decodeAuthChain(
-            authChain.data,
-            category.substring(2)
-          );
-          if (!authchainElement) return;
-
-          registryStore.addToken(
-            category.substring(2),
-            authchainElement.opreturn
-          );
-        });
-      });
-    }
-  },
-  {
-    immediate: true,
-  }
+const categories = computed(() =>
+  props.utxos.map((utxo) => utxo.token_category).filter(Boolean)
 );
+useAuthChains(categories);
+
 const utxos = computed(() => {
   if (props.name === "from" && props.isCoinBase === true) {
     return [

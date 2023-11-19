@@ -40,7 +40,7 @@ export interface addressInfo {
 export interface Utxo {
   token_category?: bytea | null;
   fungible_token_amount?: string | null;
-  nonfungible_token_capability?: string | null;
+  nonfungible_token_capability?: Capability | null;
   nonfungible_token_commitment?: bytea | null;
   locking_bytecode: string;
   value_satoshis: string;
