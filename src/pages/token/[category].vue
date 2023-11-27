@@ -1,60 +1,62 @@
 <template>
-  <LoadingView v-if="authchainLoading" />
-  <div v-else class="token-page overflow-hidden container d-lg-grid">
-    <TokenId
-      :loading="metadata.loading"
-      :identity-snapshot="metadata.identitySnapshot"
-      :category="category"
-      class="d-lg-none"
-    />
-    <NavPills
-      v-model:select="navItem"
-      :items="['token_register', 'transaction']"
-      class="d-lg-none"
-    />
-    <div
-      class="column d-lg-block"
-      :class="{
-        'd-none': navItem === 1,
-      }"
-    >
-      <content-warp
-        v-if="tokenInfo"
-        :items="tokenInfo"
-        :loading="authchainLoading"
-      />
-      <bcmr-info
-        :loading="metadata.loading"
-        :identity-snapshot="metadata.identitySnapshot"
-      />
-      <TokenProvider
-        :select="metadata.name"
-        :category="category"
-        @select="(url) => (selectedRegistryName = url)"
-      />
-    </div>
-    <div
-      class="column d-lg-block"
-      :class="{
-        'd-none': navItem === 0,
-      }"
-    >
+  <div>
+    <LoadingView v-if="authchainLoading" />
+    <div v-else class="token-page overflow-hidden container d-lg-grid">
       <TokenId
         :loading="metadata.loading"
         :identity-snapshot="metadata.identitySnapshot"
         :category="category"
-        class="d-none d-lg-block"
+        class="d-lg-none"
       />
-      <TokenAddress
-        v-if="authchainElement?.genesesTx.nftCapability"
-        :decimals="decimals"
-        :category="category"
+      <NavPills
+        v-model:select="navItem"
+        :items="['token_register', 'transaction']"
+        class="d-lg-none"
       />
-      <TokenTransaction :category="category" />
-      <TokenChild
-        :identity-snapshot="metadata.identitySnapshot"
-        :category="category"
-      />
+      <div
+        class="column d-lg-block"
+        :class="{
+          'd-none': navItem === 1,
+        }"
+      >
+        <content-warp
+          v-if="tokenInfo"
+          :items="tokenInfo"
+          :loading="authchainLoading"
+        />
+        <bcmr-info
+          :loading="metadata.loading"
+          :identity-snapshot="metadata.identitySnapshot"
+        />
+        <TokenProvider
+          :select="metadata.name"
+          :category="category"
+          @select="(url) => (selectedRegistryName = url)"
+        />
+      </div>
+      <div
+        class="column d-lg-block"
+        :class="{
+          'd-none': navItem === 0,
+        }"
+      >
+        <TokenId
+          :loading="metadata.loading"
+          :identity-snapshot="metadata.identitySnapshot"
+          :category="category"
+          class="d-none d-lg-block"
+        />
+        <TokenAddress
+          v-if="authchainElement?.genesesTx.nftCapability"
+          :decimals="decimals"
+          :category="category"
+        />
+        <TokenTransaction :category="category" />
+        <TokenChild
+          :identity-snapshot="metadata.identitySnapshot"
+          :category="category"
+        />
+      </div>
     </div>
   </div>
 </template>
