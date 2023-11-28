@@ -25,7 +25,7 @@ export const satToBch = (num: bigNum, decimalPlaces = 6) => {
 };
 
 export const removeAddressPrefix = (address: string) => {
-  const regex = /(bitcoincash|bchtest):?([a-z0-9]{42})/i;
+  const regex = /(bitcoincash|bchtest):?([a-z0-9]{1,})/i;
   const simplifiedAddress = address.match(regex);
 
   if (simplifiedAddress) {
@@ -34,29 +34,43 @@ export const removeAddressPrefix = (address: string) => {
   return address;
 };
 
-export const addressToLockingBytecodeHex = (address: string) => {
-  let lockingByteCode: Uint8Array | undefined;
+export const getCashPrefix = (Address: string) => {
+  if (Address.split(":").length === 1) {
+    const decodeCashAddress = decodeCashAddressFormatWithoutPrefix(Address);
+    if (typeof decodeCashAddress !== "object")
+      throw new Error("This Address not valid");
+    return decodeCashAddress.prefix;
+  } else {
+    return Address.split(":")[0];
+  }
+};
 
+export const addPrefixToAddress = (address: string) => {
+  const prefix = getCashPrefix(address);
+  return `${prefix}:${removeAddressPrefix(address)}`;
+};
+
+export const getAddressType = (address: string) => {
+  const decodedAddress = decodeCashAddress(addPrefixToAddress(address));
+
+  if (typeof decodedAddress === "object") {
+    return decodedAddress.type;
+  }
+};
+
+export const addressToLockingBytecodeHex = (address: string) => {
+  // Create lockingByte of legacy address
   const base58AddressLockingBytecode = base58AddressToLockingBytecode(address);
   if (typeof base58AddressLockingBytecode !== "string") {
-    lockingByteCode = base58AddressLockingBytecode.bytecode;
-  } else {
-    const decodeCashAddress = decodeCashAddressFormatWithoutPrefix(address);
-    let prefixAddress: string | undefined;
-    if (typeof decodeCashAddress === "object") {
-      prefixAddress = `${decodeCashAddress.prefix}:${address}`;
-    } else {
-      prefixAddress = address;
-    }
-    const cashLockingBytecode = cashAddressToLockingBytecode(
-      prefixAddress || ""
-    );
-    if (typeof cashLockingBytecode !== "string") {
-      lockingByteCode = cashLockingBytecode.bytecode;
-    }
+    return binToHex(base58AddressLockingBytecode.bytecode);
   }
 
-  return lockingByteCode ? binToHex(lockingByteCode) : undefined;
+  // Create lockingByte of cash address
+  const prefixAddress = addPrefixToAddress(address);
+  const cashLockingBytecode = cashAddressToLockingBytecode(prefixAddress || "");
+  if (typeof cashLockingBytecode !== "string") {
+    return binToHex(cashLockingBytecode.bytecode);
+  }
 };
 
 export const isValidAddress = (address: string) => {
