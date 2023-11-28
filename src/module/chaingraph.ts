@@ -379,6 +379,12 @@ export const GetAuthChains = gql`
       hash
       authchains {
         authchain_length
+        authhead {
+          hash
+          identity_output {
+            fungible_token_amount
+          }
+        }
         migrations(
           where: {
             _or: [

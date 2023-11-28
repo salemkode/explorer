@@ -157,3 +157,21 @@ export const opreturnToAuthChainElement = (opReturnHex: string) => {
 
   return result;
 };
+
+export const getTokenInfoType = (
+  genesisSupply: number,
+  totalSupplyNFTs: number
+) => {
+  const isFungible = genesisSupply > 0;
+  const isNFT = totalSupplyNFTs > 0;
+  switch (true) {
+    case isFungible && !isNFT:
+      return "Fungible Tokens only";
+    case !isFungible && isNFT:
+      return "NFTs only";
+    case isFungible && isNFT:
+      return "Both Fungible & Non-Fungible tokens";
+    default:
+      return "Unknown type";
+  }
+};

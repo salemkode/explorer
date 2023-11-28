@@ -18,6 +18,7 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   rules: {
+    indent: "off",
     "@typescript-eslint/consistent-type-imports": "error",
     "prettier/prettier": "warn",
     "vue/multi-word-component-names": "off",
@@ -41,7 +42,6 @@ module.exports = {
     "spaced-comment": ["warn"],
     "space-before-blocks": ["warn"],
     "space-infix-ops": "warn",
-    indent: ["warn", 2],
     "linebreak-style": ["warn", "unix"],
     quotes: ["warn", "double"],
     semi: ["warn", "always"],

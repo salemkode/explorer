@@ -90,9 +90,9 @@ const outputs = computed<tableColumn[][]>(() => {
     }
 
     // Add child info column
-    if (showTokenColumn && typeof commitment === "string") {
+    if (showTokenColumn.value && typeof commitment === "string") {
       item.unshift({
-        text: types.value?.[commitment].name || "N/A",
+        text: types.value?.[commitment]?.name || "N/A",
         token: {
           category: props.category,
           commitment,

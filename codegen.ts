@@ -2,7 +2,7 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
   schema: "./src/graphql/schema.graphql",
-  documents: ["src/module/chaingraph.ts"],
+  documents: ["src/**/**.ts"],
   config: {
     scalars: {
       bytea: "bytea",
