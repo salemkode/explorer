@@ -64,9 +64,11 @@
 <script setup lang="ts">
 import { useStateStore, useRegistryStore } from "~/store";
 import type { contentWarpItem } from "~/types";
-import { calculateDecimal } from "~/module/bitcoin";
 import { decodeAuthChain } from "~/module/bcmr";
 import { useAuthChains } from "~/hooks/authchains";
+import { useNftSupply } from "~/hooks/nftSupply";
+import { useIsActiveMinting } from "~/hooks/activeMinting";
+import { getTokenInfoType } from "~/module/bitcoin";
 
 const route = useRoute();
 const category = computed(() => route.params.category as string);
@@ -77,26 +79,26 @@ const navItem = ref(0);
 const {
   result: authchain,
   loading: authchainLoading,
-  onResult,
   onError,
 } = useAuthChains(toRef(() => ["\\x" + category.value]));
 
+const { supplyNFTs } = useNftSupply(`\\x${category.value}`);
+const { isActiveMinting } = useIsActiveMinting(`\\x${category.value}`);
 const authchainElement = computed(
   () => authchain.value && decodeAuthChain(authchain.value, category.value)
+);
+const reservedSupply = computed(
+  () =>
+    authchain.value?.transaction
+      .at(0)
+      ?.authchains.at(0)
+      ?.authhead?.identity_output?.at(0)?.fungible_token_amount
 );
 onError(() => {
   throw showError({
     statusCode: 404,
     message: "This transaction is not found",
   });
-});
-onResult(() => {
-  if (!authchainElement.value) {
-    throw showError({
-      statusCode: 404,
-      message: "This transaction is not found",
-    });
-  }
 });
 
 const selectedRegistryName = ref("");
@@ -122,7 +124,6 @@ const tokenInfo = computed(() => {
   const {
     hash: genesisTx,
     genesisSupply,
-    nftCapability,
     lockingBytecode,
   } = authchainElement.value.genesesTx;
   const ownerAddress =
@@ -138,17 +139,37 @@ const tokenInfo = computed(() => {
       warp: true,
     },
     {
-      title: "Genesis Supply",
-      text: calculateDecimal(genesisSupply, decimals.value || 0).toString(),
+      title: "Token type",
+      text: getTokenInfoType(genesisSupply, supplyNFTs.value),
     },
     {
-      title: "Token type",
-      text: nftCapability ? `${nftCapability} NFTs` : "Fungible Tokens",
+      title: "Genesis Supply",
+      text: genesisSupply || null,
+    },
+    {
+      title: "Total amount NFTs",
+      text: supplyNFTs.value || null,
+    },
+    {
+      title: "Reserve supply",
+      text: Number(reservedSupply.value) || null,
+    },
+    {
+      title: "Circulating supply",
+      text:
+        Number(reservedSupply.value) > 0
+          ? genesisSupply - Number(reservedSupply.value)
+          : null,
+    },
+    {
+      title: "Is active minting",
+      text: isActiveMinting.value ? "Yes" : "No",
     },
   ];
-  if (nftCapability && ownerAddress) {
+
+  if (ownerAddress) {
     items.push({
-      title: "NFT owner",
+      title: "Owner Address",
       text: ownerAddress,
       url: `/address/${ownerAddress}`,
       copy: true,
