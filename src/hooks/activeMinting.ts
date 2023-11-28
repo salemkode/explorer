@@ -4,7 +4,7 @@ import type { bytea } from "~/types";
 export const GetMintingToken = gql`
   query GetMintingToken($tokenCategory: bytea) {
     output(
-      limit: 0
+      limit: 1
       where: {
         token_category: { _eq: $tokenCategory }
         _and: { nonfungible_token_capability: { _eq: "minting" } }
