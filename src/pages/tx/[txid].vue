@@ -45,14 +45,10 @@
 
 <script setup lang="ts">
 import { useStateStore, useRegistryStore } from "~/store";
-import {
-  type GetTxQuery,
-  type GetAuthChainsQuery,
-  GetTx,
-  GetAuthChains,
-} from "~/module/chaingraph";
+import { type GetTxQuery, GetTx } from "~/module/chaingraph";
 import { formatDateString } from "~/module/utils";
 import { decodeAuthChain } from "~/module/bcmr";
+import { useAuthChains } from "~/hooks/authchains";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid") as Ref<string>;
@@ -64,21 +60,10 @@ const variables = computed(() => ({
 
 /* Getting token info */
 const registryStore = useRegistryStore();
-const { result: authchain, onResult: onAuthChainResult } =
-  useQuery<GetAuthChainsQuery>(
-    GetAuthChains,
-    computed(() => ({
-      network: stateStore.network,
-      tokenCategory: ["\\x" + txid.value],
-    }))
-  );
+const { result: authchain } = useAuthChains(toRef(() => ["\\x" + txid.value]));
 const authchainElement = computed(() => {
   if (!authchain.value) return;
   return decodeAuthChain(authchain.value, txid.value);
-});
-onAuthChainResult(() => {
-  if (!authchainElement.value) return;
-  registryStore.addToken(txid.value, authchainElement.value?.opreturn);
 });
 
 const tokenIdentity = computed(() =>
@@ -132,8 +117,6 @@ onResult(() => {
 });
 const infoContent = computed(() => {
   if (!transaction.value) return [];
-  const nftCapability = authchainElement.value?.genesesTx.nftCapability;
-  const tokenType = nftCapability ? `${nftCapability} NFTs` : "Fungible Tokens";
   const satoshis: string | null | undefined =
     transaction.value.transaction.input_value_satoshis ||
     transaction.value.transaction.output_value_satoshis;
@@ -151,10 +134,6 @@ const infoContent = computed(() => {
     {
       title: "Time",
       text: formatDateString(transaction.value.timestamp),
-    },
-    {
-      title: "Token type",
-      text: authchainElement.value ? tokenType : undefined,
     },
   ];
 });

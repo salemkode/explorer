@@ -21,6 +21,8 @@ export const useIsActiveMinting = (tokenCategory: bytea) => {
     tokenCategory,
   });
 
+  // Check if there is an active minting token
+  // If there is, then the minting token is active
   const isActiveMinting = computed(() => result.value?.output.length !== 0);
   return { loading, isActiveMinting };
 };
