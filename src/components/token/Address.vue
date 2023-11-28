@@ -48,25 +48,23 @@ const hasNextPage = computed(() => {
 });
 
 const addressList = computed(() => {
-  const locking_bytecode = new Map<string, number>();
-  if (tokenAddress.value) {
-    tokenAddress.value.output.forEach((item) => {
-      const inMapItem = locking_bytecode.get(item.locking_bytecode);
-      if (inMapItem) {
-        locking_bytecode.set(
-          item.locking_bytecode,
-          inMapItem + Number(item.fungible_token_amount)
-        );
-      } else {
-        locking_bytecode.set(
-          item.locking_bytecode,
-          Number(item.fungible_token_amount)
-        );
-      }
-    });
-  }
+  // Return empty array when tokenAddress not found
+  if (!tokenAddress.value) return [];
+
+  // Calculate the sum of fungible_token_amount values for each unique locking_bytecode key
+  const lockingBytecode = tokenAddress.value.output.reduce((map, address) => {
+    // Retrieve the current amount associated with the locking_bytecode key from the map
+    const currentAmount = map.get(address.locking_bytecode) || 0;
+
+    // Update the map by setting the sum of the current amount and fungible_token_amount
+    return map.set(
+      address.locking_bytecode,
+      currentAmount + Number(address.fungible_token_amount)
+    );
+  }, new Map<`\\x${string}`, number>());
+
   let items: tableColumn[][] = Array.from(
-    locking_bytecode,
+    lockingBytecode,
     function ([lockingBytecode, amount]) {
       const address = stateStore.lockingBytecodeHexToCashAddress(
         lockingBytecode.substring(2)
@@ -86,7 +84,7 @@ const addressList = computed(() => {
         },
       ];
     }
-  ).filter((item) => item.length);
+  ).filter((item) => item.length > 0);
 
   if (items.length === limit.value) {
     items = items.slice(0, -1);
