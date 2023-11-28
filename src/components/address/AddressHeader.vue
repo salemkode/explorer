@@ -4,7 +4,9 @@
     <div
       class="d-flex flex-column align-items-start justify-content-center ms-md-3"
     >
-      <div class="badge text-bg-primary mt-2 mt-md-0">pubkeyhash</div>
+      <div v-if="addressType" class="badge text-bg-primary mt-2 mt-md-0">
+        {{ addressType }}
+      </div>
       <span class="d-flex">
         <BaseCopy class="my-1 align-items-center" copy warp :text="address" />
         <i
@@ -19,7 +21,9 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { getAddressType } from "@/module/bitcoin";
+
+const props = defineProps<{
   address: string;
 }>();
 const scaleQrBtn = ref();
@@ -31,4 +35,6 @@ const outsideClick = (event: MouseEvent) => {
   }
 };
 document.addEventListener("click", outsideClick);
+
+const addressType = computed(() => getAddressType(props.address));
 </script>
