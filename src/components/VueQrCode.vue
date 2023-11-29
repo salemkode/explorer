@@ -44,5 +44,6 @@ qr-code {
   transform: scale(var(--scale-size));
   transform-origin: 0 0;
   transition: transform 1s;
+  aspect-ratio: 1/1;
 }
 </style>

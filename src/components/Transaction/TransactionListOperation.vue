@@ -13,13 +13,22 @@
             {{ (i < 9 ? "0" : "") + (i + 1) }}
           </b>
           <div>
-            <BaseCopy
-              v-if="utxo.type === 'p2pkh'"
-              :text="utxo.address"
-              :url="`/address/${utxo.address}`"
-              warp
-              copy
-            />
+            <template v-if="utxo.type === 'address'">
+              <div class="d-flex flex-wrap">
+                <div
+                  v-if="utxo.addressType"
+                  class="badge text-bg-primary d-flex align-items-center me-1 mb-1"
+                >
+                  {{ utxo.addressType }}
+                </div>
+              </div>
+              <BaseCopy
+                :text="utxo.address"
+                :url="`/address/${utxo.address}`"
+                warp
+                copy
+              />
+            </template>
             <b v-else-if="utxo.type === 'op_return'">
               OP_RETURN {{ utxo.data }}
             </b>
@@ -28,16 +37,6 @@
               {{ stateStore.formatPrice(utxo.valueSatoshis || "0") }}
             </div>
             <template v-if="'category' in utxo && utxo.category">
-              <div>
-                <BaseCopy
-                  :text="utxo.category"
-                  :url="`/token/${utxo.category}`"
-                  short
-                  :copy="false"
-                />
-                • {{ utxo.tokenAmount }}
-                {{ registryStore.getToken(utxo.category)?.token?.symbol }}
-              </div>
               <TransactionOperationToken
                 :category="utxo.category"
                 :token-amount="utxo.tokenAmount"
@@ -55,7 +54,7 @@
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
 import { useAuthChains } from "~/hooks/authchains";
-import { removeAddressPrefix } from "~/module/bitcoin";
+import { getAddressType, removeAddressPrefix } from "~/module/bitcoin";
 import { useStateStore, useRegistryStore } from "~/store";
 import type { Utxo } from "~/types";
 
@@ -95,10 +94,12 @@ const utxos = computed(() => {
 
     const category = utxo.token_category?.substring(2);
 
+    const address = getAddress(utxo?.locking_bytecode || "");
     return {
-      type: "p2pkh" as const,
+      type: "address" as const,
+      addressType: getAddressType(address),
       category,
-      address: getAddress(utxo?.locking_bytecode || ""),
+      address: address,
       valueSatoshis: utxo.value_satoshis,
       value: stateStore.formatPrice(utxo.value_satoshis || 0),
       tokenRegister:
