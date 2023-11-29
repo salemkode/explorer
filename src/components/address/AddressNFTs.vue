@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { type GetAddressNfTsQuery, GetAddressNFTs } from "@/module/chaingraph";
+import { GetAddressNFTs } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
 import { useStateStore, useRegistryStore } from "~/store";
 import { useAuthChains } from "~/hooks/authchains";
@@ -42,7 +42,7 @@ const {
   result: transaction,
   error,
   loading,
-} = useQuery<GetAddressNfTsQuery>(GetAddressNFTs, variables);
+} = useQuery(GetAddressNFTs, variables);
 
 useAuthChains(
   toRef(

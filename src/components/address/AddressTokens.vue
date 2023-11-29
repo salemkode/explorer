@@ -40,7 +40,7 @@ const {
   result: transaction,
   error,
   loading,
-} = useQuery<GetAddressTokensQuery>(GetAddressTokens, variables);
+} = useQuery(GetAddressTokens, variables);
 const hasNextPage = computed(() => {
   if (transaction.value) {
     return transaction.value.search_output.length === limit.value;

@@ -54,7 +54,7 @@ const sortedHistory = computed(() => {
 const transactionsHash = computed(() => {
   return sortedHistory.value
     .slice(offset.value, offset.value + limit.value)
-    ?.map((transaction) => `\\x${transaction.tx_hash}`);
+    ?.map((transaction) => `\\x${transaction.tx_hash}` as const);
 });
 const variables = computed(() => ({
   network: stateStore.network,
@@ -64,7 +64,7 @@ const {
   result: transactionsQuery,
   error,
   loading,
-} = useQuery<GetTransactionsQuery>(GetTransactions, variables);
+} = useQuery(GetTransactions, variables);
 
 const transactions = computed(() => {
   if (!transactionsQuery.value) {

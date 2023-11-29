@@ -1,4 +1,6 @@
-export const GetTx = gql`
+import { gql } from "@/graphql/gql";
+
+export const GetTx = gql(`
   query GetTx($network: String, $hash: bytea) {
     transaction(
       where: {
@@ -96,9 +98,9 @@ export const GetTx = gql`
       }
     }
   }
-`;
+`);
 
-export const LastTransaction = gql`
+export const LastTransaction = gql(`
   query LastTransaction($network: String) {
     block(
       limit: 1
@@ -128,9 +130,9 @@ export const LastTransaction = gql`
       }
     }
   }
-`;
+`);
 
-export const GetLastBlock = gql`
+export const GetLastBlock = gql(`
   subscription GetLastBlock($network: String) {
     node_block(
       where: { node: { name: { _regex: $network } } }
@@ -142,9 +144,9 @@ export const GetLastBlock = gql`
       }
     }
   }
-`;
+`);
 
-export const GetBlock = gql`
+export const GetBlock = gql(`
   query GetBlock(
     $network: String
     $height: bigint
@@ -202,9 +204,9 @@ export const GetBlock = gql`
       }
     }
   }
-`;
+`);
 
-export const GetBlocks = gql`
+export const GetBlocks = gql(`
   subscription GetBlocks($limit: Int, $offset: Int, $network: String) {
     block(
       where: { accepted_by: { node: { name: { _regex: $network } } } }
@@ -223,9 +225,9 @@ export const GetBlocks = gql`
       timestamp
     }
   }
-`;
+`);
 
-export const MonitorMempools = gql`
+export const MonitorMempools = gql(`
   subscription MonitorMempools($limit: Int, $offset: Int, $network: String) {
     node(where: { name: { _regex: $network } }) {
       name
@@ -264,9 +266,9 @@ export const MonitorMempools = gql`
       }
     }
   }
-`;
+`);
 
-export const GetTransactions = gql`
+export const GetTransactions = gql(`
   query GetTransactions($network: String, $hashes: [bytea!]) {
     transaction(
       where: {
@@ -300,9 +302,9 @@ export const GetTransactions = gql`
       }
     }
   }
-`;
+`);
 
-export const GetTokenAddress = gql`
+export const GetTokenAddress = gql(`
   query GetTokenAddress(
     $limit: Int
     $offset: Int
@@ -335,9 +337,9 @@ export const GetTokenAddress = gql`
       }
     }
   }
-`;
+`);
 
-export const GetTokenTxs = gql`
+export const GetTokenTxs = gql(`
   query GetTokenTxs(
     $limit: Int
     $offset: Int
@@ -364,9 +366,9 @@ export const GetTokenTxs = gql`
       }
     }
   }
-`;
+`);
 
-export const GetAuthChains = gql`
+export const GetAuthChains = gql(`
   query GetAuthChains($network: String, $tokenCategory: [bytea!]) {
     transaction(
       where: {
@@ -426,9 +428,9 @@ export const GetAuthChains = gql`
       }
     }
   }
-`;
+`);
 
-export const GetOpreturn = gql`
+export const GetOpreturn = gql(`
   query GetOpreturn($network: String, $tokenCategory: bytea) {
     transaction(
       where: {
@@ -450,9 +452,9 @@ export const GetOpreturn = gql`
       }
     }
   }
-`;
+`);
 
-export const GetTokenChild = gql`
+export const GetTokenChild = gql(`
   query GetTokenChild(
     $limit: Int
     $offset: Int
@@ -478,9 +480,9 @@ export const GetTokenChild = gql`
       nonfungible_token_commitment
     }
   }
-`;
+`);
 
-export const GetAddressNFTs = gql`
+export const GetAddressNFTs = gql(`
   query GetAddressNFTs(
     $limit: Int
     $offset: Int
@@ -507,9 +509,9 @@ export const GetAddressNFTs = gql`
       nonfungible_token_commitment
     }
   }
-`;
+`);
 
-export const GetAddressTokens = gql`
+export const GetAddressTokens = gql(`
   query GetAddressTokens(
     $limit: Int
     $offset: Int
@@ -535,7 +537,7 @@ export const GetAddressTokens = gql`
       fungible_token_amount
     }
   }
-`;
+`);
 
 // Export types
 export * from "~/graphql/graphql";

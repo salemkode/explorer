@@ -55,12 +55,14 @@ const txid = toRef(route.params, "txid") as Ref<string>;
 const stateStore = useStateStore();
 const variables = computed(() => ({
   network: stateStore.network,
-  hash: "\\x" + txid.value,
+  hash: `\\x${txid.value}` as const,
 }));
 
 /* Getting token info */
 const registryStore = useRegistryStore();
-const { result: authchain } = useAuthChains(toRef(() => ["\\x" + txid.value]));
+const { result: authchain } = useAuthChains(
+  toRef(() => [`\\x${txid.value}` as const])
+);
 const authchainElement = computed(() => {
   if (!authchain.value) return;
   return decodeAuthChain(authchain.value, txid.value);
@@ -76,7 +78,7 @@ const {
   loading: TxLoading,
   onError,
   onResult,
-} = useQuery<GetTxQuery>(GetTx, variables);
+} = useQuery(GetTx, variables);
 
 const transaction = computed(() => {
   const node = Tx.value?.node.at(0);

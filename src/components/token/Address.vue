@@ -30,7 +30,7 @@ const props = defineProps<{
 const stateStore = useStateStore();
 const variables = computed(() => ({
   network: stateStore.network,
-  tokenCategory: "\\x" + props.category,
+  tokenCategory: `\\x${props.category}` as const,
   offset: offset.value,
   limit: limit.value,
 }));
@@ -39,7 +39,7 @@ const {
   result: tokenAddress,
   loading,
   error,
-} = useQuery<GetTokenAddressQuery>(GetTokenAddress, variables);
+} = useQuery(GetTokenAddress, variables);
 const hasNextPage = computed(() => {
   if (tokenAddress.value) {
     return tokenAddress.value.output.length === limit.value;

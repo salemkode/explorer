@@ -21,11 +21,11 @@
 <script setup lang="ts">
 import { GetBlock, type GetBlockQuery } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
-import type { contentWarpItem } from "~/types";
+import type { bytea, contentWarpItem } from "~/types";
 
 // Get slug from router param using useRouter
 const route = useRoute();
-const blockHashOrHeight = computed(() => route.params.slug as string);
+const blockHashOrHeight = computed(() => route.params.slug as bytea);
 const stateStore = useStateStore();
 const offsetTxs = ref(0);
 const variable = computed(() => ({
@@ -35,7 +35,7 @@ const variable = computed(() => ({
   limitTxs: 9,
   offsetTxs: offsetTxs.value,
 }));
-const { result, loading } = useQuery<GetBlockQuery>(GetBlock, variable);
+const { result, loading } = useQuery(GetBlock, variable);
 const blockItemWarp = computed<contentWarpItem[]>(() => {
   const block = result.value?.block.at(0);
   if (!block) return [];

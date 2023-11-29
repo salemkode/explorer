@@ -26,7 +26,7 @@ const props = defineProps<{
 const stateStore = useStateStore();
 const variables = computed(() => ({
   network: stateStore.network,
-  tokenCategory: "\\x" + props.category,
+  tokenCategory: `\\x${props.category}` as const,
   offset: offset.value,
   limit: limit.value,
 }));
@@ -35,7 +35,7 @@ const {
   result: transaction,
   error,
   loading,
-} = useQuery<GetTokenTxsQuery>(GetTokenTxs, variables);
+} = useQuery(GetTokenTxs, variables);
 const hasNextPage = computed(() => {
   if (transaction.value) {
     return transaction.value.block_transaction.length === limit.value;

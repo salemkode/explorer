@@ -27,14 +27,11 @@ const props = defineProps<{
 }>();
 const variable = computed(() => ({
   network: stateStore.network,
-  tokenCategory: "\\x" + props.category,
+  tokenCategory: `\\x${props.category}` as const,
   offset: offset.value,
   limit: limit.value,
 }));
-const { result, loading, error } = useQuery<GetTokenChildQuery>(
-  GetTokenChild,
-  variable
-);
+const { result, loading, error } = useQuery(GetTokenChild, variable);
 const types = computed(() => props.identitySnapshot?.token?.nfts?.parse.types);
 const showTokenColumn = computed(() => {
   return Object.keys(types.value || {}).length !== 0;

@@ -80,7 +80,7 @@ const {
   result: authchain,
   loading: authchainLoading,
   onError,
-} = useAuthChains(toRef(() => ["\\x" + category.value]));
+} = useAuthChains(toRef(() => [`\\x${category.value}` as const]));
 
 const { supplyNFTs } = useNftSupply(`\\x${category.value}`);
 const { isActiveMinting } = useIsActiveMinting(`\\x${category.value}`);

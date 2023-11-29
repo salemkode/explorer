@@ -1,7 +1,7 @@
-import type { GetSupplyNfTsQuery } from "~/graphql/graphql";
+import { gql } from "@/graphql/gql";
 import type { bytea } from "~/types";
 
-export const GetSupplyNFTs = gql`
+export const GetSupplyNFTs = gql(`
   query GetSupplyNFTs($offset: Int, $tokenCategory: bytea) {
     output(
       offset: $offset
@@ -14,7 +14,7 @@ export const GetSupplyNFTs = gql`
       locking_bytecode
     }
   }
-`;
+`);
 
 export const useNftSupply = (tokenCategory: bytea) => {
   const supplyNFTs = ref(0);
@@ -23,10 +23,7 @@ export const useNftSupply = (tokenCategory: bytea) => {
     tokenCategory,
   });
 
-  const { loading, onResult } = useQuery<GetSupplyNfTsQuery>(
-    GetSupplyNFTs,
-    variables
-  );
+  const { loading, onResult } = useQuery(GetSupplyNFTs, variables);
 
   onResult((response) => {
     const length = response?.data?.output.length;

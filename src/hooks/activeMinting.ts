@@ -1,7 +1,7 @@
-import type { GetMintingTokenQuery } from "~/graphql/graphql";
+import { gql } from "@/graphql/gql";
 import type { bytea } from "~/types";
 
-export const GetMintingToken = gql`
+export const GetMintingToken = gql(`
   query GetMintingToken($tokenCategory: bytea) {
     output(
       limit: 1
@@ -14,11 +14,11 @@ export const GetMintingToken = gql`
       locking_bytecode
     }
   }
-`;
+`);
 
 export const useIsActiveMinting = (tokenCategory: bytea) => {
-  const { loading, result } = useQuery<GetMintingTokenQuery>(GetMintingToken, {
-    tokenCategory,
+  const { loading, result } = useQuery(GetMintingToken, {
+    tokenCategory: tokenCategory,
   });
 
   // Check if there is an active minting token
