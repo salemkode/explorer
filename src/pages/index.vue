@@ -2,7 +2,6 @@
   <div>
     <HomeHero />
     <div class="container">
-      <HomeBlockChain />
       <div class="home-content d-lg-grid my-3">
         <HomeUnconfirmedTransaction />
         <div class="mt-2 mt-lg-0">
