@@ -1,4 +1,5 @@
 import eslint from "vite-plugin-eslint";
+import codegen from "vite-plugin-graphql-codegen";
 
 export default defineNuxtConfig({
   ssr: false,
@@ -62,6 +63,7 @@ export default defineNuxtConfig({
       },
     },
     plugins: [
+      codegen(),
       eslint({
         failOnError: false,
       }),

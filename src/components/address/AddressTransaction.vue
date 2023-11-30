@@ -24,10 +24,7 @@
 
 <script setup lang="ts">
 import type { history } from "electrum-cash";
-import {
-  type GetTransactionsQuery,
-  GetTransactions,
-} from "~/module/chaingraph";
+import { GetTransactions } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
 
 const limit = ref(8);

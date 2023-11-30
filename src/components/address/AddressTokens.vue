@@ -13,10 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  type GetAddressTokensQuery,
-  GetAddressTokens,
-} from "@/module/chaingraph";
+import { GetAddressTokens } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
 import { useStateStore, useRegistryStore } from "~/store";
 import { calculateDecimal } from "~/module/bitcoin";
