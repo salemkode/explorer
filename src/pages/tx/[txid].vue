@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { useStateStore, useRegistryStore } from "~/store";
-import { type GetTxQuery, GetTx } from "~/module/chaingraph";
+import { GetTx } from "~/module/chaingraph";
 import { formatDateString } from "~/module/utils";
 import { decodeAuthChain } from "~/module/bcmr";
 import { useAuthChains } from "~/hooks/authchains";

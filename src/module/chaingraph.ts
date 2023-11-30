@@ -1,5 +1,3 @@
-import { gql } from "@/graphql/gql";
-
 export const GetTx = gql(`
   query GetTx($network: String, $hash: bytea) {
     transaction(

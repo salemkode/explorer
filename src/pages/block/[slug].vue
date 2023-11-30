@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { GetBlock, type GetBlockQuery } from "~/module/chaingraph";
+import { GetBlock } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
 import type { bytea, contentWarpItem } from "~/types";
 

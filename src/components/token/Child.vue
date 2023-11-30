@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { GetTokenChild, type GetTokenChildQuery } from "@/module/chaingraph";
+import { GetTokenChild } from "@/module/chaingraph";
 import type { IdentitySnapshot, tableColumn } from "~/types/index.js";
 import { removeAddressPrefix } from "~/module/bitcoin";
 import { useStateStore } from "~/store";

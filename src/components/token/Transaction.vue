@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { GetTokenTxs, type GetTokenTxsQuery } from "@/module/chaingraph";
+import { GetTokenTxs } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
 import { useStateStore } from "~/store";
 import { formatDateString } from "~/module/utils";

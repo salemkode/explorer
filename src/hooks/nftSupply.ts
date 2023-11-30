@@ -1,4 +1,3 @@
-import { gql } from "@/graphql/gql";
 import type { bytea } from "~/types";
 
 export const GetSupplyNFTs = gql(`
