@@ -1,4 +1,3 @@
-import type { SubscribeCallback } from "electrum-cash";
 import type { Scalars } from "~/graphql/graphql";
 export type bigNum = number | string | BigNumber;
 export type bytea = `\\x${string}`;
@@ -49,31 +48,3 @@ export interface Utxo {
 export type tokenCapability = Scalars["enum_nonfungible_token_capability"];
 
 export * from "./bcmr-v2.schema";
-
-declare module "electrum-cash" {
-  type balance = { confirmed: number; unconfirmed: number };
-  type history = {
-    height: number;
-    tx_hash: string;
-  }[];
-
-  class ElectrumClient {
-    request(
-      method: "blockchain.address.get_balance",
-      address: string
-    ): Promise<Error | balance>;
-
-    request(
-      method: "blockchain.address.get_history",
-      address: string
-    ): Promise<Error | history>;
-
-    request<T>(method: string, ...parameters: string[]): Promise<Error | T>;
-
-    subscribe(
-      callback: SubscribeCallback,
-      method: string,
-      ...parameters: string[]
-    ): Promise<true>;
-  }
-}
