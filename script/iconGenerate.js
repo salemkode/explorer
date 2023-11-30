@@ -11,6 +11,7 @@ svgtofont({
     cssPath: "/font/",
     fontSize: "18px",
   },
+  log: false,
 }).then(() => {
-  console.log("done!");
+  console.log("\x1b[32m✔\x1b[0m", "Icon font generated successfully");
 });

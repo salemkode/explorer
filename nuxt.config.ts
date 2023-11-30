@@ -1,5 +1,6 @@
 import eslint from "vite-plugin-eslint";
 import codegen from "vite-plugin-graphql-codegen";
+import { watch } from "vite-plugin-watch";
 
 export default defineNuxtConfig({
   ssr: false,
@@ -66,6 +67,10 @@ export default defineNuxtConfig({
       codegen(),
       eslint({
         failOnError: false,
+      }),
+      watch({
+        pattern: "src/assets/icons/**/*.svg",
+        command: "node ./script/iconGenerate.js",
       }),
     ],
   },
