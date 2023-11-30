@@ -19,7 +19,8 @@ const props = defineProps<{
   category: string;
   loading: boolean;
 }>();
-const tokenName = computed(() =>
-  props.loading ? "Loading token name" : props.identitySnapshot?.name
-);
+const tokenName = computed(() => {
+  const name = props.identitySnapshot?.name;
+  return !name && props.loading ? "Loading" : name;
+});
 </script>
