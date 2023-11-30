@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="d-flex align-items-center justify-content-center">
     <LoadingView v-if="authchainLoading" />
     <div v-else class="token-page overflow-hidden container d-lg-grid">
       <TokenId
