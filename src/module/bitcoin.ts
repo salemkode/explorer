@@ -1,17 +1,17 @@
-import BigNumber from "bignumber.js";
 import {
   base58AddressToLockingBytecode,
-  cashAddressToLockingBytecode,
-  decodeCashAddressFormatWithoutPrefix,
-  decodeCashAddress,
-  decodeBase58Address,
   binToHex,
   binToNumberUint16LE,
   binToUtf8,
+  cashAddressToLockingBytecode,
+  decodeBase58Address,
+  decodeCashAddress,
+  decodeCashAddressFormatWithoutPrefix,
   hexToBin,
 } from "@bitauth/libauth";
-import type { bigNum } from "~/types";
+import BigNumber from "bignumber.js";
 import { getHttpsUrl } from "./utils";
+import type { bigNum } from "~/types";
 
 export const calculateDecimal = (num: bigNum, decimal: number) => {
   const bigNum = BigNumber(num);

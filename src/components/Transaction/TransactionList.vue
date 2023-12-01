@@ -74,16 +74,16 @@
 <script lang="ts">
 import type { Utxo } from "~/types";
 
-export type inputs = Array<{
+export type Inputs = Array<{
   outpoint?: Utxo | null;
 }>;
-export type transactions = Array<{
+export type Transactions = Array<{
   __typename?: "transaction";
   hash: string;
   input_value_satoshis?: string | null;
   output_value_satoshis?: string | null;
   is_coinbase: boolean;
-  inputs: inputs;
+  inputs: Inputs;
   outputs: Array<Utxo>;
 }>;
 </script>

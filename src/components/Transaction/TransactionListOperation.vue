@@ -55,7 +55,7 @@
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
 import { useAuthChains } from "~/hooks/authchains";
 import { getAddressType, removeAddressPrefix } from "~/module/bitcoin";
-import { useStateStore, useRegistryStore } from "~/store";
+import { useRegistryStore, useStateStore } from "~/store";
 import type { Utxo } from "~/types";
 
 const stateStore = useStateStore();

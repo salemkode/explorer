@@ -1,11 +1,8 @@
 import { hexToBin, lockingBytecodeToCashAddress } from "@bitauth/libauth";
 import { defineStore } from "pinia";
 import { isValidAddress, satToBch } from "~/module/bitcoin";
+import { GetLastBlock } from "~/module/chaingraph";
 import * as utils from "~/module/utils";
-import {
-  type GetLastBlockSubscription,
-  GetLastBlock,
-} from "~/module/chaingraph";
 
 export const useStateStore = defineStore(
   "state",
@@ -15,10 +12,7 @@ export const useStateStore = defineStore(
     const variables = computed(() => ({
       network: network.value,
     }));
-    const { onResult } = useSubscription<GetLastBlockSubscription>(
-      GetLastBlock,
-      variables
-    );
+    const { onResult } = useSubscription(GetLastBlock, variables);
     onResult(
       ({ data }) =>
         (lastBlockHeight.value = data?.node_block.at(0)?.block.height || "0")

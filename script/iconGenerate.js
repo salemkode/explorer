@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const svgtofont = require("svgtofont");
 const path = require("path");
+const svgtofont = require("svgtofont");
 
 svgtofont({
   src: path.resolve(process.cwd(), "src/assets/icons"), // svg path

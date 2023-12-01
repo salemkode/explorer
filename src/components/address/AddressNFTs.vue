@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { GetAddressNFTs } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
-import { useStateStore, useRegistryStore } from "~/store";
+import { useRegistryStore, useStateStore } from "~/store";
 import { useAuthChains } from "~/hooks/authchains";
 
 const limit = ref(9);

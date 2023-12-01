@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { svgToBase64, getHttpsUrl } from "~/module/utils";
+import { getHttpsUrl, svgToBase64 } from "~/module/utils";
 import { createIdenticon } from "~/module/IconGenerator";
 import { useRegistryStore } from "~/store";
 import type { Capability } from "~/types";

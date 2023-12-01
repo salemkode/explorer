@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { useStateStore, useRegistryStore } from "~/store";
+import { useRegistryStore, useStateStore } from "~/store";
 import { GetTx } from "~/module/chaingraph";
 import { formatDateString } from "~/module/utils";
 import { decodeAuthChain } from "~/module/bcmr";
