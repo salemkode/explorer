@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { useStateStore } from "~/store";
-
 const openNav = ref(false);
 const navItems = [{ name: "registers", path: "/registers" }];
-const stateStore = useStateStore();
 </script>
 
 <template>
@@ -45,7 +42,6 @@ const stateStore = useStateStore();
             </li>
             <li
               class="mx-1 d-flex justify-content-between align-items-center btn"
-              @click="stateStore.darkmode = !stateStore.darkmode"
             >
               <span v-text="$t('appearance')" />
               <LazyDarkSwitch @click.stop />

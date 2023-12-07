@@ -34,11 +34,14 @@ import { addressToLockingBytecodeHex } from "~/module/bitcoin";
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 import { electrum } from "~/module/electrum";
+import { useUsdPrice } from "~/hooks/usdPrice";
 
 const navItems = ["transaction", "cash_token"] as const;
 // Get address from router param using useRouter
 const route = useRoute();
 const stateStore = useStateStore();
+const { formatPrice } = useUsdPrice();
+
 const routeAddress = computed(() => route.params.address as string);
 const lockingBytecode = computed(() =>
   addressToLockingBytecodeHex(routeAddress.value)
@@ -98,11 +101,11 @@ const addressInfoWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Balance",
-      text: stateStore.formatPrice(addressResponse.value?.balance.confirmed),
+      text: formatPrice(addressResponse.value?.balance.confirmed),
     },
     {
       title: "Unconfirmed Balance",
-      text: stateStore.formatPrice(addressResponse.value?.balance.unconfirmed),
+      text: formatPrice(addressResponse.value?.balance.unconfirmed),
     },
     {
       title: "First Transition",

@@ -7,7 +7,7 @@
       </p>
       <div class="search-hero input-group">
         <input
-          v-model="searchValue"
+          v-model="query"
           type="text"
           class="form-control form-control-md"
           placeholder="Search by Address / Transactions Id"
@@ -22,13 +22,8 @@
 </template>
 
 <script setup lang="ts">
-import { useStateStore } from "~/store";
-const stateStore = useStateStore();
-
-const searchValue = ref("");
-function search() {
-  stateStore.search(searchValue.value);
-}
+import { useSearch } from "~/hooks/search";
+const { query, search } = useSearch();
 
 function keydownHandler(event: KeyboardEvent) {
   if (event.key === "Enter") {

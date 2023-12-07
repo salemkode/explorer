@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { useStateStore } from "~/store";
+import { useTheme } from "~/hooks/theme";
 
 const input = ref<null | HTMLElement>(null);
-const stateStore = useStateStore();
+const { isDarkmode } = useTheme();
 </script>
 
 <template>
   <div>
     <input
       ref="input"
-      v-model="stateStore.darkmode"
+      v-model="isDarkmode"
       v-uid
       type="checkbox"
       class="d-none"

@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { useUsdPrice } from "~/hooks/usdPrice";
 import { GetBlock } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
 import type { bytea, contentWarpItem } from "~/types";
@@ -27,6 +28,8 @@ import type { bytea, contentWarpItem } from "~/types";
 const route = useRoute();
 const blockHashOrHeight = computed(() => route.params.slug as bytea);
 const stateStore = useStateStore();
+const { formatPrice } = useUsdPrice();
+
 const offsetTxs = ref(0);
 const variable = computed(() => ({
   network: stateStore.network,
@@ -55,11 +58,11 @@ const blockItemWarp = computed<contentWarpItem[]>(() => {
     },
     {
       title: "Input total",
-      text: stateStore.formatPrice(block.input_value_satoshis || "0"),
+      text: formatPrice(block.input_value_satoshis || "0"),
     },
     {
       title: "Output total",
-      text: stateStore.formatPrice(block.output_value_satoshis || "0"),
+      text: formatPrice(block.output_value_satoshis || "0"),
     },
     {
       title: "Input count",

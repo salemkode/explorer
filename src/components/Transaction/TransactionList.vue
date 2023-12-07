@@ -41,7 +41,7 @@
               </div>
             </small>
             <small class="amount">
-              {{ stateStore.formatPrice(transaction.amount || "0") }}
+              {{ formatPrice(transaction.amount || "0") }}
             </small>
           </div>
           <i
@@ -91,6 +91,7 @@ export type Transactions = Array<{
 <script setup lang="ts">
 import { removeAddressPrefix } from "~/module/bitcoin";
 import { useStateStore } from "~/store";
+import { useUsdPrice } from "~/hooks/usdPrice";
 
 const key = ref(0);
 const props = defineProps<{
@@ -101,6 +102,7 @@ watch(props, () => {
 });
 
 const stateStore = useStateStore();
+const { formatPrice } = useUsdPrice();
 
 const getTransferAddress = (utxos: Utxo[]) => {
   // remove op_returns

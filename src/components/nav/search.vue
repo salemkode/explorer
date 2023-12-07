@@ -3,7 +3,7 @@
     <div v-if="openFromOtherHomePage" class="search-bar container">
       <i class="uicon-search me-2 text-white pointer" @click="search" />
       <input
-        v-model="searchValue"
+        v-model="query"
         type="text"
         :placeholder="$t('search_placeholder')"
         @keydown="keydownHandler"
@@ -13,16 +13,11 @@
 </template>
 
 <script setup lang="ts">
-import { useStateStore } from "~/store";
-
+import { useSearch } from "~/hooks/search";
 const route = useRoute();
-const stateStore = useStateStore();
 
 const openFromOtherHomePage = computed(() => route.fullPath !== "/");
-const searchValue = ref("");
-function search() {
-  stateStore.search(searchValue.value);
-}
+const { query, search } = useSearch();
 
 function keydownHandler(event: KeyboardEvent) {
   if (event.key === "Enter") {

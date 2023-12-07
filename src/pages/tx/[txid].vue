@@ -49,10 +49,13 @@ import { GetTx } from "~/module/chaingraph";
 import { formatDateString } from "~/module/utils";
 import { decodeAuthChain } from "~/module/bcmr";
 import { useAuthChains } from "~/hooks/authchains";
+import { useUsdPrice } from "~/hooks/usdPrice";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid") as Ref<string>;
 const stateStore = useStateStore();
+const { formatPrice } = useUsdPrice();
+
 const variables = computed(() => ({
   network: stateStore.network,
   hash: `\\x${txid.value}` as const,
@@ -131,7 +134,7 @@ const infoContent = computed(() => {
     },
     {
       title: "Value",
-      text: satoshis ? stateStore.formatPrice(satoshis) : 0,
+      text: satoshis ? formatPrice(satoshis) : 0,
     },
     {
       title: "Time",
