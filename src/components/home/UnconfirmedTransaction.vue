@@ -13,10 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  type MonitorMempoolsSubscription,
-  MonitorMempools,
-} from "@/module/chaingraph";
+import { MonitorMempools } from "@/module/chaingraph";
 import { useStateStore } from "~/store";
 
 const limit = ref(9);
@@ -29,27 +26,27 @@ const variables = computed(() => ({
 }));
 
 const timestampKey = ref<NodeJS.Timeout | undefined>();
-const transactions = ref<
-  MonitorMempoolsSubscription["node"][number]["unconfirmed_transactions"][number]["transaction"][]
->([]);
-const { onResult, loading } = useSubscription<MonitorMempoolsSubscription>(
+const { onResult, result, loading } = useSubscription(
   MonitorMempools,
   variables
 );
 
-onResult((result) => {
-  const setTransactions = () => {
-    transactions.value =
-      result.data?.node
-        .at(0)
-        ?.unconfirmed_transactions.map(({ transaction }) => transaction) || [];
-  };
+const sortTransactions = () => {
+  const node = result.value?.node.at(0);
 
   // Stop if no data
-  if (!result.data) return;
+  if (!node) return [];
+
+  // Sort transactions
+  return node.unconfirmed_transactions.map(({ transaction }) => transaction);
+};
+const transactions = ref<ReturnType<typeof sortTransactions>>([]);
+
+onResult(() => {
+  const setTransactions = () => (transactions.value = sortTransactions());
 
   if (transactions.value.length !== limit.value) {
-    setTransactions();
+    transactions.value = setTransactions();
   } else {
     if (timestampKey.value) clearTimeout(timestampKey.value);
     timestampKey.value = setTimeout(setTransactions, 5000);
