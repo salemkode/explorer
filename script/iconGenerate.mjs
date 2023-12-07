@@ -1,9 +1,9 @@
-const path = require("path");
-const svgtofont = require("svgtofont");
+import { resolve } from "path";
+import svgtofont from "svgtofont";
 
 svgtofont({
-  src: path.resolve(process.cwd(), "src/assets/icons"), // svg path
-  dist: path.resolve(process.cwd(), "src/public/font"), // output path
+  src: resolve(process.cwd(), "src/assets/icons"), // svg path
+  dist: resolve(process.cwd(), "src/public/font"), // output path
   fontName: "uicon", // font name
   css: {
     // Create CSS files.

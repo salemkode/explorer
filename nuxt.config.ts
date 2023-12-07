@@ -70,7 +70,7 @@ export default defineNuxtConfig({
       }),
       watch({
         pattern: "src/assets/icons/**/*.svg",
-        command: "node ./script/iconGenerate.js",
+        command: "node ./script/iconGenerate.mjs",
       }),
     ],
   },

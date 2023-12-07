@@ -11,9 +11,6 @@ export default {
   footer_connect: "Connect",
 
   error_modal_header: "Oops... an error occurred!",
-  error_modal_subtext:
-    'Sorry for the inconvenience; we will look into this as soon as possible. If you\'d like, you can report this error <a href="https://github.com/blockparty-sh/slp-explorer">here</a>.<br>Reloading the page might help.',
-
   mainmenu_explorer: "Explorer",
   mainmenu_all_tokens: "All Tokens",
   mainmenu_donate_us: "Donate to us",
@@ -36,17 +33,10 @@ export default {
     "Sorry, we cannot decode the address given. Double check that it isn't misspelled.",
 
   processing_tx_page_header: "Processing SLP Transaction",
-  processing_tx_page_subtext:
-    "SLPDB is currently processing this transaction. During high load it may take longer to process transactions. Please try again in a few moments.",
-
-  no_tx_header: "Transaction Not Found",
-  no_tx_subtext:
-    "This transaction was not found in SLPDB or BitDB. It may have been very old or misspelled.",
-
   "404_page_header": "404 Not Found :(",
   "404_page_subtext1": "Sorry, can't find the page you were looking for.",
   "404_page_subtext2":
-    'Please try another search or go back in your browser; this may have been a bug. If it was, please <a href="https://github.com/blockparty-sh/slp-explorer">report it</a>!',
+    'Please try another search or go back in your browser; this may have been a bug. If it was, please!',
 
   block_page_view_all_block: "View all transactions confirmed in a block",
   block_page_view_all_mempool:
@@ -127,9 +117,6 @@ export default {
   send: "send",
   mint: "mint",
   genesis: "Genesis",
-  genesis_description:
-    "Type1 token genesis transactions do not have any SLP inputs.<br>NFT1 Child transactions can see the input from looking at the Version row in the Token Details pane.",
-
   tokenstats_valid_token_transactions: "Valid Transactions Since Genesis",
   tokenstats_valid_token_utxos: "Valid Token UTXOs",
   tokenstats_valid_token_addresses: "Valid Token Addresses",
@@ -149,7 +136,7 @@ export default {
   verified: "Verified",
   inputs: "Inputs",
   outputs: "Outputs",
-  vout: "V<sub>out</sub>",
+  vout: "Vout",
   capability: "Capability",
   commitment: "Commitment",
   timestamp: "Timestamp",
