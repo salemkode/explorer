@@ -37,8 +37,8 @@
       </div>
     </div>
   </div>
-  <div v-else-if="Tx && Tx.transaction.length === 0">
-    This transaction is not found
+  <div v-else-if="Tx && Tx.transaction.length === 0" class="container py-5">
+    <h2>This transaction is not found</h2>
   </div>
   <LoadingView v-else />
 </template>
@@ -106,20 +106,23 @@ const transaction = computed(() => {
       .filter(Boolean),
   };
 });
+
 onError(() => {
   throw showError({
     statusCode: 404,
     message: "This transaction is not found",
   });
 });
+
 onResult(() => {
-  if (!transaction.value || !transaction.value.transaction) {
+  if (!TxLoading.value && transaction.value === undefined) {
     throw showError({
       statusCode: 404,
       message: "This transaction is not found",
     });
   }
 });
+
 const infoContent = computed(() => {
   if (!transaction.value) return [];
   const satoshis: string | null | undefined =
