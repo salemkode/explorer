@@ -1,4 +1,4 @@
-import { number, object, parse } from "valibot";
+import { number, object, safeParse } from "valibot";
 import { satToBch } from "~/module/bitcoin";
 import * as utils from "~/module/utils";
 
@@ -8,13 +8,16 @@ const priceSchema = object({
   }),
 });
 
+const { data: btcPriceInUsd } = useFetch(
+  "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd"
+);
+
 export const useUsdPrice = () => {
-  const { data: responseResult } = useFetch(
-    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd"
-  );
   const usdPrice = computed(() => {
-    const { "bitcoin-cash": result } = parse(priceSchema, responseResult.value);
-    return result.usd;
+    const response = safeParse(priceSchema, btcPriceInUsd.value);
+    if (!response.success) return 0;
+
+    return response.output["bitcoin-cash"].usd;
   });
 
   const calculatePrice = (sat: string | number) => {
