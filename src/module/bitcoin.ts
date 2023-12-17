@@ -54,7 +54,16 @@ export const getAddressType = (address: string) => {
   const decodedAddress = decodeCashAddress(addPrefixToAddress(address));
 
   if (typeof decodedAddress === "object") {
-    return decodedAddress.type;
+    switch (decodedAddress.type) {
+      case "p2pkh":
+      case "p2pkhWithTokens":
+        return "P2PKH";
+      case "p2sh":
+      case "p2shWithTokens":
+        return "P2SH";
+      default:
+        return "Unknown";
+    }
   }
 };
 
