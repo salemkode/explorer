@@ -21,6 +21,12 @@ const props = defineProps<{
 }>();
 const tokenName = computed(() => {
   const name = props.identitySnapshot?.name;
-  return !name && props.loading ? "Loading" : name;
+  const isNameEmpty = !name;
+
+  if (isNameEmpty && props.loading) {
+    return "Loading";
+  }
+
+  return name;
 });
 </script>
