@@ -26,15 +26,15 @@ import type { bytea, contentWarpItem } from "~/types";
 
 // Get slug from router param using useRouter
 const route = useRoute();
-const blockHashOrHeight = computed(() => route.params.slug as bytea);
+const blockHashOrHeight = computed(() => route.params.slug as string);
 const stateStore = useStateStore();
 const { formatPrice } = useUsdPrice();
 
 const offsetTxs = ref(0);
 const variable = computed(() => ({
   network: stateStore.network,
-  hash: blockHashOrHeight.value,
-  height: blockHashOrHeight.value,
+  hash: `\\x${blockHashOrHeight.value}` as bytea,
+  height: isNaN(+blockHashOrHeight.value) ? "-1" : blockHashOrHeight.value,
   limitTxs: 9,
   offsetTxs: offsetTxs.value,
 }));
