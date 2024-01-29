@@ -9,6 +9,7 @@ svgtofont({
     // Create CSS files.
     cssPath: "/font/",
     fontSize: "18px",
+    include: /\.css$/,
   },
   log: false,
 }).then(() => {
