@@ -1,6 +1,6 @@
 <template>
   <Transition name="slider">
-    <div v-if="openFromOtherHomePage" class="search-bar container">
+    <div v-if="!isHomePage" class="search-bar container">
       <i class="uicon-search me-2 text-white pointer" @click="search" />
       <input
         v-model="query"
@@ -16,7 +16,7 @@
 import { useSearch } from "~/hooks/search";
 const route = useRoute();
 
-const openFromOtherHomePage = computed(() => route.fullPath !== "/");
+const isHomePage = computed(() => route.fullPath === "/");
 const { query, search } = useSearch();
 
 function keydownHandler(event: KeyboardEvent) {
