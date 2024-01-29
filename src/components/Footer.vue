@@ -13,7 +13,7 @@
         </ul>
       </div>
       <div class="col">
-        <h4 data-i18n="footer_resources">Resources</h4>
+        <h4>Resources</h4>
         <ul>
           <li v-for="resource in resources" :key="resource.title">
             <a :href="resource.url" v-text="resource.title" />
