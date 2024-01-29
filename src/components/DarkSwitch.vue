@@ -1,20 +1,28 @@
 <script setup lang="ts">
-import { useTheme } from "~/hooks/theme";
-
-const input = ref<null | HTMLElement>(null);
-const { isDarkmode } = useTheme();
+import { prefersTheme, storedTheme } from "~/hooks/theme";
+import { uid } from "~/module/uid";
+const isDarkmode = computed({
+  get: () => {
+    if (storedTheme.value === "system") {
+      return prefersTheme.value === "dark";
+    }
+    return storedTheme.value === "dark";
+  },
+  set: (checked: boolean) => (storedTheme.value = checked ? "dark" : "light"),
+});
+const id = uid();
 </script>
 
 <template>
   <div>
     <input
+      id="id"
       ref="input"
       v-model="isDarkmode"
-      v-uid
       type="checkbox"
       class="d-none"
     />
-    <label :for="input?.id" class="toggle" title="Toggle Dark Mode">
+    <label :for="id" class="toggle" title="Toggle Dark Mode">
       <svg
         aria-hidden="true"
         class="toggle__backdrop"
