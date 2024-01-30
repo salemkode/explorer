@@ -1,6 +1,6 @@
-import { type GetAuthChainsQuery } from "~/graphql/graphql";
 import { opreturnToAuthChainElement } from "./bitcoin";
-import type { IdentitySnapshot, Capability, tokenCapability } from "~/types";
+import type { GetAuthChainsQuery } from "~/graphql/graphql";
+import type { Capability, IdentitySnapshot, tokenCapability } from "~/types";
 
 /**
  * Retrieves the genesis transaction and opreturn for a given category from an authchain.

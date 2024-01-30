@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-useless-template-attributes -->
 <template>
   <div v-if="transaction" class="tx-page d-lg-grid container mx-auto">
     <TxConfirm
@@ -15,7 +14,7 @@
       <bcmr-info
         :loading="false"
         :identity-snapshot="tokenIdentity.identity"
-        :token-category="txid as string"
+        :token-category="txid"
       />
     </div>
     <div class="column">
@@ -37,22 +36,25 @@
       </div>
     </div>
   </div>
-  <div v-else-if="Tx && Tx.transaction.length === 0">
-    This transaction is not found
+  <div v-else-if="Tx && Tx.transaction.length === 0" class="container py-5">
+    <h2>This transaction is not found</h2>
   </div>
   <LoadingView v-else />
 </template>
 
 <script setup lang="ts">
-import { useStateStore, useRegistryStore } from "~/store";
+import { useRegistryStore, useStateStore } from "~/store";
 import { GetTx } from "~/module/chaingraph";
 import { formatDateString } from "~/module/utils";
 import { decodeAuthChain } from "~/module/bcmr";
 import { useAuthChains } from "~/hooks/authchains";
+import { useUsdPrice } from "~/hooks/usdPrice";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid") as Ref<string>;
 const stateStore = useStateStore();
+const { formatPrice } = useUsdPrice();
+
 const variables = computed(() => ({
   network: stateStore.network,
   hash: `\\x${txid.value}` as const,
@@ -103,20 +105,23 @@ const transaction = computed(() => {
       .filter(Boolean),
   };
 });
+
 onError(() => {
   throw showError({
     statusCode: 404,
     message: "This transaction is not found",
   });
 });
+
 onResult(() => {
-  if (!transaction.value || !transaction.value.transaction) {
+  if (!TxLoading.value && transaction.value === undefined) {
     throw showError({
       statusCode: 404,
       message: "This transaction is not found",
     });
   }
 });
+
 const infoContent = computed(() => {
   if (!transaction.value) return [];
   const satoshis: string | null | undefined =
@@ -131,7 +136,7 @@ const infoContent = computed(() => {
     },
     {
       title: "Value",
-      text: satoshis ? stateStore.formatPrice(satoshis) : 0,
+      text: satoshis ? formatPrice(satoshis) : 0,
     },
     {
       title: "Time",

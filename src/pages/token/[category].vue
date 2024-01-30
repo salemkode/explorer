@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { useStateStore, useRegistryStore } from "~/store";
+import { useRegistryStore, useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 import { decodeAuthChain } from "~/module/bcmr";
 import { useAuthChains } from "~/hooks/authchains";

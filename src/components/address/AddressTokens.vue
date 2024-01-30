@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { GetAddressTokens } from "@/module/chaingraph";
 import type { tableColumn } from "~/types/index.js";
-import { useStateStore, useRegistryStore } from "~/store";
+import { useRegistryStore, useStateStore } from "~/store";
 import { calculateDecimal } from "~/module/bitcoin";
 import { useAuthChains } from "~/hooks/authchains";
 

@@ -38,8 +38,8 @@
 </template>
 
 <script setup lang="ts">
-import { type GetBlocksSubscription, GetBlocks } from "~/module/chaingraph";
-import { formatDateString, numberWithCommas, bytesToMB } from "~/module/utils";
+import { GetBlocks } from "~/module/chaingraph";
+import { bytesToMB, formatDateString, numberWithCommas } from "~/module/utils";
 import { useStateStore } from "~/store";
 
 const element = ref<HTMLDivElement | null>(null);
@@ -50,10 +50,7 @@ const variables = computed(() => ({
   offset: 0,
   network: stateStore.network,
 }));
-const { result, loading, error } = useSubscription<GetBlocksSubscription>(
-  GetBlocks,
-  variables
-);
+const { result, loading, error } = useSubscription(GetBlocks, variables);
 
 // create computed var to create virtual list to loading
 const blockList = computed(() => {

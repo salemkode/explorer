@@ -1,17 +1,17 @@
-import BigNumber from "bignumber.js";
 import {
   base58AddressToLockingBytecode,
-  cashAddressToLockingBytecode,
-  decodeCashAddressFormatWithoutPrefix,
-  decodeCashAddress,
-  decodeBase58Address,
   binToHex,
   binToNumberUint16LE,
   binToUtf8,
+  cashAddressToLockingBytecode,
+  decodeBase58Address,
+  decodeCashAddress,
+  decodeCashAddressFormatWithoutPrefix,
   hexToBin,
 } from "@bitauth/libauth";
-import type { bigNum } from "~/types";
+import BigNumber from "bignumber.js";
 import { getHttpsUrl } from "./utils";
+import type { bigNum } from "~/types";
 
 export const calculateDecimal = (num: bigNum, decimal: number) => {
   const bigNum = BigNumber(num);
@@ -54,7 +54,16 @@ export const getAddressType = (address: string) => {
   const decodedAddress = decodeCashAddress(addPrefixToAddress(address));
 
   if (typeof decodedAddress === "object") {
-    return decodedAddress.type;
+    switch (decodedAddress.type) {
+      case "p2pkh":
+      case "p2pkhWithTokens":
+        return "P2PKH";
+      case "p2sh":
+      case "p2shWithTokens":
+        return "P2SH";
+      default:
+        return "Unknown";
+    }
   }
 };
 

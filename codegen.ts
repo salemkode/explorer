@@ -23,6 +23,9 @@ const config: CodegenConfig = {
           },
         },
       ],
+      config: {
+        useTypeImports: true,
+      },
       presetConfig: {
         gqlTagName: "gql",
       },

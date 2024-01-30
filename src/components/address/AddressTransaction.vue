@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import type { history } from "electrum-cash";
+import type { history as History } from "electrum-cash";
 import { GetTransactions } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
 
@@ -31,7 +31,7 @@ const limit = ref(8);
 const offset = ref(0);
 const stateStore = useStateStore();
 const props = defineProps<{
-  history: history;
+  history: History;
 }>();
 const hasPrevPage = computed(() => offset.value > 0);
 const hasNextPage = computed(() => {

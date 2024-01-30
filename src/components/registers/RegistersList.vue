@@ -15,6 +15,7 @@ const swapList = ({
   change.value++;
 };
 
+// TODO: move to another file.
 const removeItem = (index: number) => {
   const url = registryStore.registryList.at(index)?.url;
 

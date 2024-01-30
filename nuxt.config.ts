@@ -24,12 +24,7 @@ export default defineNuxtConfig({
   srcDir: "src",
   pages: true,
   components: true,
-  modules: [
-    "@nuxtjs/apollo",
-    "@nuxtjs/i18n",
-    "@pinia/nuxt",
-    "@pinia-plugin-persistedstate/nuxt",
-  ],
+  modules: ["@nuxtjs/apollo", "@nuxtjs/i18n", "@pinia/nuxt"],
   i18n: {
     // add `vueI18n` option to `@nuxtjs/i18n` module options
     langDir: "locales/",
@@ -70,8 +65,12 @@ export default defineNuxtConfig({
       }),
       watch({
         pattern: "src/assets/icons/**/*.svg",
-        command: "node ./script/iconGenerate.js",
+        command: "node ./script/iconGenerate.mjs",
       }),
     ],
+  },
+  typescript: {
+    strict: true,
+    typeCheck: true,
   },
 });

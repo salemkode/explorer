@@ -11,7 +11,7 @@
         '--fade-transition': `${TransitionTime}ms`,
       }"
     >
-      <template v-for="(item, index) in items" :key="index">
+      <template v-for="(item, index) in props.items" :key="index">
         <Transition name="fade">
           <div
             v-show="active === index"
@@ -28,7 +28,7 @@
 <script setup lang="ts" generic="TItem extends readonly string[]">
 const TransitionTime = 500;
 const active = ref(0);
-defineProps<{
+const props = defineProps<{
   items: TItem;
 }>();
 

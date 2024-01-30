@@ -1,5 +1,5 @@
-// .eslintrc.js
 module.exports = {
+  parser: "vue-eslint-parser",
   env: {
     browser: true,
     es2021: true,
@@ -18,6 +18,12 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   rules: {
+    "sort-imports": [
+      "error",
+      {
+        ignoreDeclarationSort: true,
+      },
+    ],
     indent: "off",
     "@typescript-eslint/consistent-type-imports": "error",
     "prettier/prettier": "warn",

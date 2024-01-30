@@ -41,7 +41,7 @@
               </div>
             </small>
             <small class="amount">
-              {{ stateStore.formatPrice(transaction.amount || "0") }}
+              {{ formatPrice(transaction.amount || "0") }}
             </small>
           </div>
           <i
@@ -58,7 +58,7 @@
           <div class="transaction-list-operation d-lg-grid">
             <TransactionListOperation
               name="from"
-              :utxos="transaction.inputsUtxo"
+              :utxos="transaction.outpoints"
               :is-coin-base="transaction.isCoinBase"
             />
             <div class="line d-none d-lg-block" />
@@ -74,16 +74,16 @@
 <script lang="ts">
 import type { Utxo } from "~/types";
 
-export type inputs = Array<{
+export type Inputs = Array<{
   outpoint?: Utxo | null;
 }>;
-export type transactions = Array<{
+export type Transactions = Array<{
   __typename?: "transaction";
   hash: string;
   input_value_satoshis?: string | null;
   output_value_satoshis?: string | null;
   is_coinbase: boolean;
-  inputs: inputs;
+  inputs: Inputs;
   outputs: Array<Utxo>;
 }>;
 </script>
@@ -91,16 +91,18 @@ export type transactions = Array<{
 <script setup lang="ts">
 import { removeAddressPrefix } from "~/module/bitcoin";
 import { useStateStore } from "~/store";
+import { useUsdPrice } from "~/hooks/usdPrice";
 
 const key = ref(0);
 const props = defineProps<{
-  transactions: transactions;
+  transactions: Transactions;
 }>();
 watch(props, () => {
   key.value += 1;
 });
 
 const stateStore = useStateStore();
+const { formatPrice } = useUsdPrice();
 
 const getTransferAddress = (utxos: Utxo[]) => {
   // remove op_returns
@@ -114,16 +116,14 @@ const getTransferAddress = (utxos: Utxo[]) => {
     );
   }
 };
-const getFrom = (inputs: inputs, isCoinBase: boolean) => {
+const getFrom = (outpoints: Utxo[],  isCoinBase: boolean, length: number) => {
   if (isCoinBase) {
     return {
       type: "Block Reward" as const,
       text: "Block Reward",
     };
   } else {
-    const address = getTransferAddress(
-      inputs.map(({ outpoint }) => outpoint).filter(Boolean)
-    );
+    const address = getTransferAddress(outpoints);
 
     if (address) {
       return {
@@ -133,7 +133,7 @@ const getFrom = (inputs: inputs, isCoinBase: boolean) => {
     } else {
       return {
         type: "MultiSig" as const,
-        text: `${inputs.length} Inputs`,
+        text: `${length} Inputs`,
       };
     }
   }
@@ -161,8 +161,11 @@ const transactions = computed(() => {
       transaction.input_value_satoshis ||
       "";
     const hash = transaction.hash.substring(2);
+    const outpoints = transaction.inputs
+      .map(({ outpoint }) => outpoint)
+      .filter(Boolean);
     const transfer = [
-      getFrom(transaction.inputs, transaction.is_coinbase),
+      getFrom(outpoints, transaction.is_coinbase, transaction.inputs.length),
       getTo(transaction.outputs),
     ];
 
@@ -170,9 +173,7 @@ const transactions = computed(() => {
       hash,
       amount,
       transfer,
-      inputsUtxo: transaction.inputs
-        .map(({ outpoint }) => outpoint)
-        .filter(Boolean),
+      outpoints,
       outputs: transaction.outputs,
       isCoinBase: transaction.is_coinbase,
     };
