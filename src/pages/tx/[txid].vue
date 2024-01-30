@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-useless-template-attributes -->
 <template>
   <div v-if="transaction" class="tx-page d-lg-grid container mx-auto">
     <TxConfirm
@@ -15,7 +14,7 @@
       <bcmr-info
         :loading="false"
         :identity-snapshot="tokenIdentity.identity"
-        :token-category="txid as string"
+        :token-category="txid"
       />
     </div>
     <div class="column">
