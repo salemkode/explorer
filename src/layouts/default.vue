@@ -1,7 +1,9 @@
 <template>
   <div class="app">
     <BaseHeader />
-    <slot />
+    <div class="d-grid">
+      <slot />
+    </div>
     <Footer />
   </div>
 </template>
@@ -11,10 +13,5 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
-}
-
-.nav {
-  align-items: center;
-  gap: 5px;
 }
 </style>
