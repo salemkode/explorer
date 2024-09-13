@@ -16,7 +16,7 @@ const id = uid();
 <template>
   <div>
     <input
-      id="id"
+      :id="id"
       ref="input"
       v-model="isDarkmode"
       type="checkbox"
