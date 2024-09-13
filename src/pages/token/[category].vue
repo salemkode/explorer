@@ -69,6 +69,7 @@ import { useAuthChains } from "~/hooks/authchains";
 import { useNftSupply } from "~/hooks/nftSupply";
 import { useIsActiveMinting } from "~/hooks/activeMinting";
 import { getTokenInfoType } from "~/module/bitcoin";
+import { useNonBurnTokens } from "~/hooks/nonSpentToken";
 
 const route = useRoute();
 const category = computed(() => route.params.category as string);
@@ -84,6 +85,7 @@ const {
 
 const { supplyNFTs } = useNftSupply(`\\x${category.value}`);
 const { isActiveMinting } = useIsActiveMinting(`\\x${category.value}`);
+const { nonBurnTokens } = useNonBurnTokens(`\\x${category.value}`);
 const authchainElement = computed(
   () => authchain.value && decodeAuthChain(authchain.value, category.value)
 );
@@ -164,6 +166,10 @@ const tokenInfo = computed(() => {
     {
       title: "Is active minting",
       text: isActiveMinting.value ? "Yes" : "No",
+    },
+    {
+      title: "Supply excluding burns",
+      text: nonBurnTokens.value,
     },
   ];
 
