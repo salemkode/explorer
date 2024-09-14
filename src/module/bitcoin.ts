@@ -133,10 +133,7 @@ export const parseBinary = (opReturn: Uint8Array): Uint8Array[] => {
 };
 
 const validateBCMR = (chunks: Uint8Array[]) => {
-  if (
-    (chunks.length === 2 || chunks.length === 3) &&
-    binToUtf8(chunks[0]) === "BCMR"
-  ) {
+  if (binToUtf8(chunks[0]) === "BCMR") {
     return;
   }
   return "Invalid BCMR OP_RETURN";
