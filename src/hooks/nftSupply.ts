@@ -27,7 +27,7 @@ export const useNftSupply = (tokenCategory: bytea) => {
   onResult((response) => {
     const length = response?.data?.output.length;
     variables.offset += length === 5000 ? 5000 : 0;
-    supplyNFTs.value += length;
+    supplyNFTs.value += length || 0;
   });
 
   return { loading, supplyNFTs };
