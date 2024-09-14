@@ -46,30 +46,32 @@ const element = ref<HTMLDivElement | null>(null);
 const stateStore = useStateStore();
 const { t } = useI18n();
 const variables = computed(() => ({
-  limit: 7,
-  offset: 0,
-  network: stateStore.network,
+	limit: 7,
+	offset: 0,
+	network: stateStore.network,
 }));
 const { result, loading, error } = useSubscription(GetBlocks, variables);
 
 // create computed var to create virtual list to loading
 const blockList = computed(() => {
-  if (result.value) {
-    return {
-      type: "loaded",
-      value: result.value.block,
-    } as const;
-  } else if (loading.value) {
-    return {
-      type: "loading",
-      value: Array.from({ length: variables.value.limit }, () => t("loading")),
-    } as const;
-  } else {
-    return {
-      type: "error",
-      value: error.value || undefined,
-    } as const;
-  }
+	if (result.value) {
+		return {
+			type: "loaded",
+			value: result.value.block,
+		} as const;
+	}
+
+	if (loading.value) {
+		return {
+			type: "loading",
+			value: Array.from({ length: variables.value.limit }, () => t("loading")),
+		} as const;
+	}
+
+	return {
+		type: "error",
+		value: error.value || undefined,
+	} as const;
 });
 </script>
 

@@ -36,81 +36,79 @@ import type { Registry } from "~/types";
 const registryStore = useRegistryStore();
 
 const props = defineProps<{
-  category: string;
-  select: string;
+	category: string;
+	select: string;
 }>();
-const emit = defineEmits<{
-  (e: "select", url: string): void;
-}>();
+const emit = defineEmits<(e: "select", url: string) => void>();
 
 const getRegistryUrl = (name: string) =>
-  registryStore.registryList.find((item) => item.name === name)?.url;
+	registryStore.registryList.find((item) => item.name === name)?.url;
 
 const getOrder = (name: string, url?: string) => {
-  return registryStore.registryList.findIndex(
-    (registry) => registry.name === name || registry.url === url
-  );
+	return registryStore.registryList.findIndex(
+		(registry) => registry.name === name || registry.url === url,
+	);
 };
 
 const hasCategory = (registry: Registry, category: string) => {
-  if (!registry) {
-    return false;
-  }
+	if (!registry) {
+		return false;
+	}
 
-  const identities = registry.identities;
-  const identity = identities && identities[category];
-  if (identity) {
-    return !!Object.values(identities[category])?.find(
-      (identity) => identity.token?.category
-    );
-  }
+	const identities = registry.identities;
+	const identity = identities?.[category];
+	if (identity) {
+		return !!Object.values(identities[category])?.find(
+			(identity) => identity.token?.category,
+		);
+	}
 };
 
 type ProviderItem = {
-  name: string;
-  registry?: Registry;
-  isValidHash?: boolean;
-  loading?: boolean;
-  url?: string;
+	name: string;
+	registry?: Registry;
+	isValidHash?: boolean;
+	loading?: boolean;
+	url?: string;
 };
 const providers = computed(() => {
-  const authChainProviders = registryStore.authchains.get(props.category);
-  const items: ProviderItem[] = [
-    {
-      name: "AuthChain",
-      registry:
-        typeof authChainProviders === "object" ? authChainProviders : undefined,
-      isValidHash: registryStore.authchainsVerified.get(props.category),
-      loading: authChainProviders === true,
-    },
-  ];
+	const authChainProviders = registryStore.authchains.get(props.category);
+	const items: ProviderItem[] = [
+		{
+			name: "AuthChain",
+			registry:
+				typeof authChainProviders === "object" ? authChainProviders : undefined,
+			isValidHash: registryStore.authchainsVerified.get(props.category),
+			loading: authChainProviders === true,
+		},
+	];
 
-  registryStore.registryProviders.forEach((registryProvider, url) => {
-    if (typeof registryProvider.registryIdentity === "string") {
-      return;
-    }
+	registryStore.registryProviders.forEach((registryProvider, url) => {
+		if (typeof registryProvider.registryIdentity === "string") {
+			return;
+		}
 
-    items.push({
-      name: registryProvider.registryIdentity.name,
-      registry: hasCategory(registryProvider, props.category)
-        ? registryProvider
-        : undefined,
-      isValidHash: true,
-      loading: registryStore.loadingProviders,
-      url,
-    });
-  });
+		items.push({
+			name: registryProvider.registryIdentity.name,
+			registry: hasCategory(registryProvider, props.category)
+				? registryProvider
+				: undefined,
+			isValidHash: true,
+			loading: registryStore.loadingProviders,
+			url,
+		});
+	});
 
-  return items.sort(
-    ({ name: name1, url: url1 }, { name: name2, url: url2 }) =>
-      getOrder(name1, url1) - getOrder(name2, url2)
-  );
+	return items.sort(
+		({ name: name1, url: url1 }, { name: name2, url: url2 }) =>
+			getOrder(name1, url1) - getOrder(name2, url2),
+	);
 });
 
 const selectRegistry = (name: string, registry?: Registry) => {
-  if (typeof registry === "object" && hasCategory(registry, props.category)) {
-    emit("select", getRegistryUrl(name) || "");
-  }
+	if (typeof registry === "object" && hasCategory(registry, props.category)) {
+		emit("select", getRegistryUrl(name) || "");
+	}
 };
 </script>
 

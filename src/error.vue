@@ -7,7 +7,7 @@
       </h3>
       <button
         class="btn btn-primary px-4"
-        @click="clearError({ redirect: '/' })"
+        @click="goHome()"
       >
         Go Home
       </button>
@@ -18,14 +18,17 @@
 <script setup lang="ts">
 import Layout from "~/layouts/default.vue";
 const error = useError();
-const errorMsg = computed(() => {
-  const msg = error.value?.message || "";
-  if (msg.startsWith("Page not found:")) {
-    return "Page not found";
-  }
 
-  return msg;
+const errorMsg = computed(() => {
+	const msg = error.value?.message || "";
+	if (msg.startsWith("Page not found:")) {
+		return "Page not found";
+	}
+
+	return msg;
 });
+
+const goHome = () => clearError({ redirect: "/" });
 </script>
 
 <style scoped>

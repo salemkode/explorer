@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 const PopperOver = defineAsyncComponent({
-  loader: () => import("vue3-popper"),
+	loader: () => import("vue3-popper"),
 });
 const props = defineProps<{ msg: string }>();
 </script>

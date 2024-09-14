@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { useRegistryStore } from "~/store";
 type Status = {
-  type: "ready" | "loading";
-  errorMessage?: string;
+	type: "ready" | "loading";
+	errorMessage?: string;
 };
 const registryStore = useRegistryStore();
 const url = ref("");
 const status = ref<Status>({
-  type: "ready",
+	type: "ready",
 });
 
 const addRegisters = async () => {
-  status.value.type = "loading";
-  const result = await registryStore.addRegistryProvider(url.value);
-  status.value = {
-    type: "ready",
-    errorMessage: result.errorMessage,
-  };
+	status.value.type = "loading";
+	const result = await registryStore.addRegistryProvider(url.value);
+	status.value = {
+		type: "ready",
+		errorMessage: result.errorMessage,
+	};
 };
 </script>
 

@@ -30,11 +30,11 @@
 </template>
 
 <script setup lang="ts">
+import { useUsdPrice } from "~/hooks/usdPrice";
 import { addressToLockingBytecodeHex } from "~/module/bitcoin";
+import { electrum } from "~/module/electrum";
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
-import { electrum } from "~/module/electrum";
-import { useUsdPrice } from "~/hooks/usdPrice";
 
 const navItems = ["transaction", "cash_token"] as const;
 // Get address from router param using useRouter
@@ -44,81 +44,81 @@ const { formatPrice } = useUsdPrice();
 
 const routeAddress = computed(() => route.params.address as string);
 const lockingBytecode = computed(() =>
-  addressToLockingBytecodeHex(routeAddress.value)
+	addressToLockingBytecodeHex(routeAddress.value),
 );
 if (!lockingBytecode.value) {
-  showError({
-    statusCode: 404,
-    message: "Invalid address",
-  });
+	showError({
+		statusCode: 404,
+		message: "Invalid address",
+	});
 }
 
 const tokenAddress = computed(() =>
-  stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.value || "", true)
+	stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.value || "", true),
 );
 
 const { data: history } = useAsyncData(() =>
-  electrum.request("blockchain.address.get_history", routeAddress.value)
+	electrum.request("blockchain.address.get_history", routeAddress.value),
 );
 const { data: balance } = useAsyncData(() =>
-  electrum.request("blockchain.address.get_balance", routeAddress.value)
+	electrum.request("blockchain.address.get_balance", routeAddress.value),
 );
 
 const addressResponse = computed(() => {
-  const emptyBalance = {
-    confirmed: 0,
-    unconfirmed: 0,
-  };
-  const _balance = !(balance.value instanceof Error) && balance.value;
-  const _history = !(history.value instanceof Error) && history.value;
+	const emptyBalance = {
+		confirmed: 0,
+		unconfirmed: 0,
+	};
+	const _balance = !(balance.value instanceof Error) && balance.value;
+	const _history = !(history.value instanceof Error) && history.value;
 
-  return {
-    history: _history || [],
-    balance: _balance || emptyBalance,
-  };
+	return {
+		history: _history || [],
+		balance: _balance || emptyBalance,
+	};
 });
 
 const addressInfoWarp = computed<contentWarpItem[]>(() => {
-  const addressInfo = {
-    firstTx: addressResponse.value.history?.at(-1)?.tx_hash || "",
-    txCount: addressResponse.value.history?.length.toString(),
-  };
-  return [
-    {
-      title: "Token Address",
-      text: tokenAddress.value,
-      copy: true,
-      warp: true,
-    },
-    {
-      title: "Cash Address",
-      text: stateStore.lockingBytecodeHexToCashAddress(
-        lockingBytecode.value || "",
-        false
-      ),
-      copy: true,
-      warp: true,
-    },
-    {
-      title: "Balance",
-      text: formatPrice(addressResponse.value?.balance.confirmed),
-    },
-    {
-      title: "Unconfirmed Balance",
-      text: formatPrice(addressResponse.value?.balance.unconfirmed),
-    },
-    {
-      title: "First Transition",
-      text: addressInfo?.firstTx,
-      copy: true,
-      url: `/tx/${addressInfo?.firstTx}`,
-      warp: true,
-    },
-    {
-      title: "Transition count",
-      text: addressInfo?.txCount,
-    },
-  ];
+	const addressInfo = {
+		firstTx: addressResponse.value.history?.at(-1)?.tx_hash || "",
+		txCount: addressResponse.value.history?.length.toString(),
+	};
+	return [
+		{
+			title: "Token Address",
+			text: tokenAddress.value,
+			copy: true,
+			warp: true,
+		},
+		{
+			title: "Cash Address",
+			text: stateStore.lockingBytecodeHexToCashAddress(
+				lockingBytecode.value || "",
+				false,
+			),
+			copy: true,
+			warp: true,
+		},
+		{
+			title: "Balance",
+			text: formatPrice(addressResponse.value?.balance.confirmed),
+		},
+		{
+			title: "Unconfirmed Balance",
+			text: formatPrice(addressResponse.value?.balance.unconfirmed),
+		},
+		{
+			title: "First Transition",
+			text: addressInfo?.firstTx,
+			copy: true,
+			url: `/tx/${addressInfo?.firstTx}`,
+			warp: true,
+		},
+		{
+			title: "Transition count",
+			text: addressInfo?.txCount,
+		},
+	];
 });
 </script>
 

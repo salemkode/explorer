@@ -15,18 +15,18 @@
 import type { IdentitySnapshot } from "~/types";
 
 const props = defineProps<{
-  identitySnapshot?: IdentitySnapshot;
-  category: string;
-  loading: boolean;
+	identitySnapshot?: IdentitySnapshot;
+	category: string;
+	loading: boolean;
 }>();
 const tokenName = computed(() => {
-  const name = props.identitySnapshot?.name;
-  const isNameEmpty = !name;
+	const name = props.identitySnapshot?.name;
+	const isNameEmpty = !name;
 
-  if (isNameEmpty && props.loading) {
-    return "Loading";
-  }
+	if (isNameEmpty && props.loading) {
+		return "Loading";
+	}
 
-  return name;
+	return name;
 });
 </script>

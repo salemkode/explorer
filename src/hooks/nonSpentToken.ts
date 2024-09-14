@@ -17,22 +17,24 @@ export const GetUseNonBurnTokens = gql(`
 `);
 
 export const useNonBurnTokens = (tokenCategory: bytea) => {
-  const nonBurnTokens = ref(0);
-  const variables = reactive({
-    offset: 0,
-    tokenCategory,
-  });
+	const nonBurnTokens = ref(0);
+	const variables = reactive({
+		offset: 0,
+		tokenCategory,
+	});
 
-  const { loading, onResult } = useQuery(GetUseNonBurnTokens, variables);
+	const { loading, onResult } = useQuery(GetUseNonBurnTokens, variables);
 
-  onResult((response) => {
-    const length = response?.data?.output.length;
-    variables.offset += length === 5000 ? 5000 : 0;
-    nonBurnTokens.value += response?.data?.output.reduce(
-      (total, output) => total + parseInt(output.fungible_token_amount || "0"),
-      0
-    ) || 0;
-  });
+	onResult((response) => {
+		const length = response?.data?.output.length;
+		variables.offset += length === 5000 ? 5000 : 0;
+		nonBurnTokens.value +=
+			response?.data?.output.reduce(
+				(total, output) =>
+					total + Number.parseInt(output.fungible_token_amount || "0"),
+				0,
+			) || 0;
+	});
 
-  return { loading, nonBurnTokens };
+	return { loading, nonBurnTokens };
 };

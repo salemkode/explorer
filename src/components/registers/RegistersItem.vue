@@ -64,83 +64,83 @@
 </template>
 
 <script setup lang="ts">
-import type { Registry, tableColumn } from "~/types";
+import EmptyImage from "~/assets/images/emptyImage.svg";
 import { formatTimeAgo } from "~/module/utils";
 import { useRegistryStore } from "~/store";
-import EmptyImage from "~/assets/images/emptyImage.svg";
+import type { Registry, tableColumn } from "~/types";
 
 const open = ref(false);
 
 const props = defineProps<{
-  url: string;
-  registry: Registry;
+	url: string;
+	registry: Registry;
 }>();
 
 const registryStore = useRegistryStore();
 const limit = 8;
 const pagination = ref(0);
 const maxPagination = ref(
-  Object.keys(props.registry.identities || {}).length / limit
+	Object.keys(props.registry.identities || {}).length / limit,
 );
 const transactions = computed<tableColumn[][]>(() => {
-  const identities = Object.keys(props.registry.identities || {});
+	const identities = Object.keys(props.registry.identities || {});
 
-  return identities
-    .map((identity) => {
-      const metadata = registryStore.getTokenFromRegister(
-        props.registry,
-        identity
-      );
-      if (!metadata) return;
-      const category = metadata.token?.category || "N/A";
-      return [
-        {
-          text: metadata.name || "N/A",
-          token: {
-            category,
-          },
-          url: `/token/${category}`,
-        },
-        {
-          text: category,
-          short: true,
-          copy: true,
-          url: `/token/${category}`,
-        },
-        {
-          text: metadata.token?.symbol || "N/A",
-        },
-      ];
-    })
-    .filter(Boolean);
+	return identities
+		.map((identity) => {
+			const metadata = registryStore.getTokenFromRegister(
+				props.registry,
+				identity,
+			);
+			if (!metadata) return;
+			const category = metadata.token?.category || "N/A";
+			return [
+				{
+					text: metadata.name || "N/A",
+					token: {
+						category,
+					},
+					url: `/token/${category}`,
+				},
+				{
+					text: category,
+					short: true,
+					copy: true,
+					url: `/token/${category}`,
+				},
+				{
+					text: metadata.token?.symbol || "N/A",
+				},
+			];
+		})
+		.filter(Boolean);
 });
 
 const uris = computed(() => {
-  const registryIdentity = props.registry.registryIdentity;
+	const registryIdentity = props.registry.registryIdentity;
 
-  // TODO: add auth chain support.
-  if (typeof registryIdentity !== "object") return [];
-  return [
-    {
-      name: "website",
-      href: registryIdentity?.uris?.web || "",
-    },
-    {
-      name: "blog",
-      href: registryIdentity?.uris?.blog || "",
-    },
-    {
-      name: "chat",
-      href: registryIdentity?.uris?.chat || "",
-    },
-    {
-      name: "forum",
-      href: registryIdentity?.uris?.forum || "",
-    },
-    {
-      name: "raw",
-      href: props.url,
-    },
-  ].filter((url) => Boolean(url.href));
+	// TODO: add auth chain support.
+	if (typeof registryIdentity !== "object") return [];
+	return [
+		{
+			name: "website",
+			href: registryIdentity?.uris?.web || "",
+		},
+		{
+			name: "blog",
+			href: registryIdentity?.uris?.blog || "",
+		},
+		{
+			name: "chat",
+			href: registryIdentity?.uris?.chat || "",
+		},
+		{
+			name: "forum",
+			href: registryIdentity?.uris?.forum || "",
+		},
+		{
+			name: "raw",
+			href: props.url,
+		},
+	].filter((url) => Boolean(url.href));
 });
 </script>

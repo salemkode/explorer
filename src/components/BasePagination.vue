@@ -29,11 +29,11 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  hasPrevPage: boolean;
-  hasNextPage: boolean;
+	hasPrevPage: boolean;
+	hasNextPage: boolean;
 }>();
 const emit = defineEmits<{
-  (event: "next"): void;
-  (event: "previous"): void;
+	(event: "next"): void;
+	(event: "previous"): void;
 }>();
 </script>

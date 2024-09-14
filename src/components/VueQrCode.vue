@@ -16,22 +16,22 @@
 import { defineCustomElements } from "@bitjson/qr-code";
 
 defineProps({
-  size: {
-    type: Number,
-    default: 80,
-  },
-  content: {
-    type: String,
-    required: true,
-  },
-  scale: {
-    type: Boolean,
-    default: false,
-  },
+	size: {
+		type: Number,
+		default: 80,
+	},
+	content: {
+		type: String,
+		required: true,
+	},
+	scale: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 onMounted(() => {
-  defineCustomElements(window);
+	defineCustomElements(window);
 });
 </script>
 

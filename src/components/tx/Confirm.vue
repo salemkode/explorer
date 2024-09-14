@@ -24,18 +24,18 @@
 </template>
 
 <script setup lang="ts">
-import { useStateStore } from "~/store";
 import { numberWithCommas } from "~/module/utils";
+import { useStateStore } from "~/store";
 
 const stateStore = useStateStore();
 const props = defineProps<{
-  blockHeight: number;
+	blockHeight: number;
 }>();
 
 const confirm = computed(
-  () => +stateStore.lastBlockHeight - props.blockHeight + 1
+	() => +stateStore.lastBlockHeight - props.blockHeight + 1,
 );
 const percentage = computed(() =>
-  Math.round(Math.max(Math.min(100, (confirm.value / 6) * 100), 0))
+	Math.round(Math.max(Math.min(100, (confirm.value / 6) * 100), 0)),
 );
 </script>

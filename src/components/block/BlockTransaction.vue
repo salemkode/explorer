@@ -18,21 +18,19 @@
 <script setup lang="ts">
 import type { Transactions } from "~/components/Transaction/TransactionList.vue";
 const props = defineProps<{
-  transactions?: Transactions;
-  loading: boolean;
-  limit: number;
-  offset: number;
+	transactions?: Transactions;
+	loading: boolean;
+	limit: number;
+	offset: number;
 }>();
 
-const emit = defineEmits<{
-  (event: "update:offset", offset: number): void;
-}>();
+const emit = defineEmits<(event: "update:offset", offset: number) => void>();
 
 const hasPrevPage = computed(() => props.offset > 0);
 const hasNextPage = computed(() => {
-  if (props.transactions) {
-    return props.transactions.length === props.limit;
-  }
-  return false;
+	if (props.transactions) {
+		return props.transactions.length === props.limit;
+	}
+	return false;
 });
 </script>

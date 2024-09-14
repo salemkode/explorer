@@ -43,12 +43,12 @@
 </template>
 
 <script setup lang="ts">
-import { useRegistryStore, useStateStore } from "~/store";
-import { GetTx } from "~/module/chaingraph";
-import { formatDateString } from "~/module/utils";
-import { decodeAuthChain } from "~/module/bcmr";
 import { useAuthChains } from "~/hooks/authchains";
 import { useUsdPrice } from "~/hooks/usdPrice";
+import { decodeAuthChain } from "~/module/bcmr";
+import { GetTx } from "~/module/chaingraph";
+import { formatDateString } from "~/module/utils";
+import { useRegistryStore, useStateStore } from "~/store";
 
 const route = useRoute();
 const txid = toRef(route.params, "txid") as Ref<string>;
@@ -56,93 +56,93 @@ const stateStore = useStateStore();
 const { formatPrice } = useUsdPrice();
 
 const variables = computed(() => ({
-  network: stateStore.network,
-  hash: `\\x${txid.value}` as const,
+	network: stateStore.network,
+	hash: `\\x${txid.value}` as const,
 }));
 
 /* Getting token info */
 const registryStore = useRegistryStore();
 const { result: authchain } = useAuthChains(
-  toRef(() => [`\\x${txid.value}` as const])
+	toRef(() => [`\\x${txid.value}` as const]),
 );
 const authchainElement = computed(() => {
-  if (!authchain.value) return;
-  return decodeAuthChain(authchain.value, txid.value);
+	if (!authchain.value) return;
+	return decodeAuthChain(authchain.value, txid.value);
 });
 
 const tokenIdentity = computed(() =>
-  registryStore.getTokenIdentity(txid.value)
+	registryStore.getTokenIdentity(txid.value),
 );
 
 /* Getting transaction info */
 const {
-  result: Tx,
-  loading: TxLoading,
-  onError,
-  onResult,
+	result: Tx,
+	loading: TxLoading,
+	onError,
+	onResult,
 } = useQuery(GetTx, variables);
 
 const transaction = computed(() => {
-  const node = Tx.value?.node.at(0);
-  const unconfirmedTransactions =
-    node?.unconfirmed_transactions.at(0)?.transaction;
-  let transaction = Tx.value?.transaction.at(0) || unconfirmedTransactions;
-  let block = transaction?.block_inclusions.at(0)?.block;
-  let blockHeight = block ? +block.height : undefined;
+	const node = Tx.value?.node.at(0);
+	const unconfirmedTransactions =
+		node?.unconfirmed_transactions.at(0)?.transaction;
+	let transaction = Tx.value?.transaction.at(0) || unconfirmedTransactions;
+	let block = transaction?.block_inclusions.at(0)?.block;
+	let blockHeight = block ? +block.height : undefined;
 
-  if (unconfirmedTransactions) {
-    transaction = unconfirmedTransactions;
-    block = node.accepted_blocks.at(0)?.block;
-    if (block) blockHeight = +block.height + 1;
-  }
-  if (!transaction) return transaction;
-  return {
-    blockHeight, // TODO: fix not work when block not found app store will update last block height
-    timestamp: block ? new Date(+block.timestamp * 1000) : new Date(),
-    transaction,
-    inputUtxo: transaction.inputs
-      .map(({ outpoint }) => outpoint)
-      .filter(Boolean),
-  };
+	if (unconfirmedTransactions) {
+		transaction = unconfirmedTransactions;
+		block = node.accepted_blocks.at(0)?.block;
+		if (block) blockHeight = +block.height + 1;
+	}
+	if (!transaction) return transaction;
+	return {
+		blockHeight, // TODO: fix not work when block not found app store will update last block height
+		timestamp: block ? new Date(+block.timestamp * 1000) : new Date(),
+		transaction,
+		inputUtxo: transaction.inputs
+			.map(({ outpoint }) => outpoint)
+			.filter(Boolean),
+	};
 });
 
 onError(() => {
-  throw showError({
-    statusCode: 404,
-    message: "This transaction is not found",
-  });
+	throw showError({
+		statusCode: 404,
+		message: "This transaction is not found",
+	});
 });
 
 onResult(() => {
-  if (!TxLoading.value && transaction.value === undefined) {
-    throw showError({
-      statusCode: 404,
-      message: "This transaction is not found",
-    });
-  }
+	if (!TxLoading.value && transaction.value === undefined) {
+		throw showError({
+			statusCode: 404,
+			message: "This transaction is not found",
+		});
+	}
 });
 
 const infoContent = computed(() => {
-  if (!transaction.value) return [];
-  const satoshis: string | null | undefined =
-    transaction.value.transaction.input_value_satoshis ||
-    transaction.value.transaction.output_value_satoshis;
-  return [
-    {
-      title: "Transaction hash",
-      text: txid.value as string,
-      copy: true,
-      warp: true,
-    },
-    {
-      title: "Value",
-      text: satoshis ? formatPrice(satoshis) : 0,
-    },
-    {
-      title: "Time",
-      text: formatDateString(transaction.value.timestamp),
-    },
-  ];
+	if (!transaction.value) return [];
+	const satoshis: string | null | undefined =
+		transaction.value.transaction.input_value_satoshis ||
+		transaction.value.transaction.output_value_satoshis;
+	return [
+		{
+			title: "Transaction hash",
+			text: txid.value as string,
+			copy: true,
+			warp: true,
+		},
+		{
+			title: "Value",
+			text: satoshis ? formatPrice(satoshis) : 0,
+		},
+		{
+			title: "Time",
+			text: formatDateString(transaction.value.timestamp),
+		},
+	];
 });
 </script>
 

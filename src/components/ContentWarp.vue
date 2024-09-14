@@ -29,23 +29,23 @@
 <script setup lang="ts">
 import type { contentWarpItem } from "@/types";
 const props = defineProps({
-  items: {
-    type: Array as PropType<contentWarpItem[]>,
-    required: true,
-  },
-  loading: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  tokenCategory: {
-    type: String,
-    required: false,
-    default: "",
-  },
+	items: {
+		type: Array as PropType<contentWarpItem[]>,
+		required: true,
+	},
+	loading: {
+		type: Boolean,
+		required: true,
+		default: false,
+	},
+	tokenCategory: {
+		type: String,
+		required: false,
+		default: "",
+	},
 });
 
 const existItems = computed(() => {
-  return props.items.filter((item) => item.text);
+	return props.items.filter((item) => item.text);
 });
 </script>

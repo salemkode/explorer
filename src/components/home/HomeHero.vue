@@ -26,9 +26,9 @@ import { useSearch } from "~/hooks/search";
 const { query, search } = useSearch();
 
 function keydownHandler(event: KeyboardEvent) {
-  if (event.key === "Enter") {
-    search();
-  }
+	if (event.key === "Enter") {
+		search();
+	}
 }
 </script>
 

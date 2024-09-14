@@ -7,18 +7,18 @@ type Maybe<T> = T | undefined | null;
 
 const registryStore = useRegistryStore();
 const props = defineProps<{
-  tokenAmount: Maybe<string>;
-  tokenCapability: Maybe<Capability>;
-  tokenCommitment: Maybe<string>;
-  category: Maybe<string>;
+	tokenAmount: Maybe<string>;
+	tokenCapability: Maybe<Capability>;
+	tokenCommitment: Maybe<string>;
+	category: Maybe<string>;
 }>();
 const amount = computed(() => {
-  if (!props.tokenAmount) return;
-  return calculateDecimal(+props.tokenAmount, 0).toString();
+	if (!props.tokenAmount) return;
+	return calculateDecimal(+props.tokenAmount, 0).toString();
 });
 const metadata = computed(() => {
-  if (!props.category) return;
-  return registryStore.getToken(props.category).token;
+	if (!props.category) return;
+	return registryStore.getToken(props.category).token;
 });
 </script>
 

@@ -2,13 +2,19 @@
 import { prefersTheme, storedTheme } from "~/hooks/theme";
 import { uid } from "~/module/uid";
 const isDarkmode = computed({
-  get: () => {
-    if (storedTheme.value === "system") {
-      return prefersTheme.value === "dark";
-    }
-    return storedTheme.value === "dark";
-  },
-  set: (checked: boolean) => (storedTheme.value = checked ? "dark" : "light"),
+	get: () => {
+		if (storedTheme.value === "system") {
+			return prefersTheme.value === "dark";
+		}
+		return storedTheme.value === "dark";
+	},
+	set: (checked: boolean) => {
+		if (checked) {
+			storedTheme.value = "dark";
+		} else {
+			storedTheme.value = "light";
+		}
+	},
 });
 const id = uid();
 </script>

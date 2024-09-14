@@ -16,12 +16,12 @@ export const GetMintingToken = gql(`
 `);
 
 export const useIsActiveMinting = (tokenCategory: bytea) => {
-  const { loading, result } = useQuery(GetMintingToken, {
-    tokenCategory: tokenCategory,
-  });
+	const { loading, result } = useQuery(GetMintingToken, {
+		tokenCategory: tokenCategory,
+	});
 
-  // Check if there is an active minting token
-  // If there is, then the minting token is active
-  const isActiveMinting = computed(() => result.value?.output.length !== 0);
-  return { loading, isActiveMinting };
+	// Check if there is an active minting token
+	// If there is, then the minting token is active
+	const isActiveMinting = computed(() => result.value?.output.length !== 0);
+	return { loading, isActiveMinting };
 };

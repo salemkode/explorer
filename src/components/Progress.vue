@@ -36,28 +36,28 @@
 
 <script setup lang="ts">
 const props = defineProps({
-  percentage: {
-    type: Number,
-    default: 0,
-    required: true,
-    validator: (value: number) => value >= 0 && value <= 100,
-  },
+	percentage: {
+		type: Number,
+		default: 0,
+		required: true,
+		validator: (value: number) => value >= 0 && value <= 100,
+	},
 });
 const strokeDashoffset = computed(() => {
-  const p = props.percentage;
-  const off = -51 - (51 / 100) * p;
-  if (p === 100) return -51;
-  return off;
+	const p = props.percentage;
+	const off = -51 - (51 / 100) * p;
+	if (p === 100) return -51;
+	return off;
 });
 
 const hoverStrokeDashoffset = ref(0);
 setInterval(() => {
-  if (props.percentage !== 100) {
-    hoverStrokeDashoffset.value -= 51;
-  } else {
-    hoverStrokeDashoffset.value -=
-      (hoverStrokeDashoffset.value / 51) % 2 ? 51 : 0;
-  }
+	if (props.percentage !== 100) {
+		hoverStrokeDashoffset.value -= 51;
+	} else {
+		hoverStrokeDashoffset.value -=
+			(hoverStrokeDashoffset.value / 51) % 2 ? 51 : 0;
+	}
 }, 1000);
 </script>
 

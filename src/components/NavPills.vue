@@ -21,21 +21,19 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  items: string[];
-  select: number;
+	items: string[];
+	select: number;
 }>();
 
-const emit = defineEmits<{
-  (event: "update:select", value: number): void;
-}>();
+const emit = defineEmits<(event: "update:select", value: number) => void>();
 
 const navItem = computed({
-  get() {
-    return props.select;
-  },
-  set(value) {
-    emit("update:select", value);
-  },
+	get() {
+		return props.select;
+	},
+	set(value) {
+		emit("update:select", value);
+	},
 });
 </script>
 

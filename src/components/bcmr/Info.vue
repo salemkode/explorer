@@ -14,30 +14,30 @@
 import type { IdentitySnapshot, contentWarpItem } from "~/types";
 
 const props = defineProps<{
-  identitySnapshot?: IdentitySnapshot;
-  tokenCategory?: string;
-  loading: boolean;
+	identitySnapshot?: IdentitySnapshot;
+	tokenCategory?: string;
+	loading: boolean;
 }>();
 
 const tokenInfo = computed<contentWarpItem[]>(() => {
-  if (!props.identitySnapshot) return [];
-  return [
-    {
-      title: "Token Name",
-      text: props.identitySnapshot?.name,
-    },
-    {
-      title: "Token description",
-      text: props.identitySnapshot?.description,
-    },
-    {
-      title: "Token symbol",
-      text: props.identitySnapshot?.token?.symbol,
-    },
-    {
-      title: "Decimals",
-      text: props.identitySnapshot?.token?.decimals,
-    },
-  ];
+	if (!props.identitySnapshot) return [];
+	return [
+		{
+			title: "Token Name",
+			text: props.identitySnapshot?.name,
+		},
+		{
+			title: "Token description",
+			text: props.identitySnapshot?.description,
+		},
+		{
+			title: "Token symbol",
+			text: props.identitySnapshot?.token?.symbol,
+		},
+		{
+			title: "Decimals",
+			text: props.identitySnapshot?.token?.decimals,
+		},
+	];
 });
 </script>

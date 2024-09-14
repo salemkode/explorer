@@ -32,55 +32,57 @@ const { formatPrice } = useUsdPrice();
 
 const offsetTxs = ref(0);
 const variable = computed(() => ({
-  network: stateStore.network,
-  hash: `\\x${blockHashOrHeight.value}` as bytea,
-  height: isNaN(+blockHashOrHeight.value) ? "-1" : blockHashOrHeight.value,
-  limitTxs: 9,
-  offsetTxs: offsetTxs.value,
+	network: stateStore.network,
+	hash: `\\x${blockHashOrHeight.value}` as bytea,
+	height: Number.isNaN(+blockHashOrHeight.value)
+		? "-1"
+		: blockHashOrHeight.value,
+	limitTxs: 9,
+	offsetTxs: offsetTxs.value,
 }));
 const { result, loading } = useQuery(GetBlock, variable);
 const blockItemWarp = computed<contentWarpItem[]>(() => {
-  const block = result.value?.block.at(0);
-  if (!block) return [];
+	const block = result.value?.block.at(0);
+	if (!block) return [];
 
-  return [
-    {
-      title: "Block Hash",
-      text: block?.hash.substring(2),
-      copy: true,
-      warp: true,
-    },
-    {
-      title: "Block height",
-      text: block?.height,
-      copy: true,
-      warp: true,
-    },
-    {
-      title: "Input total",
-      text: formatPrice(block.input_value_satoshis || "0"),
-    },
-    {
-      title: "Output total",
-      text: formatPrice(block.output_value_satoshis || "0"),
-    },
-    {
-      title: "Input count",
-      text: block.input_count,
-    },
-    {
-      title: "Output count",
-      text: block.output_count,
-    },
-  ];
+	return [
+		{
+			title: "Block Hash",
+			text: block?.hash.substring(2),
+			copy: true,
+			warp: true,
+		},
+		{
+			title: "Block height",
+			text: block?.height,
+			copy: true,
+			warp: true,
+		},
+		{
+			title: "Input total",
+			text: formatPrice(block.input_value_satoshis || "0"),
+		},
+		{
+			title: "Output total",
+			text: formatPrice(block.output_value_satoshis || "0"),
+		},
+		{
+			title: "Input count",
+			text: block.input_count,
+		},
+		{
+			title: "Output count",
+			text: block.output_count,
+		},
+	];
 });
 
 const transactions = computed(() => {
-  const block = result.value?.block.at(0);
-  if (!block) {
-    return [];
-  }
-  return block.transactions?.map(({ transaction }) => transaction);
+	const block = result.value?.block.at(0);
+	if (!block) {
+		return [];
+	}
+	return block.transactions?.map(({ transaction }) => transaction);
 });
 </script>
 

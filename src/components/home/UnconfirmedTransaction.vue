@@ -20,36 +20,39 @@ const limit = ref(9);
 const offset = ref(0);
 const stateStore = useStateStore();
 const variables = computed(() => ({
-  network: stateStore.network,
-  offset: offset.value,
-  limit: limit.value,
+	network: stateStore.network,
+	offset: offset.value,
+	limit: limit.value,
 }));
 
 const timestampKey = ref<NodeJS.Timeout | undefined>();
 const { onResult, result, loading } = useSubscription(
-  MonitorMempools,
-  variables
+	MonitorMempools,
+	variables,
 );
 
 const sortTransactions = () => {
-  const node = result.value?.node.at(0);
+	const node = result.value?.node.at(0);
 
-  // Stop if no data
-  if (!node) return [];
+	// Stop if no data
+	if (!node) return [];
 
-  // Sort transactions
-  return node.unconfirmed_transactions.map(({ transaction }) => transaction);
+	// Sort transactions
+	return node.unconfirmed_transactions.map(({ transaction }) => transaction);
 };
 const transactions = ref<ReturnType<typeof sortTransactions>>([]);
 
 onResult(() => {
-  const setTransactions = () => (transactions.value = sortTransactions());
+	const setTransactions = () => {
+		transactions.value = sortTransactions();
+		return transactions.value;
+	};
 
-  if (transactions.value.length !== limit.value) {
-    transactions.value = setTransactions();
-  } else {
-    if (timestampKey.value) clearTimeout(timestampKey.value);
-    timestampKey.value = setTimeout(setTransactions, 5000);
-  }
+	if (transactions.value.length !== limit.value) {
+		transactions.value = setTransactions();
+	} else {
+		if (timestampKey.value) clearTimeout(timestampKey.value);
+		timestampKey.value = setTimeout(setTransactions, 5000);
+	}
 });
 </script>

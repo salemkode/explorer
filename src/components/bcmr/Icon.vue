@@ -33,80 +33,80 @@
 </template>
 
 <script setup lang="ts">
-import { getHttpsUrl, svgToBase64 } from "~/module/utils";
 import { createIdenticon } from "~/module/IconGenerator";
+import { getHttpsUrl, svgToBase64 } from "~/module/utils";
 import { useRegistryStore } from "~/store";
 import type { Capability } from "~/types";
 
 const registryStore = useRegistryStore();
 const reference = ref<HTMLElement>();
 const props = defineProps<{
-  tokenCategory: string;
-  commitment?: string;
-  capability?: Capability;
-  small?: boolean;
+	tokenCategory: string;
+	commitment?: string;
+	capability?: Capability;
+	small?: boolean;
 }>();
 
 const state = reactive({
-  open: false,
-  success: false,
+	open: false,
+	success: false,
 });
 const resetState = () => {
-  state.open = false;
-  state.success = false;
+	state.open = false;
+	state.success = false;
 };
 const tokenInfo = computed(() => {
-  // Reset state when tokenInfo changes
-  resetState();
+	// Reset state when tokenInfo changes
+	resetState();
 
-  return registryStore.getToken(
-    props.tokenCategory,
-    props.capability,
-    props.commitment
-  ).token;
+	return registryStore.getToken(
+		props.tokenCategory,
+		props.capability,
+		props.commitment,
+	).token;
 });
 
 const iconURL = computed(() =>
-  tokenInfo.value?.icon ? getHttpsUrl(tokenInfo.value?.icon) : ""
+	tokenInfo.value?.icon ? getHttpsUrl(tokenInfo.value?.icon) : "",
 );
 const imageURL = computed(() =>
-  tokenInfo.value?.image ? getHttpsUrl(tokenInfo.value?.image) : ""
+	tokenInfo.value?.image ? getHttpsUrl(tokenInfo.value?.image) : "",
 );
 const IdentIcon = computed(() =>
-  svgToBase64(createIdenticon(props.tokenCategory))
+	svgToBase64(createIdenticon(props.tokenCategory)),
 );
 // TODO: move to custom file
 function getElementPosition(element: HTMLElement) {
-  const rect = element.getBoundingClientRect();
-  return {
-    top: rect.top + window.scrollY - window.scrollY,
-    left: rect.left + window.scrollX - window.scrollX,
-  };
+	const rect = element.getBoundingClientRect();
+	return {
+		top: rect.top + window.scrollY - window.scrollY,
+		left: rect.left + window.scrollX - window.scrollX,
+	};
 }
 
 const position = reactive({
-  x: 0,
-  y: 0,
+	x: 0,
+	y: 0,
 });
 const updatePosition = () => {
-  // `reference.value` Check if the reference value is not null
-  if (reference.value) {
-    const { top, left } = getElementPosition(reference.value);
-    position.x = left;
-    position.y = top;
-  }
+	// `reference.value` Check if the reference value is not null
+	if (reference.value) {
+		const { top, left } = getElementPosition(reference.value);
+		position.x = left;
+		position.y = top;
+	}
 };
 const openPopUp = () => {
-  // `state.success` Check if the image is loaded successfully
-  if (state.success) {
-    updatePosition();
-    state.open = true;
-  }
+	// `state.success` Check if the image is loaded successfully
+	if (state.success) {
+		updatePosition();
+		state.open = true;
+	}
 };
 
 const closePopUp = () => {
-  updatePosition();
-  state.open = false;
+	updatePosition();
+	state.open = false;
 };
 </script>
 

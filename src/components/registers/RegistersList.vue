@@ -4,25 +4,25 @@ import { useRegistryStore } from "~/store";
 const registryStore = useRegistryStore();
 const change = ref(0);
 const swapList = ({
-  newIndex,
-  oldIndex,
+	newIndex,
+	oldIndex,
 }: {
-  newIndex: number;
-  oldIndex: number;
+	newIndex: number;
+	oldIndex: number;
 }) => {
-  const [removed] = registryStore.registryList.splice(oldIndex, 1);
-  registryStore.registryList.splice(newIndex, 0, removed);
-  change.value++;
+	const [removed] = registryStore.registryList.splice(oldIndex, 1);
+	registryStore.registryList.splice(newIndex, 0, removed);
+	change.value++;
 };
 
 // TODO: move to another file.
 const removeItem = (index: number) => {
-  const url = registryStore.registryList.at(index)?.url;
+	const url = registryStore.registryList.at(index)?.url;
 
-  if (index === -1 || !url) return;
+	if (index === -1 || !url) return;
 
-  registryStore.registryList.splice(index, 1);
-  registryStore.registryProviders.delete(url);
+	registryStore.registryList.splice(index, 1);
+	registryStore.registryProviders.delete(url);
 };
 </script>
 

@@ -63,61 +63,61 @@ const stateStore = useStateStore();
 const { formatPrice } = useUsdPrice();
 const registryStore = useRegistryStore();
 const props = defineProps<{
-  name: "from" | "to";
-  utxos: Utxo[];
-  isCoinBase?: boolean;
+	name: "from" | "to";
+	utxos: Utxo[];
+	isCoinBase?: boolean;
 }>();
 
 const categories = computed(() =>
-  props.utxos.map((utxo) => utxo.token_category).filter(Boolean)
+	props.utxos.map((utxo) => utxo.token_category).filter(Boolean),
 );
 useAuthChains(categories);
 
 const utxos = computed(() => {
-  if (props.name === "from" && props.isCoinBase === true) {
-    return [
-      {
-        type: "coinbase" as const,
-        value: "0",
-        valueSatoshis: "0",
-      },
-    ];
-  }
-  return props.utxos.map((utxo) => {
-    // check is op_return
-    if (utxo?.locking_bytecode?.startsWith("\\x6a")) {
-      return {
-        type: "op_return" as const,
-        data: binToUtf8(hexToBin(utxo.locking_bytecode.substring(4))),
-        valueSatoshis: utxo.value_satoshis,
-        value: formatPrice(utxo.value_satoshis || 0),
-      };
-    }
+	if (props.name === "from" && props.isCoinBase === true) {
+		return [
+			{
+				type: "coinbase" as const,
+				value: "0",
+				valueSatoshis: "0",
+			},
+		];
+	}
+	return props.utxos.map((utxo) => {
+		// check is op_return
+		if (utxo?.locking_bytecode?.startsWith("\\x6a")) {
+			return {
+				type: "op_return" as const,
+				data: binToUtf8(hexToBin(utxo.locking_bytecode.substring(4))),
+				valueSatoshis: utxo.value_satoshis,
+				value: formatPrice(utxo.value_satoshis || 0),
+			};
+		}
 
-    const category = utxo.token_category?.substring(2);
+		const category = utxo.token_category?.substring(2);
 
-    const address = getAddress(utxo?.locking_bytecode || "");
-    return {
-      type: "address" as const,
-      addressType: getAddressType(address),
-      category,
-      address: address,
-      valueSatoshis: utxo.value_satoshis,
-      value: formatPrice(utxo.value_satoshis || 0),
-      tokenRegister:
-        utxo.token_category &&
-        registryStore.getToken(utxo.token_category?.substring(2)),
-      tokenAmount: utxo.fungible_token_amount,
-      tokenCommitment: utxo.nonfungible_token_commitment?.substring(2),
-      tokenCapability: utxo.nonfungible_token_capability,
-    };
-  });
+		const address = getAddress(utxo?.locking_bytecode || "");
+		return {
+			type: "address" as const,
+			addressType: getAddressType(address),
+			category,
+			address: address,
+			valueSatoshis: utxo.value_satoshis,
+			value: formatPrice(utxo.value_satoshis || 0),
+			tokenRegister:
+				utxo.token_category &&
+				registryStore.getToken(utxo.token_category?.substring(2)),
+			tokenAmount: utxo.fungible_token_amount,
+			tokenCommitment: utxo.nonfungible_token_commitment?.substring(2),
+			tokenCapability: utxo.nonfungible_token_capability,
+		};
+	});
 });
 const getAddress = (lockingBytecode: string) => {
-  return removeAddressPrefix(
-    stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.substring(2)) ||
-      ""
-  );
+	return removeAddressPrefix(
+		stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.substring(2)) ||
+			"",
+	);
 };
 </script>
 

@@ -1,6 +1,4 @@
-import type {
-	SubscribeCallback,
-} from "electrum-cash";
+import type { SubscribeCallback } from "electrum-cash";
 
 declare module "electrum-cash" {
 	type balance = { confirmed: number; unconfirmed: number };

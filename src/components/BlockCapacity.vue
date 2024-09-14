@@ -11,14 +11,14 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  sizeBytes: number;
-  loading: boolean;
+	sizeBytes: number;
+	loading: boolean;
 }>();
 
 const size = computed(() => {
-  if (props.loading) return "0%";
-  const percentage = +(props.sizeBytes || 0) / 33_554_432;
-  return `${Math.min(100, Math.max(2, percentage))}%`;
+	if (props.loading) return "0%";
+	const percentage = +(props.sizeBytes || 0) / 33_554_432;
+	return `${Math.min(100, Math.max(2, percentage))}%`;
 });
 </script>
 

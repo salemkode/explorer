@@ -55,60 +55,58 @@
 <script setup lang="ts">
 import type { tableColumn } from "~/types/index.js";
 type emitName = "next" | "previous";
-const emit = defineEmits<{
-  (event: emitName): void;
-}>();
+const emit = defineEmits<(event: emitName) => void>();
 const change = reactive({
-  count: 0,
-  navigate: false,
+	count: 0,
+	navigate: false,
 });
 
 const props = defineProps({
-  title: {
-    type: String,
-    required: true,
-  },
-  columns: {
-    type: Array as PropType<string[]>,
-    required: true,
-  },
-  rows: {
-    type: Array as PropType<tableColumn[][]>,
-    required: true,
-  },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
-  headerLess: {
-    type: Boolean,
-    default: false,
-  },
-  error: {
-    type: String,
-    default: "",
-  },
-  hasNextPage: {
-    type: Boolean,
-  },
-  hasPrevPage: {
-    type: Boolean,
-  },
+	title: {
+		type: String,
+		required: true,
+	},
+	columns: {
+		type: Array as PropType<string[]>,
+		required: true,
+	},
+	rows: {
+		type: Array as PropType<tableColumn[][]>,
+		required: true,
+	},
+	loading: {
+		type: Boolean,
+		default: false,
+	},
+	headerLess: {
+		type: Boolean,
+		default: false,
+	},
+	error: {
+		type: String,
+		default: "",
+	},
+	hasNextPage: {
+		type: Boolean,
+	},
+	hasPrevPage: {
+		type: Boolean,
+	},
 });
 
 const event = (emitName: emitName) => {
-  if (change.navigate) return;
-  change.navigate = true;
-  emit(emitName);
+	if (change.navigate) return;
+	change.navigate = true;
+	emit(emitName);
 };
 
 watch(toRef(props, "rows"), () => {
-  if (props.rows.length !== 0) {
-    if (change.navigate) {
-      change.count++;
-      change.navigate = false;
-    }
-  }
+	if (props.rows.length !== 0) {
+		if (change.navigate) {
+			change.count++;
+			change.navigate = false;
+		}
+	}
 });
 </script>
 

@@ -2,7 +2,7 @@
   <div class="my-4">
     <NavPills
       :select="active"
-      :items="items as string[]"
+      :items="items"
       @update:select="updateActive"
     />
     <div
@@ -29,19 +29,19 @@
 const TransitionTime = 500;
 const active = ref(0);
 const props = defineProps<{
-  items: TItem;
+	items: TItem;
 }>();
 
 const updateActive = (value: number) => {
-  // Hide first one
-  active.value = -1;
-  setTimeout(() => {
-    active.value = value;
-  }, TransitionTime + 10);
+	// Hide first one
+	active.value = -1;
+	setTimeout(() => {
+		active.value = value;
+	}, TransitionTime + 10);
 };
 
 defineSlots<{
-  [k in TItem[number]]: (props: Record<string, unknown>) => void;
+	[k in TItem[number]]: (props: Record<string, unknown>) => void;
 }>();
 </script>
 

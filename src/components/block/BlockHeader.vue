@@ -32,22 +32,22 @@ import { useStateStore } from "~/store";
 
 const stateStore = useStateStore();
 const props = defineProps<{
-  height: string;
+	height: string;
 }>();
 const blocks = computed(() => [
-  {
-    name: "Previous",
-    height: +props.height - 1,
-  },
-  {
-    name: "Current",
-    height: +props.height,
-  },
-  {
-    name: "Next",
-    height:
-      stateStore.lastBlockHeight === props.height ? -1 : +props.height + 1,
-  },
+	{
+		name: "Previous",
+		height: +props.height - 1,
+	},
+	{
+		name: "Current",
+		height: +props.height,
+	},
+	{
+		name: "Next",
+		height:
+			stateStore.lastBlockHeight === props.height ? -1 : +props.height + 1,
+	},
 ]);
 </script>
 

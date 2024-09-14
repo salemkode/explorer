@@ -62,14 +62,14 @@
 </template>
 
 <script setup lang="ts">
-import { useRegistryStore, useStateStore } from "~/store";
-import type { contentWarpItem } from "~/types";
-import { decodeAuthChain } from "~/module/bcmr";
+import { useIsActiveMinting } from "~/hooks/activeMinting";
 import { useAuthChains } from "~/hooks/authchains";
 import { useNftSupply } from "~/hooks/nftSupply";
-import { useIsActiveMinting } from "~/hooks/activeMinting";
-import { getTokenInfoType } from "~/module/bitcoin";
 import { useNonBurnTokens } from "~/hooks/nonSpentToken";
+import { decodeAuthChain } from "~/module/bcmr";
+import { getTokenInfoType } from "~/module/bitcoin";
+import { useRegistryStore, useStateStore } from "~/store";
+import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
 const category = computed(() => route.params.category as string);
@@ -78,111 +78,111 @@ const registryStore = useRegistryStore();
 const stateStore = useStateStore();
 const navItem = ref(0);
 const {
-  result: authchain,
-  loading: authchainLoading,
-  onError,
+	result: authchain,
+	loading: authchainLoading,
+	onError,
 } = useAuthChains(toRef(() => [`\\x${category.value}` as const]));
 
 const { supplyNFTs } = useNftSupply(`\\x${category.value}`);
 const { isActiveMinting } = useIsActiveMinting(`\\x${category.value}`);
 const { nonBurnTokens } = useNonBurnTokens(`\\x${category.value}`);
 const authchainElement = computed(
-  () => authchain.value && decodeAuthChain(authchain.value, category.value)
+	() => authchain.value && decodeAuthChain(authchain.value, category.value),
 );
 const reservedSupply = computed(
-  () =>
-    authchain.value?.transaction
-      .at(0)
-      ?.authchains.at(0)
-      ?.authhead?.identity_output?.at(0)?.fungible_token_amount
+	() =>
+		authchain.value?.transaction
+			.at(0)
+			?.authchains.at(0)
+			?.authhead?.identity_output?.at(0)?.fungible_token_amount,
 );
 onError(() => {
-  throw showError({
-    statusCode: 404,
-    message: "This transaction is not found",
-  });
+	throw showError({
+		statusCode: 404,
+		message: "This transaction is not found",
+	});
 });
 
 const selectedRegistryName = ref("");
 const metadata = computed(() => {
-  const isAuthchainLoading =
-    registryStore.authchains.get(category.value) === true;
-  const registryState = registryStore.getTokenIdentity(
-    category.value,
-    selectedRegistryName.value
-  );
+	const isAuthchainLoading =
+		registryStore.authchains.get(category.value) === true;
+	const registryState = registryStore.getTokenIdentity(
+		category.value,
+		selectedRegistryName.value,
+	);
 
-  return {
-    loading: registryStore.loadingProviders || isAuthchainLoading,
-    name: registryState?.name || "",
-    identitySnapshot: registryState?.identity,
-  };
+	return {
+		loading: registryStore.loadingProviders || isAuthchainLoading,
+		name: registryState?.name || "",
+		identitySnapshot: registryState?.identity,
+	};
 });
 const decimals = computed(
-  () => metadata.value.identitySnapshot?.token?.decimals || 0
+	() => metadata.value.identitySnapshot?.token?.decimals || 0,
 );
 const tokenInfo = computed(() => {
-  if (!authchainElement.value) return;
-  const {
-    hash: genesisTx,
-    genesisSupply,
-    lockingBytecode,
-  } = authchainElement.value.genesesTx;
-  const ownerAddress =
-    lockingBytecode &&
-    stateStore.lockingBytecodeHexToCashAddress(lockingBytecode);
+	if (!authchainElement.value) return;
+	const {
+		hash: genesisTx,
+		genesisSupply,
+		lockingBytecode,
+	} = authchainElement.value.genesesTx;
+	const ownerAddress =
+		lockingBytecode &&
+		stateStore.lockingBytecodeHexToCashAddress(lockingBytecode);
 
-  const items: contentWarpItem[] = [
-    {
-      title: "Genesis Transaction",
-      text: genesisTx,
-      url: `/tx/${genesisTx}`,
-      copy: true,
-      warp: true,
-    },
-    {
-      title: "Token type",
-      text: getTokenInfoType(genesisSupply, supplyNFTs.value),
-    },
-    {
-      title: "Genesis Supply",
-      text: genesisSupply || null,
-    },
-    {
-      title: "Total amount NFTs",
-      text: supplyNFTs.value || null,
-    },
-    {
-      title: "Reserve supply",
-      text: Number(reservedSupply.value) || null,
-    },
-    {
-      title: "Circulating supply",
-      text:
-        Number(reservedSupply.value) > 0
-          ? genesisSupply - Number(reservedSupply.value)
-          : null,
-    },
-    {
-      title: "Is active minting",
-      text: isActiveMinting.value ? "Yes" : "No",
-    },
-    {
-      title: "Supply excluding burns",
-      text: nonBurnTokens.value,
-    },
-  ];
+	const items: contentWarpItem[] = [
+		{
+			title: "Genesis Transaction",
+			text: genesisTx,
+			url: `/tx/${genesisTx}`,
+			copy: true,
+			warp: true,
+		},
+		{
+			title: "Token type",
+			text: getTokenInfoType(genesisSupply, supplyNFTs.value),
+		},
+		{
+			title: "Genesis Supply",
+			text: genesisSupply || null,
+		},
+		{
+			title: "Total amount NFTs",
+			text: supplyNFTs.value || null,
+		},
+		{
+			title: "Reserve supply",
+			text: Number(reservedSupply.value) || null,
+		},
+		{
+			title: "Circulating supply",
+			text:
+				Number(reservedSupply.value) > 0
+					? genesisSupply - Number(reservedSupply.value)
+					: null,
+		},
+		{
+			title: "Is active minting",
+			text: isActiveMinting.value ? "Yes" : "No",
+		},
+		{
+			title: "Supply excluding burns",
+			text: nonBurnTokens.value,
+		},
+	];
 
-  if (ownerAddress) {
-    items.push({
-      title: "Owner Address",
-      text: ownerAddress,
-      url: `/address/${ownerAddress}`,
-      copy: true,
-    });
-  }
+	if (ownerAddress) {
+		items.push({
+			title: "Owner Address",
+			text: ownerAddress,
+			url: `/address/${ownerAddress}`,
+			copy: true,
+		});
+	}
 
-  return items;
+	return items;
 });
 </script>
 

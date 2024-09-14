@@ -16,44 +16,44 @@
 <script setup lang="ts">
 const emit = defineEmits(["success"]);
 interface ImageComponentProps {
-  size?: number;
-  href: string;
-  failureHref: string;
+	size?: number;
+	href: string;
+	failureHref: string;
 }
 const props = defineProps<ImageComponentProps>();
 const state = reactive({
-  error: false,
-  href: props.href,
+	error: false,
+	href: props.href,
 });
 
 const reset = () => {
-  state.error = false;
-  state.href = props.href;
+	state.error = false;
+	state.href = props.href;
 };
 watch(toRef(props, "href"), (url) => {
-  if (url) {
-    reset();
-  } else {
-    imageLoadError();
-  }
+	if (url) {
+		reset();
+	} else {
+		imageLoadError();
+	}
 });
 
 function imageLoadError() {
-  if (state.error) {
-    // Stop for loop error
-    return;
-  }
+	if (state.error) {
+		// Stop for loop error
+		return;
+	}
 
-  // Change error state
-  state.error = true;
-  state.href = props.failureHref;
+	// Change error state
+	state.error = true;
+	state.href = props.failureHref;
 }
 
 const handleImageLoaded = () => {
-  // If image load without error, emit success
-  if (!state.error) {
-    emit("success");
-  }
+	// If image load without error, emit success
+	if (!state.error) {
+		emit("success");
+	}
 };
 </script>
 

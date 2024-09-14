@@ -50,44 +50,44 @@
 
 <script setup lang="ts">
 const sourceCodeList = [
-  {
-    title: "Explorer",
-    url: "https://github.com/salemkode/explorer",
-  },
-  {
-    title: "Chaingraph",
-    url: "http://chaingraph.cash/",
-  },
+	{
+		title: "Explorer",
+		url: "https://github.com/salemkode/explorer",
+	},
+	{
+		title: "Chaingraph",
+		url: "http://chaingraph.cash/",
+	},
 ];
 
 const resources = [
-  {
-    title: "Cash token",
-    url: "https://github.com/bitjson/cashtokens",
-  },
-  {
-    title: "BCMR",
-    url: "https://github.com/bitjson/chip-bcmr",
-  },
+	{
+		title: "Cash token",
+		url: "https://github.com/bitjson/cashtokens",
+	},
+	{
+		title: "BCMR",
+		url: "https://github.com/bitjson/chip-bcmr",
+	},
 ];
 
 const connectList = [
-  {
-    title: "Explorer developer",
-    url: "https://t.me/salemkode",
-  },
-  {
-    title: "Bitcoin cash",
-    url: "https://t.me/bchchannel",
-  },
-  {
-    title: "CashToken",
-    url: "https://t.me/cashtoken_devs",
-  },
-  {
-    title: "Chaingraph dev",
-    url: "https://t.me/chaingraph_dev",
-  },
+	{
+		title: "Explorer developer",
+		url: "https://t.me/salemkode",
+	},
+	{
+		title: "Bitcoin cash",
+		url: "https://t.me/bchchannel",
+	},
+	{
+		title: "CashToken",
+		url: "https://t.me/cashtoken_devs",
+	},
+	{
+		title: "Chaingraph dev",
+		url: "https://t.me/chaingraph_dev",
+	},
 ];
 </script>
 

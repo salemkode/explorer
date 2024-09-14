@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 defineProps<{
-  text?: string;
-  small?: boolean;
+	text?: string;
+	small?: boolean;
 }>();
 </script>

@@ -31,26 +31,26 @@ const open = ref(false);
 const reference = ref(null);
 const floating = ref(null);
 defineProps<{
-  title: string;
-  items: {
-    name: string;
-    href: string;
-  }[];
+	title: string;
+	items: {
+		name: string;
+		href: string;
+	}[];
 }>();
 const { x, y, strategy, update } = useFloating(reference, floating, {
-  strategy: "fixed",
-  placement: "bottom-start",
-  open,
-  whileElementsMounted: autoUpdate,
+	strategy: "fixed",
+	placement: "bottom-start",
+	open,
+	whileElementsMounted: autoUpdate,
 });
 
 document.addEventListener("click", (event) => {
-  if (reference.value !== event.target) {
-    open.value = false;
-  }
+	if (reference.value !== event.target) {
+		open.value = false;
+	}
 });
 const openDropDown = () => {
-  update();
-  open.value = !open.value;
+	update();
+	open.value = !open.value;
 };
 </script>

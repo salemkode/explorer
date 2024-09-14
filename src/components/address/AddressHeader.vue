@@ -24,15 +24,15 @@
 import { getAddressType } from "@/module/bitcoin";
 
 const props = defineProps<{
-  address: string;
+	address: string;
 }>();
 const scaleQrBtn = ref();
 const scaleQr = ref(false);
 
 const outsideClick = (event: MouseEvent) => {
-  if (scaleQrBtn.value !== event.target && scaleQr.value) {
-    scaleQr.value = false;
-  }
+	if (scaleQrBtn.value !== event.target && scaleQr.value) {
+		scaleQr.value = false;
+	}
 };
 document.addEventListener("click", outsideClick);
 

@@ -16,19 +16,19 @@ export const GetSupplyNFTs = gql(`
 `);
 
 export const useNftSupply = (tokenCategory: bytea) => {
-  const supplyNFTs = ref(0);
-  const variables = reactive({
-    offset: 0,
-    tokenCategory,
-  });
+	const supplyNFTs = ref(0);
+	const variables = reactive({
+		offset: 0,
+		tokenCategory,
+	});
 
-  const { loading, onResult } = useQuery(GetSupplyNFTs, variables);
+	const { loading, onResult } = useQuery(GetSupplyNFTs, variables);
 
-  onResult((response) => {
-    const length = response?.data?.output.length;
-    variables.offset += length === 5000 ? 5000 : 0;
-    supplyNFTs.value += length || 0;
-  });
+	onResult((response) => {
+		const length = response?.data?.output.length;
+		variables.offset += length === 5000 ? 5000 : 0;
+		supplyNFTs.value += length || 0;
+	});
 
-  return { loading, supplyNFTs };
+	return { loading, supplyNFTs };
 };

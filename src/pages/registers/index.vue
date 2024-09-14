@@ -4,7 +4,7 @@ import { useRegistryStore } from "~/store";
 const registryStore = useRegistryStore();
 
 const getOrder = (url: string) => {
-  return registryStore.registryList.findIndex((v) => v.url === url);
+	return registryStore.registryList.findIndex((v) => v.url === url);
 };
 </script>
 

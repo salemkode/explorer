@@ -31,42 +31,41 @@ const limit = ref(8);
 const offset = ref(0);
 const stateStore = useStateStore();
 const props = defineProps<{
-  history: History;
+	history: History;
 }>();
 const hasPrevPage = computed(() => offset.value > 0);
 const hasNextPage = computed(() => {
-  if (Array.isArray(props.history)) {
-    return props.history.length > limit.value + offset.value;
-  }
-  return false;
+	if (Array.isArray(props.history)) {
+		return props.history.length > limit.value + offset.value;
+	}
+	return false;
 });
 const sortedHistory = computed(() => {
-  if (!Array.isArray(props.history)) {
-    return [];
-  } else {
-    return props.history.slice().sort((tx1, tx2) => tx2.height - tx1.height);
-  }
+	if (!Array.isArray(props.history)) {
+		return [];
+	}
+	return props.history.slice().sort((tx1, tx2) => tx2.height - tx1.height);
 });
 
 const transactionsHash = computed(() => {
-  return sortedHistory.value
-    .slice(offset.value, offset.value + limit.value)
-    ?.map((transaction) => `\\x${transaction.tx_hash}` as const);
+	return sortedHistory.value
+		.slice(offset.value, offset.value + limit.value)
+		?.map((transaction) => `\\x${transaction.tx_hash}` as const);
 });
 const variables = computed(() => ({
-  network: stateStore.network,
-  hashes: transactionsHash.value,
+	network: stateStore.network,
+	hashes: transactionsHash.value,
 }));
 const {
-  result: transactionsQuery,
-  error,
-  loading,
+	result: transactionsQuery,
+	error,
+	loading,
 } = useQuery(GetTransactions, variables);
 
 const transactions = computed(() => {
-  if (!transactionsQuery.value) {
-    return [];
-  }
-  return transactionsQuery.value.transaction;
+	if (!transactionsQuery.value) {
+		return [];
+	}
+	return transactionsQuery.value.transaction;
 });
 </script>
