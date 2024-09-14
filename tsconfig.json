@@ -3,5 +3,7 @@
   "extends": "./.nuxt/tsconfig.json",
   "files": [
     "src/types/gql.d.ts",
+    "src/types/electrum.d.ts",
+    "src/types/reset.d.ts",
   ],
 }
