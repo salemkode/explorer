@@ -18,7 +18,7 @@ export const useRegistryStore = defineStore("registry", () => {
 	const registryProviders = shallowReactive(new Map<string, Registry>());
 
 	const loadingProviders = ref(true);
-	const registryList = useStorage("", [] as RegistryProvider[]);
+	const registryList = useStorage("registryList", [] as RegistryProvider[]);
 	const isRegistryProviderExist = (url: string) => {
 		return !!registryList.value.find((item) => item.url === url);
 	};
