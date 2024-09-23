@@ -13,9 +13,15 @@ const getStoredState = <T>(key: string, defaults: T) => {
 export const useStorage = <T>(key: string, defaults: T) => {
 	const state = ref(getStoredState(key, defaults));
 
-	watch(state, (value) => {
-		if (!isServer) localStorage.setItem(key, JSON.stringify(value));
-	});
+	watch(
+		state,
+		(value) => {
+			if (!isServer) localStorage.setItem(key, JSON.stringify(value));
+		},
+		{
+			deep: true,
+		},
+	);
 
 	return state;
 };
