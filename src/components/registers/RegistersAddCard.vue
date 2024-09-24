@@ -12,6 +12,13 @@ const status = ref<Status>({
 
 const addRegisters = async () => {
 	status.value.type = "loading";
+
+	// If the url doesn't have a protocol, add the https protocol
+	if(!url.value.startsWith("https://")) url.value = "https://" + url.value
+
+	// If the url doesn't end in .json, assume the metadata is in the well known location.
+	if(!url.value.endsWith(".json")) url.value = url.value + "/.well-known/bitcoin-cash-metadata-registry.json"
+
 	const result = await registryStore.addRegistryProvider(url.value);
 	status.value = {
 		type: "ready",
@@ -36,6 +43,7 @@ const addRegisters = async () => {
         class="form-control"
         placeholder="Registers Url"
         :disabled="status.type !== 'ready'"
+        @keyup.enter="addRegisters"
       />
       <button
         type="button"
