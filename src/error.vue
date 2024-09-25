@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <NuxtLayout>
     <div class="m-auto p-md-5 p-sm-2 py-4 text-center">
       <div class="error-image m-auto" />
       <h3 class="mt-2">
@@ -12,11 +12,10 @@
         Go Home
       </button>
     </div>
-  </Layout>
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import Layout from "~/layouts/default.vue";
 const error = useError();
 
 const errorMsg = computed(() => {
