@@ -138,6 +138,16 @@ const validateBCMR = (chunks: Uint8Array[]) => {
 	return "Invalid BCMR OP_RETURN";
 };
 
+export const normalizeMetadataUrl = (urlContent: string) => {
+	if (urlContent.startsWith("ipfs://")) return getHttpsUrl(urlContent);
+	if (urlContent.startsWith("https://") || urlContent.startsWith("http://"))
+		return urlContent;
+
+	const urlObj = new URL(`https://${urlContent}`);
+	if (urlObj.pathname === "/")
+		urlObj.pathname = "/.well-known/bitcoin-cash-metadata-registry.json";
+	return urlObj.toString();
+};
 export const opreturnToAuthChainElement = (opReturnHex: string) => {
 	const chunks = parseBinary(hexToBin(opReturnHex));
 	const result = {
@@ -157,21 +167,9 @@ export const opreturnToAuthChainElement = (opReturnHex: string) => {
 	} else {
 		// HTTPS Publication Output
 		// content hash is in OP_SHA256 byte order per spec
+		const urlContent = binToUtf8(chunks[2]);
 		result.contentHash = binToHex(chunks[1].slice());
-		result.url = binToUtf8(chunks[2]);
-		if (result.url.startsWith("ipfs://")) {
-			result.url = getHttpsUrl(result.url);
-		} else if (!result.url.startsWith("https://")) {
-			/*
-        https://github.com/bitjson/chip-bcmr#https-publication-outputs
-        the URL segment following the hostname, beginning with
-        must be assumed to use the Well-Known URI for that domain. E.g.
-      */
-			const urlObj = new URL(`https://${result.url}`);
-			if (urlObj.pathname === "/")
-				urlObj.pathname = "/.well-known/bitcoin-cash-metadata-registry.json";
-			result.url = urlObj.toString();
-		}
+		result.url = normalizeMetadataUrl(urlContent);
 	}
 
 	return result;

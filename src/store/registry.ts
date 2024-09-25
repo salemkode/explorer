@@ -1,7 +1,10 @@
 import { binToHex, sha256, utf8ToBin } from "@bitauth/libauth";
 import { defineStore } from "pinia";
 import { getChildToken } from "~/module/bcmr";
-import { opreturnToAuthChainElement } from "~/module/bitcoin";
+import {
+	opreturnToAuthChainElement,
+	normalizeMetadataUrl,
+} from "~/module/bitcoin";
 import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, RegistryProvider, tokenCapability } from "~/types";
 import { useStorage } from "~/hooks/storage";
@@ -9,7 +12,6 @@ import { useStorage } from "~/hooks/storage";
 // TODO: move to customize json at root of project
 export const defaultProviders = [
 	"https://otr.cash/.well-known/bitcoin-cash-metadata-registry.json",
-	`${location.origin}/registry.json`,
 	"auth_chain",
 ];
 export const useRegistryStore = defineStore("registry", () => {
@@ -31,15 +33,7 @@ export const useRegistryStore = defineStore("registry", () => {
 		}
 
 		// Check is url valid using regex
-		const urlPattern =
-			/(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
-		if (!urlPattern.test(url)) {
-			return {
-				status: "Error",
-				errorMessage: "Invalid URL",
-			} as const;
-		}
-		const responseRegistry = await fetch(url)
+		const responseRegistry = await fetch(normalizeMetadataUrl(url))
 			.then((res) => res.json())
 			.catch(() => undefined);
 
