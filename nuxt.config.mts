@@ -34,7 +34,7 @@ export default defineNuxtConfig({
 	i18n: {
 		// add `vueI18n` option to `@nuxtjs/i18n` module options
 		langDir: "locales/",
-		locales: [{ code: "en", iso: "en-US", file: "en.js", dir: "ltr" }],
+		locales: [{ code: "en", language: "english", file: "en.js", dir: "ltr" }],
 		defaultLocale: "en",
 	},
 
