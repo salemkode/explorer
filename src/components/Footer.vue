@@ -62,13 +62,16 @@ const sourceCodeList = [
 
 const resources = [
 	{
-		title: "Cash token",
+		title: "CashToken",
 		url: "https://github.com/bitjson/cashtokens",
 	},
 	{
 		title: "BCMR",
 		url: "https://github.com/bitjson/chip-bcmr",
 	},
+        title: "CashToken Ecosystem",
+        url: "https://minisatoshi.cash/ecosystem?filter=CashToken",
+    },
 ];
 
 const connectList = [
