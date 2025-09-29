@@ -1,7 +1,5 @@
 # Sample workflow for building and deploying a Nuxt site to GitHub Pages
-#
 # To get started with Nuxt see: https://nuxtjs.org/docs/get-started/installation
-#
 name: Deploy Nuxt site to Pages
 
 on:
@@ -31,10 +29,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2 # Use the official setup-bun action
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: "20" # أو النسخة اللي مشروعك يدعمها
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -43,10 +49,13 @@ jobs:
           #
           # You may remove this line if you want to manage the configuration yourself.
           static_site_generator: nuxt
+
       - name: Install dependencies
-        run: bun install
+        run: pnpm install --frozen-lockfile
+
       - name: Static HTML export with Nuxt
-        run: bun run generate
+        run: pnpm run generate
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
