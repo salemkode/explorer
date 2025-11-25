@@ -190,7 +190,7 @@ $grid-breakpoints: (
   xl: 1200px,
   xxl: 1400px,
 ) !default;
-@import "node_modules/bootstrap/scss/mixins";
+@import "../../../node_modules/bootstrap/scss/mixins";
 @media (min-width: map-get($grid-breakpoints, md)) {
   .transaction-item .content {
     grid-template-columns: repeat(3, 1fr) auto;

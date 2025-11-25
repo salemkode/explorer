@@ -40,19 +40,21 @@ $theme-colors: (
   white-space: nowrap;
 }
 
-@import "node_modules/bootstrap/scss/bootstrap";
+@import "../../node_modules/bootstrap/scss/bootstrap";
 
 
-.input-group > .btn:hover {
+.input-group>.btn:hover {
   color: var(--bs-btn-color);
   font-weight: bold;
 }
 
-[class^="uicon-"], [class*=" uicon-"] {
+[class^="uicon-"],
+[class*=" uicon-"] {
   display: inline-flex;
   align-items: center;
   font-display: swap;
 }
+
 .uicon-md {
   font-size: 30px;
 }
@@ -86,6 +88,7 @@ $theme-colors: (
 .list-leave-active {
   transition: all 0.8s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
   opacity: 0;

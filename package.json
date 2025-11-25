@@ -14,7 +14,7 @@
 		"@graphql-codegen/cli": "^5.0.2",
 		"@graphql-codegen/client-preset": "^2.1.1",
 		"@total-typescript/ts-reset": "^0.4.2",
-		"nuxt": "^3.13.0",
+		"nuxt": "^3.20.1",
 		"prettier": "^2.8.4",
 		"vite-plugin-graphql-codegen": "^3.3.5",
 		"vite-plugin-watch": "^0.2.0"
@@ -23,8 +23,8 @@
 		"@bitauth/libauth": "2.0.0",
 		"@bitjson/qr-code": "^1.0.2",
 		"@floating-ui/vue": "^1.0.2",
-		"@nuxtjs/apollo": "5.0.0-alpha.10",
-		"@nuxtjs/i18n": "^8.0.0",
+		"@nuxtjs/apollo": "5.0.0-alpha.15",
+		"@nuxtjs/i18n": "^10.2.1",
 		"@pinia/nuxt": "^0.4.7",
 		"@types/sortablejs": "^1.15.1",
 		"ajv": "^8.12.0",
@@ -36,7 +36,7 @@
 		"pinia": "^2.0.33",
 		"sass": "1.77.6",
 		"sortablejs": "^1.15.0",
-		"svgtofont": "^3.23.1",
+		"svgtofont": "^6.5.0",
 		"valibot": "^0.22.0",
 		"vue-router": "^4.1.6",
 		"vue3-popper": "^1.5.0"

@@ -32,8 +32,9 @@ export default defineNuxtConfig({
 	modules: ["@nuxtjs/apollo", "@nuxtjs/i18n", "@pinia/nuxt"],
 
 	i18n: {
+		restructureDir: "",
 		// add `vueI18n` option to `@nuxtjs/i18n` module options
-		langDir: "locales/",
+		langDir: "src/locales/",
 		locales: [{ code: "en", language: "english", file: "en.js", dir: "ltr" }],
 		defaultLocale: "en",
 	},
