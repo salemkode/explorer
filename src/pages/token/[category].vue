@@ -46,6 +46,13 @@
           :category="category"
           class="d-none d-lg-block"
         />
+	
+		<!-- Ember  https://dorahacks.io/hackathon/bchblaze2025 -->
+		<TokenEmberAddress
+			v-if="category === '78ab809e4a14f571739685aecce997df6bafb54d49d9ed6b963805312c936403'"
+			:decimals="decimals"
+			:category="category"
+		/>
         <TokenAddress
           v-if="authchainElement?.genesesTx.nftCapability"
           :decimals="decimals"
