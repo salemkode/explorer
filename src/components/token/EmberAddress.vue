@@ -116,7 +116,13 @@ const addressList = computed(() => {
 				},
 			];
 		},
-	).filter((item) => item.length > 0).filter((item) => item[0].text !== "");
+	).filter((item) => item.length > 0).filter((item) => item[0].text !== "").sort((a, b) => {
+    const nameA = Number(a[2].text.toLowerCase());
+    const nameB = Number(b[2].text.toLowerCase());
+    if (nameA < nameB) return 1;
+    if (nameA > nameB) return -1;
+    return 0;
+  });
 
 	return foundedTokens;
 });
