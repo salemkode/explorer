@@ -1,10 +1,20 @@
 <template>
 	<div class="container py-4 converter-page">
 		<div class="card p-4">
-			<h3 class="mb-2">{{ $t("converter_page_header") }}</h3>
+			<div class="d-flex align-items-center gap-2 mb-2">
+				<h3 class="mb-0">{{ $t("converter_page_header") }}</h3>
+				<span v-if="showAlpha" class="badge text-bg-warning">
+					{{ $t("converter_alpha_badge") }}
+				</span>
+			</div>
 			<p class="text-body-secondary mb-3">
 				{{ $t("converter_page_subtext") }}
 			</p>
+
+			<div v-if="showAlpha" class="alert alert-warning mb-3">
+				<div class="fw-semibold">{{ $t("converter_alpha_warning_title") }}</div>
+				<div>{{ $t("converter_alpha_warning_body") }}</div>
+			</div>
 
 			<input
 				v-model="inputAddress"
@@ -30,6 +40,42 @@
 				:loading="false"
 				:items="addressInfoWarp"
 			/>
+
+			<hr class="my-4" />
+
+			<h5 class="mb-2">{{ $t("converter_verify_header") }}</h5>
+			<p class="text-body-secondary mb-2">
+				{{ $t("converter_verify_subtext") }}
+			</p>
+			<ul class="mb-0">
+				<li>
+					<a
+						href="https://bch.info/en/tools/cashaddr"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						bch.info — Address conversion tool
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://www.bitcoin.com/tools/cash-address-converter/"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Bitcoin.com — Cash Address Converter
+					</a>
+				</li>
+				<li>
+					<a
+						href="https://cashaddr.bitcoincash.org/"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						bitcoincash.org — CashAddr tool
+					</a>
+				</li>
+			</ul>
 		</div>
 	</div>
 </template>
@@ -44,10 +90,19 @@ import {
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
+const runtimeConfig = useRuntimeConfig();
+const showAlpha = computed(
+	() => runtimeConfig.public?.features?.converterAlpha === true,
+);
+
 const stateStore = useStateStore();
 const inputAddress = ref("");
 
 const trimmedInputAddress = computed(() => inputAddress.value.trim());
+
+useHead(() => ({
+	title: showAlpha.value ? "Address Converter (Alpha)" : "Address Converter",
+}));
 
 const lockingBytecode = computed(() => {
 	if (
