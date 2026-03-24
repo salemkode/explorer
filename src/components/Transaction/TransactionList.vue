@@ -32,7 +32,7 @@
                 <b class="me-1" v-text="['from', 'to'][i]" />
                 <BaseCopy
                   v-if="item.type === 'SingleSig'"
-                  :url="`/address/${item.text}`"
+                  :url="item.url"
                   :text="item.text"
                   :copy="false"
                   short
@@ -89,8 +89,7 @@ export type Transactions = Array<{
 </script>
 
 <script setup lang="ts">
-import { removeAddressPrefix } from "~/module/bitcoin";
-import { useStateStore } from "~/store";
+import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useUsdPrice } from "~/hooks/usdPrice";
 
 const key = ref(0);
@@ -101,7 +100,6 @@ watch(props, () => {
   key.value += 1;
 });
 
-const stateStore = useStateStore();
 const { formatPrice } = useUsdPrice();
 
 const getTransferAddress = (utxos: Utxo[]) => {
@@ -111,7 +109,7 @@ const getTransferAddress = (utxos: Utxo[]) => {
   );
 
   if (utxosAddress.length === 1) {
-    return stateStore.lockingBytecodeHexToCashAddress(
+    return formatLockingBytecodeAddress(
       utxosAddress.at(0)?.locking_bytecode.substring(2) || ""
     );
   }
@@ -128,7 +126,8 @@ const getFrom = (outpoints: Utxo[],  isCoinBase: boolean, length: number) => {
     if (address) {
       return {
         type: "SingleSig" as const,
-        text: removeAddressPrefix(address),
+        text: address,
+        url: `/address/${address}`,
       };
     } else {
       return {
@@ -144,7 +143,8 @@ const getTo = (utxos: Utxo[]) => {
   if (address) {
     return {
       type: "SingleSig" as const,
-      text: removeAddressPrefix(address),
+      text: address,
+      url: `/address/${address}`,
     };
   } else {
     return {

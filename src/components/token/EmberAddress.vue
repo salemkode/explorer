@@ -16,7 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { addressToLockingBytecodeHex, calculateDecimal, removeAddressPrefix } from "~/module/bitcoin";
+import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
+import { addressToLockingBytecodeHex, calculateDecimal } from "~/module/bitcoin";
 import { GetTokenAddress } from "~/module/chaingraph";
 import { useStateStore } from "~/store";
 import type { tableColumn } from "~/types";
@@ -91,9 +92,7 @@ const addressList = computed(() => {
 	const foundedTokens: tableColumn[][] = Array.from(
 		lockingBytecode,
 		([lockingBytecode, amount]) => {
-			const address = stateStore.lockingBytecodeHexToCashAddress(
-				lockingBytecode.substring(2),
-			);
+			const address = formatLockingBytecodeAddress(lockingBytecode.substring(2));
 			if (typeof address !== "string") {
 				return [];
 			}
@@ -106,7 +105,7 @@ const addressList = computed(() => {
 					text: projects.find((project) => addressToLockingBytecodeHex(project.address) === lockingBytecode.substring(2))?.name || "",
 				},
 				{
-					text: removeAddressPrefix(address),
+					text: address,
 					copy: true,
 					short: true,
 					url: `/address/${address}`,

@@ -54,12 +54,12 @@
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
 import { useAuthChains } from "~/hooks/authchains";
+import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useUsdPrice } from "~/hooks/usdPrice";
-import { getAddressType, removeAddressPrefix } from "~/module/bitcoin";
-import { useRegistryStore, useStateStore } from "~/store";
+import { getAddressType } from "~/module/bitcoin";
+import { useRegistryStore } from "~/store";
 import type { Utxo } from "~/types";
 
-const stateStore = useStateStore();
 const { formatPrice } = useUsdPrice();
 const registryStore = useRegistryStore();
 const props = defineProps<{
@@ -96,12 +96,13 @@ const utxos = computed(() => {
 
 		const category = utxo.token_category?.substring(2);
 
-		const address = getAddress(utxo?.locking_bytecode || "");
+		const fullAddress = getAddress(utxo?.locking_bytecode || "", false);
+		const displayAddress = getAddress(utxo?.locking_bytecode || "");
 		return {
 			type: "address" as const,
-			addressType: getAddressType(address),
+			addressType: fullAddress ? getAddressType(fullAddress) : undefined,
 			category,
-			address: address,
+			address: displayAddress,
 			valueSatoshis: utxo.value_satoshis,
 			value: formatPrice(utxo.value_satoshis || 0),
 			tokenRegister:
@@ -113,10 +114,11 @@ const utxos = computed(() => {
 		};
 	});
 });
-const getAddress = (lockingBytecode: string) => {
-	return removeAddressPrefix(
-		stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.substring(2)) ||
-			"",
+const getAddress = (lockingBytecode: string, removePrefix = true) => {
+	return (
+		formatLockingBytecodeAddress(lockingBytecode.substring(2), {
+			removePrefix,
+		}) || ""
 	);
 };
 </script>

@@ -3,7 +3,7 @@
     <div ref="reference" class="flex pointer" @click.stop="openPopUp">
       <Image
         :key="iconURL"
-        :size="small ? 24 : 80"
+        :size="imageSize"
         :href="iconURL"
         :failure-href="IdentIcon"
         @success="state.success = true"
@@ -23,7 +23,7 @@
         :style="{
           '--x': `${position.x}px`,
           '--y': `${position.y}px`,
-          '--image-size': `${small ? 24 : 80}px`,
+          '--image-size': `${imageSize}px`,
         }"
         class="popover-image"
         @click="closePopUp()"
@@ -45,6 +45,7 @@ const props = defineProps<{
 	commitment?: string;
 	capability?: Capability;
 	small?: boolean;
+	size?: number;
 }>();
 
 const state = reactive({
@@ -72,6 +73,7 @@ const iconURL = computed(() =>
 const imageURL = computed(() =>
 	tokenInfo.value?.image ? getHttpsUrl(tokenInfo.value?.image) : "",
 );
+const imageSize = computed(() => props.size || (props.small ? 24 : 80));
 const IdentIcon = computed(() =>
 	svgToBase64(createIdenticon(props.tokenCategory)),
 );
