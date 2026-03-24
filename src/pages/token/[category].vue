@@ -46,16 +46,23 @@
           :category="category"
           class="d-none d-lg-block"
         />
-	
-        <TokenAddress
-          v-if="authchainElement?.genesesTx.nftCapability"
-          :decimals="decimals"
-          :category="category"
+        <NavPills
+          v-if="hasNftCapability"
+          v-model:select="tokenViewIndex"
+          :items="['table_view', 'grid_view']"
         />
-        <TokenTransaction :category="category" />
+        <template v-if="effectiveTokenViewMode === 'table'">
+          <TokenAddress
+            v-if="hasNftCapability"
+            :decimals="decimals"
+            :category="category"
+          />
+          <TokenTransaction :category="category" />
+        </template>
         <TokenChild
           :identity-snapshot="metadata.identitySnapshot"
           :category="category"
+          :view-mode="effectiveTokenViewMode"
         />
       </div>
     </div>
@@ -64,29 +71,36 @@
 
 <script setup lang="ts">
 import { useIsActiveMinting } from "~/hooks/activeMinting";
+import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useAuthChains } from "~/hooks/authchains";
 import { useNftSupply } from "~/hooks/nftSupply";
 import { useNonBurnTokens } from "~/hooks/nonSpentToken";
+import { useStorage } from "~/hooks/storage";
 import { decodeAuthChain } from "~/module/bcmr";
 import { getTokenInfoType } from "~/module/bitcoin";
-import { useRegistryStore, useStateStore } from "~/store";
+import { useRegistryStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
 const category = computed(() => route.params.category as string);
 
 const registryStore = useRegistryStore();
-const stateStore = useStateStore();
 const navItem = ref(0);
 const {
 	result: authchain,
-	loading: authchainLoading,
+	loading: authchainQueryLoading,
 	onError,
 } = useAuthChains(toRef(() => [`\\x${category.value}` as const]));
 
-const { supplyNFTs } = useNftSupply(`\\x${category.value}`);
-const { isActiveMinting } = useIsActiveMinting(`\\x${category.value}`);
-const { nonBurnTokens } = useNonBurnTokens(`\\x${category.value}`);
+const { supplyNFTs, loading: supplyNFTsLoading } = useNftSupply(
+	`\\x${category.value}`,
+);
+const { isActiveMinting, loading: activeMintingLoading } = useIsActiveMinting(
+	`\\x${category.value}`,
+);
+const { nonBurnTokens, loading: nonBurnTokensLoading } = useNonBurnTokens(
+	`\\x${category.value}`,
+);
 const authchainElement = computed(
 	() => authchain.value && decodeAuthChain(authchain.value, category.value),
 );
@@ -105,6 +119,18 @@ onError(() => {
 });
 
 const selectedRegistryName = ref("");
+const tokenViewMode = useStorage<"table" | "grid">("token_page_view_mode", "table");
+if (tokenViewMode.value !== "table" && tokenViewMode.value !== "grid") {
+	tokenViewMode.value = "table";
+}
+const tokenViewIndex = computed({
+	get() {
+		return tokenViewMode.value === "grid" ? 1 : 0;
+	},
+	set(value: number) {
+		tokenViewMode.value = value === 1 ? "grid" : "table";
+	},
+});
 const metadata = computed(() => {
 	const isAuthchainLoading =
 		registryStore.authchains.get(category.value) === true;
@@ -119,8 +145,22 @@ const metadata = computed(() => {
 		identitySnapshot: registryState?.identity,
 	};
 });
+const authchainLoading = computed(
+	() =>
+		authchainQueryLoading.value ||
+		metadata.value.loading ||
+		supplyNFTsLoading.value ||
+		activeMintingLoading.value ||
+		nonBurnTokensLoading.value,
+);
 const decimals = computed(
 	() => metadata.value.identitySnapshot?.token?.decimals || 0,
+);
+const hasNftCapability = computed(
+	() => !!authchainElement.value?.genesesTx.nftCapability,
+);
+const effectiveTokenViewMode = computed(() =>
+	hasNftCapability.value ? tokenViewMode.value : "table",
 );
 const tokenInfo = computed(() => {
 	if (!authchainElement.value) return;
@@ -129,9 +169,14 @@ const tokenInfo = computed(() => {
 		genesisSupply,
 		lockingBytecode,
 	} = authchainElement.value.genesesTx;
+	const opreturn = authchainElement.value.opreturn;
+	const reservedSupplyNumber =
+		reservedSupply.value === null || reservedSupply.value === undefined
+			? null
+			: Number(reservedSupply.value);
 	const ownerAddress =
 		lockingBytecode &&
-		stateStore.lockingBytecodeHexToCashAddress(lockingBytecode);
+		formatLockingBytecodeAddress(lockingBytecode);
 
 	const items: contentWarpItem[] = [
 		{
@@ -140,6 +185,11 @@ const tokenInfo = computed(() => {
 			url: `/tx/${genesisTx}`,
 			copy: true,
 			warp: true,
+		},
+		{
+			title: "BCMR OP_RETURN",
+			text: opreturn || null,
+			copy: true,
 		},
 		{
 			title: "Token type",
@@ -155,14 +205,14 @@ const tokenInfo = computed(() => {
 		},
 		{
 			title: "Reserve supply",
-			text: Number(reservedSupply.value) || null,
+			text: reservedSupplyNumber,
 		},
 		{
 			title: "Circulating supply",
 			text:
-				Number(reservedSupply.value) > 0
-					? genesisSupply - Number(reservedSupply.value)
-					: null,
+				reservedSupplyNumber === null
+					? null
+					: genesisSupply - reservedSupplyNumber,
 		},
 		{
 			title: "Is active minting",

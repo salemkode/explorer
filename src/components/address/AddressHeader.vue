@@ -1,6 +1,6 @@
 <template>
   <div class="card d-flex flex-column p-3 flex-md-row z-3">
-    <vue-qr-code :scale="scaleQr" :content="address" />
+    <vue-qr-code :scale="scaleQr" :content="qrAddress" />
     <div
       class="d-flex flex-column align-items-start justify-content-center ms-md-3"
     >
@@ -8,7 +8,12 @@
         {{ addressType }}
       </div>
       <span class="d-flex">
-        <BaseCopy class="my-1 align-items-center" copy warp :text="address" />
+        <BaseCopy
+          class="my-1 align-items-center"
+          copy
+          warp
+          :text="displayAddress"
+        />
         <i
           ref="scaleQrBtn"
           class="ms-2 uicon-arrows-alt"
@@ -21,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import { normalizeDisplayAddress } from "~/hooks/addressDisplay";
 import { getAddressType } from "@/module/bitcoin";
 
 const props = defineProps<{
@@ -36,5 +42,11 @@ const outsideClick = (event: MouseEvent) => {
 };
 document.addEventListener("click", outsideClick);
 
-const addressType = computed(() => getAddressType(props.address));
+const qrAddress = computed(() =>
+	normalizeDisplayAddress(props.address, {
+		removePrefix: false,
+	}),
+);
+const displayAddress = computed(() => normalizeDisplayAddress(props.address));
+const addressType = computed(() => getAddressType(qrAddress.value));
 </script>

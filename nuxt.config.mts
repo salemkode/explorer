@@ -4,6 +4,14 @@ import { watch } from "vite-plugin-watch";
 export default defineNuxtConfig({
 	ssr: false,
 
+	runtimeConfig: {
+		public: {
+			features: {
+				converterAlpha: true,
+			},
+		},
+	},
+
 	app: {
 		pageTransition: { name: "fade", mode: "out-in" },
 		head: {
