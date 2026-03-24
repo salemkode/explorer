@@ -76,6 +76,13 @@ export default {
 	converter_input_placeholder: "Enter BCH address",
 	converter_invalid_address: "Invalid BCH address",
 	converter_detected_type: "Detected Type",
+	converter_alpha_badge: "Alpha",
+	converter_alpha_warning_title: "Alpha feature",
+	converter_alpha_warning_body:
+		"This converter is new and not fully tested yet. Please verify results with another tool before using it.",
+	converter_verify_header: "Verify with other tools",
+	converter_verify_subtext:
+		"Cross-check the same input address using another converter:",
 	address_display_format: "Address display format",
 	token_address: "Token address",
 	regular_address: "Regular address",
