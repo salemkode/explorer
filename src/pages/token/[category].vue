@@ -46,18 +46,10 @@
           :category="category"
           class="d-none d-lg-block"
         />
-<<<<<<< HEAD
         <NavPills
           v-if="hasNftCapability"
           v-model:select="tokenViewIndex"
           :items="['table_view', 'grid_view']"
-=======
-	
-        <TokenAddress
-          v-if="authchainElement?.genesesTx.nftCapability"
-          :decimals="decimals"
-          :category="category"
->>>>>>> 93f17416c6751661c8aaeda34051401d5372a116
         />
         <template v-if="effectiveTokenViewMode === 'table'">
           <TokenAddress
