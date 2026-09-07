@@ -1,9 +1,10 @@
 {
 	"name": "explorer",
 	"compatibility_date": "2024-12-01",
-	"pages_build_output_dir": "./dist",
-	"build": {
-		"command": "pnpm run build",
-		"cwd": "/"
+	"account_id": "1d3930570e889d7ef9339cba4ff202b5",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		"not_found_handling": "single-page-application"
 	}
 }
