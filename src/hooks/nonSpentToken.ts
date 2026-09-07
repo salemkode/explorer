@@ -31,7 +31,7 @@ export const useNonBurnTokens = (tokenCategory: bytea) => {
 		nonBurnTokens.value +=
 			response?.data?.output.reduce(
 				(total, output) =>
-					total + Number.parseInt(output.fungible_token_amount || "0"),
+					total + Number.parseInt(output.fungible_token_amount || "0", 10),
 				0,
 			) || 0;
 	});

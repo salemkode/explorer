@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IdentitySnapshot, contentWarpItem } from "~/types";
+import type { contentWarpItem, IdentitySnapshot } from "~/types";
 
 const props = defineProps<{
 	identitySnapshot?: IdentitySnapshot;

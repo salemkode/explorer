@@ -69,10 +69,10 @@ const resources = [
 		title: "BCMR",
 		url: "https://github.com/bitjson/chip-bcmr",
 	},
-    {
-        title: "CashToken Ecosystem",
-        url: "https://minisatoshi.cash/ecosystem?filter=CashToken",
-    },
+	{
+		title: "CashToken Ecosystem",
+		url: "https://minisatoshi.cash/ecosystem?filter=CashToken",
+	},
 ];
 
 const connectList = [

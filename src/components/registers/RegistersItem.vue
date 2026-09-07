@@ -91,7 +91,7 @@ const transactions = computed<tableColumn[][]>(() => {
 				props.registry,
 				identity,
 			);
-			if (!metadata) return;
+			if (!metadata) return undefined;
 			const category = metadata.token?.category || "N/A";
 			return [
 				{

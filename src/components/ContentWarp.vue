@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import type { contentWarpItem } from "@/types";
+
 const props = defineProps({
 	items: {
 		type: Array as PropType<contentWarpItem[]>,

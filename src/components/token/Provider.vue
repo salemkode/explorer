@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { useRegistryStore } from "~/store";
 import type { Registry } from "~/types";
+
 const registryStore = useRegistryStore();
 
 const props = defineProps<{

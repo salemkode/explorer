@@ -6,10 +6,10 @@
     </div>
     <div v-else ref="element" class="blocks px-3">
       <TransitionGroup name="list">
-        <NuxtLink
+        <RouterLink
           v-for="(block, i) in blockList.value"
           :key="i"
-          :to="typeof block === 'string' ? undefined : `/block/${block.height}`"
+          :to="typeof block === 'string' ? '' : `/block/${block.height}`"
           class="block-container nav-link"
         >
           <BlockCapacity
@@ -31,7 +31,7 @@
               </b>
             </div>
           </Transition>
-        </NuxtLink>
+        </RouterLink>
       </TransitionGroup>
     </div>
   </div>

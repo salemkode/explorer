@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
 import { useAuthChains } from "~/hooks/authchains";
+import { useHttpError } from "~/hooks/errors";
 import { useUsdPrice } from "~/hooks/usdPrice";
 import { decodeAuthChain } from "~/module/bcmr";
 import { GetTx } from "~/module/chaingraph";
@@ -51,6 +52,7 @@ import { formatDateString } from "~/module/utils";
 import { useRegistryStore, useStateStore } from "~/store";
 
 const route = useRoute();
+const showHttpError = useHttpError();
 const txid = toRef(route.params, "txid") as Ref<string>;
 const stateStore = useStateStore();
 const { formatPrice } = useUsdPrice();
@@ -107,7 +109,7 @@ const transaction = computed(() => {
 });
 
 onError(() => {
-	throw showError({
+	showHttpError({
 		statusCode: 404,
 		message: "This transaction is not found",
 	});
@@ -115,7 +117,7 @@ onError(() => {
 
 onResult(() => {
 	if (!TxLoading.value && transaction.value === undefined) {
-		throw showError({
+		showHttpError({
 			statusCode: 404,
 			message: "This transaction is not found",
 		});

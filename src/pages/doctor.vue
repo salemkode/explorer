@@ -208,7 +208,7 @@ const activeTokenId = computed(() =>
 const authChainVariables = computed(() => ({
 	network: stateStore.network,
 	tokenCategory: activeTokenId.value
-		? ([`\\x${activeTokenId.value}`] as const)
+		? ([`\\x${activeTokenId.value}`] as [`\\x${string}`])
 		: [],
 }));
 

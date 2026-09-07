@@ -1,0 +1,11 @@
+[build]
+	command = "npm run generate"
+	publish = "dist"
+
+# SPA fallback: serve the app shell for paths without a static file
+# (e.g. /tx/<hash>, /address/<addr>). Rewrites to static files are free
+# and never invoke Netlify Functions.
+[[redirects]]
+	from = "/*"
+	to = "/index.html"
+	status = 200

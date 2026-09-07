@@ -30,6 +30,8 @@
 </template>
 
 <script setup lang="ts">
+import { useAsyncData } from "~/hooks/asyncData";
+import { useHttpError } from "~/hooks/errors";
 import { useUsdPrice } from "~/hooks/usdPrice";
 import { addressToLockingBytecodeHex } from "~/module/bitcoin";
 import { electrum } from "~/module/electrum";
@@ -39,6 +41,7 @@ import type { contentWarpItem } from "~/types";
 const navItems = ["transaction", "cash_token"] as const;
 // Get address from router param using useRouter
 const route = useRoute();
+const showHttpError = useHttpError();
 const stateStore = useStateStore();
 const { formatPrice } = useUsdPrice();
 
@@ -47,7 +50,7 @@ const lockingBytecode = computed(() =>
 	addressToLockingBytecodeHex(routeAddress.value),
 );
 if (!lockingBytecode.value) {
-	showError({
+	showHttpError({
 		statusCode: 404,
 		message: "Invalid address",
 	});

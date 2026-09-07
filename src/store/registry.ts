@@ -1,13 +1,13 @@
 import { binToHex, sha256, utf8ToBin } from "@bitauth/libauth";
 import { defineStore } from "pinia";
+import { useStorage } from "~/hooks/storage";
 import { getChildToken } from "~/module/bcmr";
 import {
-	opreturnToAuthChainElement,
 	normalizeMetadataUrl,
+	opreturnToAuthChainElement,
 } from "~/module/bitcoin";
 import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, RegistryProvider, tokenCapability } from "~/types";
-import { useStorage } from "~/hooks/storage";
 
 // TODO: move to customize json at root of project
 export const defaultProviders = [
@@ -115,7 +115,7 @@ export const useRegistryStore = defineStore("registry", () => {
 		const tokenIdentities = registry?.identities?.[tokenCategory];
 		if (tokenIdentities) {
 			const timestamp = Object.keys(tokenIdentities)
-				.filter((revision) => +new Date(revision) < +new Date())
+				.filter((revision) => +new Date(revision) < Date.now())
 				.reduce(
 					(timestamp1, timestamp2) =>
 						new Date(timestamp1) > new Date(timestamp2)

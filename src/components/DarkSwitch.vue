@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { prefersTheme, storedTheme } from "~/hooks/theme";
 import { uid } from "~/module/uid";
+
 const isDarkmode = computed({
 	get: () => {
 		if (storedTheme.value === "system") {

@@ -1,7 +1,7 @@
 <template>
   <div class="card p-3 py-4 flex-row justify-content-between">
     <template v-for="block in blocks" :key="block.height">
-      <NuxtLink
+      <RouterLink
         class="d-flex align-items-center block"
         :class="{
           show: block.height !== -1,
@@ -22,7 +22,7 @@
           <br />
           {{ block.height }}
         </span>
-      </NuxtLink>
+      </RouterLink>
     </template>
   </div>
 </template>

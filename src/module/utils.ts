@@ -1,6 +1,6 @@
 import type { ValidateFunction } from "ajv";
 import BigNumber from "bignumber.js";
-import type { Registry, bigNum } from "~/types";
+import type { bigNum, Registry } from "~/types";
 import { satToBch } from "./bitcoin";
 
 export const bytesToMB = (bytes: number) => {
@@ -43,7 +43,8 @@ export const formatDateString = (date: Date) => {
 export const shortTx = (text: string) =>
 	`${text.slice(0, 8)}...${text.slice(-5)}`;
 
-export const isServer = !!process.server;
+// Pure SPA: there is no server runtime
+export const isServer = false;
 
 export const isIpfs = (url: string): boolean => {
 	return url.startsWith("ipfs://");
@@ -98,7 +99,7 @@ const DIVISIONS = [
 ] as const;
 
 export const formatTimeAgo = (date: string) => {
-	let duration = (+new Date(date) - +new Date()) / 1000;
+	let duration = (+new Date(date) - Date.now()) / 1000;
 
 	for (let i = 0; i < DIVISIONS.length; i++) {
 		const division = DIVISIONS[i];

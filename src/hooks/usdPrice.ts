@@ -8,17 +8,31 @@ const priceSchema = object({
 	}),
 });
 
-const { data: btcPriceInUsd } = useFetch(
-	"https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd",
-);
+const btcPriceInUsd = ref<number>();
+
+// Fetch the price once per app load, shared by every consumer of this hook
+let priceRequested = false;
+const loadPrice = () => {
+	if (priceRequested) return;
+	priceRequested = true;
+
+	fetch(
+		"https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=usd",
+	)
+		.then((response) => response.json())
+		.then((json) => {
+			const parsed = safeParse(priceSchema, json);
+			if (parsed.success) {
+				btcPriceInUsd.value = parsed.output["bitcoin-cash"].usd;
+			}
+		})
+		.catch(() => undefined);
+};
 
 export const useUsdPrice = () => {
-	const usdPrice = computed(() => {
-		const response = safeParse(priceSchema, btcPriceInUsd.value);
-		if (!response.success) return 0;
+	loadPrice();
 
-		return response.output["bitcoin-cash"].usd;
-	});
+	const usdPrice = computed(() => btcPriceInUsd.value || 0);
 
 	const calculatePrice = (sat: string | number) => {
 		return utils.calculatePrice(sat, usdPrice.value || "");

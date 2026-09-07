@@ -1,6 +1,27 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"files": {
-		"ignore": ["src/graphql", ".*", "node_modules"]
+		"includes": [
+			"**",
+			"!**/src/graphql",
+			"!**/src/public",
+			"!**/src/types/auto-imports.d.ts",
+			"!**/dist",
+			"!**/.output",
+			"!**/.*",
+			"!**/node_modules",
+			"!**/*.svg"
+		]
+	},
+	"linter": {
+		"rules": {
+			"correctness": {
+				"noUnusedVariables": "off",
+				"noUnusedImports": "off"
+			},
+			"style": {
+				"useVueMultiWordComponentNames": "off"
+			}
+		}
 	}
 }
