@@ -41,7 +41,7 @@ export const decodeAuthChain = (
 			genesesTx.genesisSupply = transaction.outputs.reduce(
 				(total: number, { fungible_token_amount }) =>
 					fungible_token_amount
-						? total + Number.parseInt(fungible_token_amount, 10)
+						? total + Number.parseInt(fungible_token_amount)
 						: total,
 				0,
 			);

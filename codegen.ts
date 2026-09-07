@@ -2,7 +2,7 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
 	schema: "./src/graphql/schema.graphql",
-	documents: ["src/**/*.ts", "!src/**/*.d.ts"],
+	documents: ["src/**/**.ts"],
 	config: {
 		scalars: {
 			bytea: "bytea",

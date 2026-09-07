@@ -54,7 +54,6 @@
 
 <script setup lang="ts">
 import type { tableColumn } from "~/types/index.js";
-
 type emitName = "next" | "previous";
 const emit = defineEmits<(event: emitName) => void>();
 const change = reactive({

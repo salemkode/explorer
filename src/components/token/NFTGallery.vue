@@ -61,24 +61,24 @@
 import type { Capability } from "~/types";
 
 export interface ChildNftItem {
-	category: string;
-	capability?: Capability | null;
-	commitment: string;
-	address?: string;
-	name: string;
+  category: string;
+  capability?: Capability | null;
+  commitment: string;
+  address?: string;
+  name: string;
 }
 
 defineProps<{
-	items: ChildNftItem[];
-	loading: boolean;
-	error?: string;
-	hasNextPage: boolean;
-	hasPrevPage: boolean;
+  items: ChildNftItem[];
+  loading: boolean;
+  error?: string;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }>();
 
 const emit = defineEmits<{
-	(event: "next"): void;
-	(event: "previous"): void;
+  (event: "next"): void;
+  (event: "previous"): void;
 }>();
 </script>
 

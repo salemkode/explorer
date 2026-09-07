@@ -3,7 +3,6 @@ import { calculateDecimal } from "~/module/bitcoin";
 import { shortTx } from "~/module/utils";
 import { useRegistryStore } from "~/store";
 import type { Capability } from "~/types";
-
 type Maybe<T> = T | undefined | null;
 
 const registryStore = useRegistryStore();
@@ -29,9 +28,9 @@ const metadata = computed(() => {
       v-if="category && amount"
       class="badge text-bg-dark d-flex align-items-center me-1 mb-1"
     >
-      <RouterLink class="text-white" :to="`/token/${category}`">
+      <NuxtLink class="text-white" :to="`/token/${category}`">
         {{ shortTx(category) }}
-      </RouterLink>
+      </NuxtLink>
       <div class="mx-1">•</div>
       {{ amount !== "0" ? amount : "" }}&nbsp;
       <span>

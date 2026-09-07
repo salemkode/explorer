@@ -17,7 +17,7 @@
             v-show="active === index"
             :style="`order: ${active === index ? 0 : 1};`"
           >
-            <slot :name="(item as never)" />
+            <slot :name="item" />
           </div>
         </Transition>
       </template>

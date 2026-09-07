@@ -23,7 +23,6 @@
 
 <script setup lang="ts">
 import { useSearch } from "~/hooks/search";
-
 const { query, search } = useSearch();
 
 function keydownHandler(event: KeyboardEvent) {

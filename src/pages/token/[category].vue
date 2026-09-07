@@ -10,13 +10,13 @@
       />
       <NavPills
         v-model:select="navItem"
-        :items="mobileNavItems"
+        :items="['token_register', 'transaction']"
         class="d-lg-none"
       />
       <div
         class="column d-lg-block"
         :class="{
-          'd-none': navItem !== 0,
+          'd-none': navItem === 1,
         }"
       >
         <content-warp
@@ -31,7 +31,7 @@
         <TokenProvider
           :select="metadata.name"
           :category="category"
-          @select="(url: string) => (selectedRegistryName = url)"
+          @select="(url) => (selectedRegistryName = url)"
         />
       </div>
       <div
@@ -50,7 +50,6 @@
           v-if="hasNftCapability"
           v-model:select="tokenViewIndex"
           :items="['table_view', 'grid_view']"
-          class="d-none d-lg-flex"
         />
         <template v-if="effectiveTokenViewMode === 'table'">
           <TokenAddress
@@ -74,7 +73,6 @@
 import { useIsActiveMinting } from "~/hooks/activeMinting";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useAuthChains } from "~/hooks/authchains";
-import { useHttpError } from "~/hooks/errors";
 import { useNftSupply } from "~/hooks/nftSupply";
 import { useNonBurnTokens } from "~/hooks/nonSpentToken";
 import { useStorage } from "~/hooks/storage";
@@ -84,7 +82,6 @@ import { useRegistryStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
-const showHttpError = useHttpError();
 const category = computed(() => route.params.category as string);
 
 const registryStore = useRegistryStore();
@@ -115,17 +112,14 @@ const reservedSupply = computed(
 			?.authhead?.identity_output?.at(0)?.fungible_token_amount,
 );
 onError(() => {
-	showHttpError({
+	throw showError({
 		statusCode: 404,
 		message: "This transaction is not found",
 	});
 });
 
 const selectedRegistryName = ref("");
-const tokenViewMode = useStorage<"table" | "grid">(
-	"token_page_view_mode",
-	"table",
-);
+const tokenViewMode = useStorage<"table" | "grid">("token_page_view_mode", "table");
 if (tokenViewMode.value !== "table" && tokenViewMode.value !== "grid") {
 	tokenViewMode.value = "table";
 }
@@ -165,19 +159,8 @@ const decimals = computed(
 const hasNftCapability = computed(
 	() => !!authchainElement.value?.genesesTx.nftCapability,
 );
-const mobileNavItems = computed(() =>
-	hasNftCapability.value
-		? ["token_register", "transaction", "grid_view"]
-		: ["token_register", "transaction"],
-);
 const effectiveTokenViewMode = computed(() =>
-	!hasNftCapability.value
-		? "table"
-		: navItem.value === 2
-			? "grid"
-			: navItem.value === 1
-				? "table"
-				: tokenViewMode.value,
+	hasNftCapability.value ? tokenViewMode.value : "table",
 );
 const tokenInfo = computed(() => {
 	if (!authchainElement.value) return;
@@ -192,7 +175,8 @@ const tokenInfo = computed(() => {
 			? null
 			: Number(reservedSupply.value);
 	const ownerAddress =
-		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode);
+		lockingBytecode &&
+		formatLockingBytecodeAddress(lockingBytecode);
 
 	const items: contentWarpItem[] = [
 		{

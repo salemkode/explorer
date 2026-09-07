@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useRegistryStore } from "~/store";
-
 type Status = {
 	type: "ready" | "loading";
 	errorMessage?: string;

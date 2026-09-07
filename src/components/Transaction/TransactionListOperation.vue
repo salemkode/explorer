@@ -53,8 +53,8 @@
 
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
-import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useAuthChains } from "~/hooks/authchains";
+import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useUsdPrice } from "~/hooks/usdPrice";
 import { getAddressType } from "~/module/bitcoin";
 import { useRegistryStore } from "~/store";

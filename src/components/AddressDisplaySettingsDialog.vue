@@ -66,7 +66,9 @@
 <script setup lang="ts">
 import { addressDisplayMode } from "~/hooks/addressDisplay";
 
-const emit = defineEmits<(event: "close") => void>();
+const emit = defineEmits<{
+	(event: "close"): void;
+}>();
 
 const props = defineProps<{
 	open: boolean;

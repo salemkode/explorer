@@ -17,11 +17,13 @@ export const useStateStore = defineStore("state", () => {
 		tokenSupport = true,
 	) => {
 		const bytecode = hexToBin(hexCode);
-		const address = lockingBytecodeToCashAddress({
+		const address = lockingBytecodeToCashAddress(
 			bytecode,
-			prefix: network.value === "mainnet" ? "bitcoincash" : "bchtest",
-			tokenSupport,
-		});
+			network.value === "mainnet" ? "bitcoincash" : "bchtest",
+			{
+				tokenSupport,
+			},
+		);
 
 		return typeof address === "string" ? address : undefined;
 	};

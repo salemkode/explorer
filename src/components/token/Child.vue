@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import type { GetTokenChildQuery } from "@/module/chaingraph";
 import { GetTokenChild } from "@/module/chaingraph";
+import type { GetTokenChildQuery } from "@/module/chaingraph";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useStateStore } from "~/store";
 import type { IdentitySnapshot, tableColumn } from "~/types/index.js";
@@ -79,9 +79,7 @@ const childNfts = computed<ChildNftItem[]>(() => {
 
 	let items = result.value.output.map((output: ChildOutput) => {
 		const commitment = output.nonfungible_token_commitment?.substring(2) || "";
-		const address = formatLockingBytecodeAddress(
-			output.locking_bytecode.substring(2),
-		);
+		const address = formatLockingBytecodeAddress(output.locking_bytecode.substring(2));
 
 		return {
 			category: props.category,

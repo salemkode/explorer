@@ -2,11 +2,7 @@
   <div class="app">
     <BaseHeader />
     <div class="d-grid">
-      <RouterView v-slot="{ Component }">
-        <Transition name="fade" mode="out-in">
-          <component :is="Component" />
-        </Transition>
-      </RouterView>
+      <slot />
     </div>
     <Footer />
   </div>

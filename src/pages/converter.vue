@@ -90,7 +90,6 @@ import {
 	lockingBytecodeToBase58Address,
 	lockingBytecodeToCashAddress,
 } from "@bitauth/libauth";
-import { features } from "~/config";
 import {
 	addressToLockingBytecodeHex,
 	getAddressType,
@@ -99,18 +98,19 @@ import {
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
-const showAlpha = computed(() => features.converterAlpha);
+const runtimeConfig = useRuntimeConfig();
+const showAlpha = computed(
+	() => runtimeConfig.public?.features?.converterAlpha === true,
+);
 
 const stateStore = useStateStore();
 const inputAddress = ref("");
 
 const trimmedInputAddress = computed(() => inputAddress.value.trim());
 
-watchEffect(() => {
-	document.title = showAlpha.value
-		? "Address Converter (Alpha)"
-		: "Address Converter";
-});
+useHead(() => ({
+	title: showAlpha.value ? "Address Converter (Alpha)" : "Address Converter",
+}));
 
 const lockingBytecode = computed(() => {
 	if (
@@ -155,22 +155,22 @@ const legacyAddress = computed(() => {
 const cashAddressLibauth = computed(() => {
 	if (!lockingBytecode.value) return;
 	const prefix = stateStore.network === "mainnet" ? "bitcoincash" : "bchtest";
-	const address = lockingBytecodeToCashAddress({
-		bytecode: hexToBin(lockingBytecode.value),
+	const address = lockingBytecodeToCashAddress(
+		hexToBin(lockingBytecode.value),
 		prefix,
-		tokenSupport: false,
-	});
+		{ tokenSupport: false },
+	);
 	return typeof address === "string" ? address : undefined;
 });
 
 const tokenAddressLibauth = computed(() => {
 	if (!lockingBytecode.value) return;
 	const prefix = stateStore.network === "mainnet" ? "bitcoincash" : "bchtest";
-	const address = lockingBytecodeToCashAddress({
-		bytecode: hexToBin(lockingBytecode.value),
+	const address = lockingBytecodeToCashAddress(
+		hexToBin(lockingBytecode.value),
 		prefix,
-		tokenSupport: true,
-	});
+		{ tokenSupport: true },
+	);
 	return typeof address === "string" ? address : undefined;
 });
 

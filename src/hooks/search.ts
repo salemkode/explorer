@@ -1,5 +1,4 @@
 import { isValidAddress } from "@/module/bitcoin";
-
 const getQueryUrl = (query: string) => {
 	// TODO: make search methods return list of result
 	// Removes the leading and trailing white space and line terminator characters from search query.

@@ -5,12 +5,9 @@
     }"
   >
     <component :is="props.short ? PopOver : 'span'" :msg="String(props.text)">
-      <RouterLink
-        :to="props.url ?? ''"
-        class="copy"
-      >
+      <NuxtLink :to="props.url" class="copy">
         {{ text }}
-      </RouterLink>
+      </NuxtLink>
     </component>
     <i
       v-if="props.text && props.copy"

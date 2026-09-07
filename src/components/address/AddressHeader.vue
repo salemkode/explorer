@@ -26,8 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { getAddressType } from "@/module/bitcoin";
 import { normalizeDisplayAddress } from "~/hooks/addressDisplay";
+import { getAddressType } from "@/module/bitcoin";
 
 const props = defineProps<{
 	address: string;
