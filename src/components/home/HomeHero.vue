@@ -10,10 +10,11 @@
           v-model="query"
           type="text"
           class="form-control form-control-md"
-          placeholder="Search by Address / Transactions Id"
+          placeholder="Search by address, transaction ID, or block height"
+          aria-label="Search the blockchain"
           @keydown="keydownHandler"
         />
-        <button class="btn d-flex" type="button" @click="search">
+        <button class="btn d-flex" type="button" aria-label="Search" @click="search">
           <i class="uicon-search" />
         </button>
       </div>

@@ -25,11 +25,11 @@
   </div>
 </template>
 
-<script setup lang="ts" generic="TItem extends readonly string[]">
+<script setup lang="ts">
 const TransitionTime = 500;
 const active = ref(0);
 const props = defineProps<{
-	items: TItem;
+	items: readonly string[];
 }>();
 
 const updateActive = (value: number) => {
@@ -40,9 +40,6 @@ const updateActive = (value: number) => {
 	}, TransitionTime + 10);
 };
 
-defineSlots<{
-	[k in TItem[number]]: (props: Record<string, unknown>) => void;
-}>();
 </script>
 
 <style lang="scss" scoped>

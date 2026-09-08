@@ -1,42 +1,38 @@
-# Nuxt 3 Minimal Starter
+# Bitcoin Cash Explorer
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Nuxt 3 explorer with CashTokens, address tools, and transaction analytics.
 
-## Setup
-
-Make sure to install the dependencies:
+## Development
 
 ```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-## Development Server
-
-Start the development server on http://localhost:3000
+The default data source is the public Chaingraph demo. Its availability and sync
+status are independent of this website. Configure a maintained instance using
+build-time environment variables:
 
 ```bash
-npm run dev
+CHAINGRAPH_HTTP=https://your-chaingraph-host/v1/graphql
+CHAINGRAPH_WS=wss://your-chaingraph-host/v1/graphql
 ```
 
-## Production
+These URLs are included in the browser bundle; do not include private credentials.
 
-Build the application for production:
+## Verification and deployment
 
 ```bash
-npm run build
+pnpm lint:type
+pnpm generate
+wrangler deploy --dry-run
+wrangler deploy
 ```
 
-Locally preview production build:
+Wrangler runs a fresh static build and uploads `.output/public` to the `explorer`
+Worker, with SPA routing for address, transaction, block, and token URLs.
+The configured custom domain is `explorer.salemkode.com`.
 
-```bash
-npm run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Use Wrangler 4 and authenticate with `wrangler login` before deploying.
+The Cloudflare account must manage the `salemkode.com` zone. An existing DNS record
+for the custom domain may need replacement when moving from another host.

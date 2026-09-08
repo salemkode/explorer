@@ -45,6 +45,6 @@ export interface Utxo {
 	value_satoshis: string;
 }
 
-export type tokenCapability = Scalars["enum_nonfungible_token_capability"];
+export type tokenCapability = Scalars["enum_nonfungible_token_capability"]["output"];
 
 export * from "./bcmr-v2.schema";

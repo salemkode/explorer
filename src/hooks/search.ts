@@ -7,14 +7,14 @@ const getQueryUrl = (query: string) => {
 		return;
 	}
 
-	const isNumber = !Number.isNaN(+trimQuery);
+	const isNumber = /^\d+$/.test(trimQuery) && Number.isSafeInteger(+trimQuery);
 	if (isNumber) {
 		return `/block/${trimQuery}`;
 	}
 	if (isValidAddress(trimQuery)) {
 		return `/address/${trimQuery}`;
 	}
-	return `/tx/${trimQuery}`;
+	return `/tx/${encodeURIComponent(trimQuery)}`;
 };
 
 const useSearch = () => {

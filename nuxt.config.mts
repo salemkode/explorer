@@ -50,8 +50,8 @@ export default defineNuxtConfig({
 	apollo: {
 		clients: {
 			default: {
-				httpEndpoint: process.env.CHAINGRAPH_HTTP || "",
-				wsEndpoint: process.env.CHAINGRAPH_WS || "",
+				httpEndpoint: process.env.CHAINGRAPH_HTTP || "https://demo.chaingraph.cash/v1/graphql",
+				wsEndpoint: process.env.CHAINGRAPH_WS || "wss://demo.chaingraph.cash/v1/graphql",
 			},
 		},
 	},
