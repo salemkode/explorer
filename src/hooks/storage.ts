@@ -1,7 +1,5 @@
-import { isServer } from "~/module/utils";
-
 const getStoredState = <T>(key: string, defaults: T) => {
-	if (!isServer) {
+	if (!import.meta.server) {
 		// Check is localStorage has stored value
 		const storedState = localStorage.getItem(key);
 		if (storedState) return JSON.parse(storedState) as T;
@@ -16,7 +14,7 @@ export const useStorage = <T>(key: string, defaults: T) => {
 	watch(
 		state,
 		(value) => {
-			if (!isServer) localStorage.setItem(key, JSON.stringify(value));
+			if (!import.meta.server) localStorage.setItem(key, JSON.stringify(value));
 		},
 		{
 			deep: true,

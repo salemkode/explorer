@@ -6,6 +6,10 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		public: {
+			ipfsGateway:
+				process.env.NUXT_PUBLIC_IPFS_GATEWAY ||
+				process.env.IPFS_GATEWAY ||
+				"https://ipfs.filebase.io",
 			features: {
 				converterAlpha: true,
 			},

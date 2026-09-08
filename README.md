@@ -15,9 +15,23 @@ Cloudflare build variables. Override it using build-time environment variables:
 ```bash
 CHAINGRAPH_HTTP=https://your-chaingraph-host/v1/graphql
 CHAINGRAPH_WS=wss://your-chaingraph-host/v1/graphql
+NUXT_PUBLIC_IPFS_GATEWAY=https://ipfs.filebase.io
 ```
 
 These URLs are included in the browser bundle; do not include private credentials.
+`NUXT_PUBLIC_IPFS_GATEWAY` should be the gateway origin (without `/ipfs`); it can
+be replaced with any IPFS HTTP gateway your deployment is allowed to use. The
+legacy `IPFS_GATEWAY` variable is also supported for local builds.
+
+The Settings page includes these public gateway options:
+
+- Filebase: `https://ipfs.filebase.io`
+- Pinata: `https://gateway.pinata.cloud`
+- 4EVERLAND: `https://4everland.io`
+- Web3.Storage: `https://w3s.link`
+
+The selected gateway is stored in the browser and overrides the deployment
+default for that browser.
 
 ## Verification and deployment
 
@@ -44,7 +58,8 @@ Cloudflare Workers Builds is connected to `salemkode/explorer`:
 - Pushes to other branches build and upload a version without replacing production.
 - The build command is `bun run build`; production uses `npx wrangler deploy`.
 - Non-production branches use `npx wrangler versions upload`.
-- Set `CHAINGRAPH_HTTP` and `CHAINGRAPH_WS` under Cloudflare's build variables.
+- Set `CHAINGRAPH_HTTP`, `CHAINGRAPH_WS`, and `NUXT_PUBLIC_IPFS_GATEWAY` under
+  Cloudflare's build variables.
 
 Push changes to a task branch, check its Cloudflare build, and merge the pull
 request manually in GitHub when ready to publish. Do not commit or push directly
