@@ -49,3 +49,11 @@ Cloudflare Workers Builds is connected to `salemkode/explorer`:
 Push changes to a task branch, check its Cloudflare build, and merge the pull
 request manually in GitHub when ready to publish. Do not commit or push directly
 to the protected `main` branch.
+
+## Traffic analytics
+
+Free Cloudflare Web Analytics is installed through the script in `nuxt.config.mts`.
+View visits, page views, referrers, and performance in the Cloudflare account's
+**Analytics → Web Analytics → explorer.salemkode.com** dashboard. The beacon token
+is a public site identifier, not an API credential. Future builds retain the
+tracking script automatically.

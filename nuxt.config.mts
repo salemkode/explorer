@@ -19,6 +19,14 @@ export default defineNuxtConfig({
 				lang: "en",
 			},
 			title: "Bitcoin Cash Explorer",
+			script: [
+				{
+					type: "module",
+					src: "https://static.cloudflareinsights.com/beacon.min.js",
+					"data-cf-beacon": JSON.stringify({ token: "704d5c00ab0b421d97a60a8c2ed3a3ef" }),
+					tagPosition: "bodyClose",
+				},
+			],
 			link: [
 				{
 					rel: "icon",
