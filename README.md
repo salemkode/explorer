@@ -9,9 +9,8 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The default data source is the public Chaingraph demo. Its availability and sync
-status are independent of this website. Configure a maintained instance using
-build-time environment variables:
+The default data source is `gql.chaingraph.pat.mn`, matching the configured
+Cloudflare build variables. Override it using build-time environment variables:
 
 ```bash
 CHAINGRAPH_HTTP=https://your-chaingraph-host/v1/graphql
