@@ -36,3 +36,17 @@ The configured custom domain is `explorer.salemkode.com`.
 Use Wrangler 4 and authenticate with `wrangler login` before deploying.
 The Cloudflare account must manage the `salemkode.com` zone. An existing DNS record
 for the custom domain may need replacement when moving from another host.
+
+## Automatic GitHub deployments
+
+Cloudflare Workers Builds is connected to `salemkode/explorer`:
+
+- Pushes to `main` build and publish to `https://explorer.salemkode.com`.
+- Pushes to other branches build and upload a version without replacing production.
+- The build command is `bun run build`; production uses `npx wrangler deploy`.
+- Non-production branches use `npx wrangler versions upload`.
+- Set `CHAINGRAPH_HTTP` and `CHAINGRAPH_WS` under Cloudflare's build variables.
+
+Push changes to a task branch, check its Cloudflare build, and merge the pull
+request manually in GitHub when ready to publish. Do not commit or push directly
+to the protected `main` branch.
