@@ -6,6 +6,10 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		public: {
+			ipfsGateway:
+				process.env.NUXT_PUBLIC_IPFS_GATEWAY ||
+				process.env.IPFS_GATEWAY ||
+				"https://ipfs.filebase.io",
 			features: {
 				converterAlpha: true,
 			},
@@ -19,6 +23,14 @@ export default defineNuxtConfig({
 				lang: "en",
 			},
 			title: "Bitcoin Cash Explorer",
+			script: [
+				{
+					type: "module",
+					src: "https://static.cloudflareinsights.com/beacon.min.js",
+					"data-cf-beacon": JSON.stringify({ token: "704d5c00ab0b421d97a60a8c2ed3a3ef" }),
+					tagPosition: "bodyClose",
+				},
+			],
 			link: [
 				{
 					rel: "icon",
@@ -50,8 +62,8 @@ export default defineNuxtConfig({
 	apollo: {
 		clients: {
 			default: {
-				httpEndpoint: process.env.CHAINGRAPH_HTTP || "",
-				wsEndpoint: process.env.CHAINGRAPH_WS || "",
+				httpEndpoint: process.env.CHAINGRAPH_HTTP || "https://gql.chaingraph.pat.mn/v1/graphql",
+				wsEndpoint: process.env.CHAINGRAPH_WS || "wss://gql.chaingraph.pat.mn/v1/graphql",
 			},
 		},
 	},

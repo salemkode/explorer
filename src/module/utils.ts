@@ -1,6 +1,7 @@
 import type { ValidateFunction } from "ajv";
 import BigNumber from "bignumber.js";
 import type { Registry, bigNum } from "~/types";
+import { selectedIpfsGateway } from "./ipfs";
 import { satToBch } from "./bitcoin";
 
 export const bytesToMB = (bytes: number) => {
@@ -51,7 +52,11 @@ export const isIpfs = (url: string): boolean => {
 
 export const getHttpsUrl = (url: string) => {
 	if (isIpfs(url)) {
-		return `https://dweb.link/ipfs/${url.substring(7)}`;
+		const gateway = (
+			selectedIpfsGateway.value || useRuntimeConfig().public.ipfsGateway
+		).replace(/\/+$/, "");
+		const path = url.substring(7).replace(/^\/+/, "");
+		return `${gateway}/ipfs/${path}`;
 	}
 
 	return url;

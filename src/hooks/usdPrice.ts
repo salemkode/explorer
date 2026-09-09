@@ -27,7 +27,7 @@ export const useUsdPrice = () => {
 	// TODO: change name of this function to something more descriptive
 	const formatPrice = (sat: string | number) => {
 		if (!sat || sat === "0") return undefined;
-		return `${satToBch(sat, 3)}BCH • $${calculatePrice(sat)}`;
+		return `${satToBch(sat, 8)} BCH • $${calculatePrice(sat)}`;
 	};
 
 	return {

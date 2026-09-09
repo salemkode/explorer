@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-	items: string[];
+	items: readonly string[];
 	select: number;
 }>();
 

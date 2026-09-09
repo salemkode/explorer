@@ -1,8 +1,12 @@
 <template>
   <div class="card">
-    <h3 class="p-3">Block chain blocks</h3>
+    <h3 class="p-3">Latest blocks</h3>
+    <p v-if="isDataStale" class="alert alert-warning mx-3" role="status">
+      The data provider has not indexed a block in over two hours. Blocks and
+      transaction confirmations may be out of date.
+    </p>
     <div v-if="blockList.type == 'error'" class="my-5 py-5 text-center">
-      <h5>Not Found block list</h5>
+      <h5>Unable to load blocks</h5>
     </div>
     <div v-else ref="element" class="blocks px-3">
       <TransitionGroup name="list">
@@ -51,6 +55,10 @@ const variables = computed(() => ({
 	network: stateStore.network,
 }));
 const { result, loading, error } = useSubscription(GetBlocks, variables);
+const isDataStale = computed(() => {
+	const timestamp = result.value?.block.at(0)?.timestamp;
+	return timestamp && Date.now() - Number(timestamp) * 1000 > 2 * 60 * 60 * 1000;
+});
 
 // create computed var to create virtual list to loading
 const blockList = computed(() => {
