@@ -12,7 +12,7 @@
         <header class="settings-header">
           <div>
             <h5 class="mb-1">{{ $t("settings") }}</h5>
-            <p class="mb-0 settings-subtitle">Display preferences</p>
+            <p class="mb-0 settings-subtitle">Preferences</p>
           </div>
           <button
             type="button"
@@ -52,6 +52,8 @@
               <small class="option-text">Shows regular cashaddr format</small>
             </label>
           </div>
+          <hr class="my-4" />
+          <IpfsGatewaySettings heading-tag="h6" />
         </div>
         <div class="settings-actions">
           <button class="btn btn-primary px-4" @click="emit('close')">
@@ -66,9 +68,7 @@
 <script setup lang="ts">
 import { addressDisplayMode } from "~/hooks/addressDisplay";
 
-const emit = defineEmits<{
-	(event: "close"): void;
-}>();
+const emit = defineEmits<(event: "close") => void>();
 
 const props = defineProps<{
 	open: boolean;

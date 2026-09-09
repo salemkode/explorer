@@ -27,34 +27,7 @@
       </div>
       <hr class="my-4" />
       <div>
-        <h5 class="mb-2">IPFS gateway</h5>
-        <p class="text-muted small mb-3">
-          Choose the public gateway used to load token icons and metadata.
-        </p>
-        <select v-model="selectedIpfsGateway" class="form-select">
-          <option value="">Default ({{ runtimeGateway }})</option>
-          <option
-            v-for="gateway in PUBLIC_IPFS_GATEWAYS"
-            :key="gateway.url"
-            :value="gateway.url"
-          >
-            {{ gateway.name }} ({{ gateway.url }})
-          </option>
-        </select>
-        <label class="form-label mt-3 mb-1" for="custom-ipfs-gateway">
-          Custom gateway
-        </label>
-        <input
-          id="custom-ipfs-gateway"
-          v-model="selectedIpfsGateway"
-          class="form-control"
-          type="url"
-          placeholder="https://your-gateway.example"
-          spellcheck="false"
-        />
-        <small class="text-muted">
-          Enter a gateway origin without the trailing <code>/ipfs</code> path.
-        </small>
+        <IpfsGatewaySettings />
       </div>
     </div>
   </div>
@@ -62,9 +35,6 @@
 
 <script setup lang="ts">
 import { addressDisplayMode } from "~/hooks/addressDisplay";
-import { PUBLIC_IPFS_GATEWAYS, selectedIpfsGateway } from "~/module/ipfs";
-
-const runtimeGateway = useRuntimeConfig().public.ipfsGateway;
 </script>
 
 <style scoped>
