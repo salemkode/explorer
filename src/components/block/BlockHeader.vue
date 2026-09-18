@@ -1,27 +1,49 @@
 <template>
-  <div class="card p-3 py-4 flex-row justify-content-between">
-    <template v-for="block in blocks" :key="block.height">
-      <NuxtLink
-        class="d-flex align-items-center block"
-        :class="{
-          show: block.height !== -1,
-        }"
-        :to="block.height === -1 ? '' : `/block/${block.height}`"
+  <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-3 sm:p-4 shadow-xs flex items-center justify-between gap-2 transition-colors">
+    <template v-for="(block, index) in blocks" :key="block.name">
+      <!-- Active Current Block -->
+      <div
+        v-if="index === 1"
+        class="flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300"
       >
-        <button
-          class="align-items-center btn btn-primary d-flex justify-content-center me-2 rounded-full"
-          :style="{
-            width: '55px',
-            height: '55px',
-          }"
-        >
-          <i class="uicon-block uicon-md" />
-        </button>
-        <span>
-          {{ block.name }}
-          <br />
-          {{ block.height }}
-        </span>
+        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+          <i class="uicon-block text-sm sm:text-base" />
+        </div>
+        <div>
+          <div class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-600/80 dark:text-emerald-400/80">
+            Current Block
+          </div>
+          <div class="font-mono font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+            #{{ block.height }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Previous / Next Links -->
+      <NuxtLink
+        v-else
+        :to="block.height === -1 ? undefined : `/block/${block.height}`"
+        class="flex items-center gap-2 px-2.5 sm:px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-all"
+        :class="{
+          'opacity-30 pointer-events-none': block.height === -1,
+        }"
+      >
+        <i
+          v-if="index === 0"
+          class="uicon-angle-small-left text-base shrink-0"
+        />
+        <div :class="index === 2 ? 'text-right' : 'text-left'">
+          <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+            {{ block.name }}
+          </div>
+          <div class="font-mono text-xs font-medium text-slate-700 dark:text-zinc-300">
+            {{ block.height !== -1 ? `#${block.height}` : '—' }}
+          </div>
+        </div>
+        <i
+          v-if="index === 2"
+          class="uicon-angle-small-right text-base shrink-0"
+        />
       </NuxtLink>
     </template>
   </div>
@@ -50,25 +72,3 @@ const blocks = computed(() => [
 	},
 ]);
 </script>
-
-<style scoped>
-.uicon-block {
-  font-size: 28px;
-  min-width: 28px;
-  height: 28px;
-}
-
-.block {
-  text-decoration: none;
-  color: inherit;
-  opacity: 0;
-}
-
-.block.show {
-  opacity: 1;
-}
-
-.block:not(:nth-child(2)) {
-  transform: scale(0.9);
-}
-</style>

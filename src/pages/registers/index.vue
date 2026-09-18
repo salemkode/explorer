@@ -9,14 +9,17 @@ const getOrder = (url: string) => {
 </script>
 
 <template>
-  <div class="container">
-    <div class="page d-flex d-lg-grid">
-      <div class="column">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left Column: Add Registry & Priority Order -->
+      <div class="lg:col-span-4 space-y-6">
         <RegistersAddCard />
         <RegistersList />
       </div>
-      <div class="column">
-        <div class="d-grid h-max-content gap-3">
+
+      <!-- Right Column: Registry Providers List -->
+      <div class="lg:col-span-8 space-y-4">
+        <div class="flex flex-col gap-4">
           <RegistersItem
             v-for="[url, registry] in registryStore.registryProviders"
             :key="url"
@@ -27,25 +30,8 @@ const getOrder = (url: string) => {
             }"
           />
         </div>
-        <LoadingSpinner v-if="registryStore.loadingProviders" />
+        <LoadingSpinner v-if="registryStore.loadingProviders" class="py-6" />
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.page {
-  flex-direction: column;
-  grid-template-columns: 1fr 2.5fr;
-  gap: 15px;
-}
-.page .column {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  overflow-x: hidden;
-}
-.page .column > * {
-  margin-top: 10px;
-}
-</style>

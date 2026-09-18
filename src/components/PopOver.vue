@@ -3,7 +3,7 @@
     <slot />
     <template #content>
       <div
-        class="bg-black p-1 px-2 rounded-1 text-white floating"
+        class="bg-slate-900/95 dark:bg-zinc-800/95 backdrop-blur-xs text-white text-[11px] font-medium px-2.5 py-1.5 rounded-lg shadow-lg border border-slate-700/60 dark:border-zinc-700/60 max-w-xs break-all z-50 pointer-events-none"
         v-text="props.msg"
       />
     </template>
@@ -16,13 +16,3 @@ const PopperOver = defineAsyncComponent({
 });
 const props = defineProps<{ msg: string }>();
 </script>
-
-<style>
-.floating {
-  transition: opacity 0.5s;
-  font-size: 12.5px;
-  margin-bottom: 5px;
-  white-space: break-spaces;
-  max-width: 300px;
-}
-</style>

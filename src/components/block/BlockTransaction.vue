@@ -1,17 +1,22 @@
 <template>
-  <div class="transaction-list card">
-    <h3 class="p-3 d-flex justify-content-between align-items-center">
-      Block transaction
+  <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden transition-colors">
+    <div class="px-5 py-4 border-b border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
+      <h3 class="text-base font-bold text-slate-900 dark:text-white">
+        Block Transactions
+      </h3>
       <BasePagination
         :has-next-page="hasNextPage"
         :has-prev-page="hasPrevPage"
         @next="emit('update:offset', props.offset + props.limit)"
         @previous="emit('update:offset', props.offset - props.limit)"
       />
-    </h3>
+    </div>
+
     <TransactionList v-if="transactions?.length" :transactions="transactions" />
-    <div v-else class="text-center my-5 py-5">Not Found Transactions</div>
-    <LoadingSpinner v-if="loading" class="m-auto my-2" />
+    <div v-else class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500">
+      No transactions found in this block
+    </div>
+    <LoadingSpinner v-if="loading" class="py-6" />
   </div>
 </template>
 

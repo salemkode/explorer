@@ -1,69 +1,79 @@
 <template>
-  <div class="d-flex align-items-center justify-content-center">
+  <div class="w-full">
     <LoadingView v-if="authchainLoading" />
-    <div v-else class="token-page overflow-hidden container d-lg-grid">
+    <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Mobile Header -->
       <TokenId
         :loading="metadata.loading"
         :identity-snapshot="metadata.identitySnapshot"
         :category="category"
-        class="d-lg-none"
+        class="lg:hidden mb-4"
       />
       <NavPills
         v-model:select="navItem"
         :items="['token_register', 'transaction']"
-        class="d-lg-none"
+        class="lg:hidden mb-6"
       />
-      <div
-        class="column d-lg-block"
-        :class="{
-          'd-none': navItem === 1,
-        }"
-      >
-        <content-warp
-          v-if="tokenInfo"
-          :items="tokenInfo"
-          :loading="authchainLoading"
-        />
-        <bcmr-info
-          :loading="metadata.loading"
-          :identity-snapshot="metadata.identitySnapshot"
-        />
-        <TokenProvider
-          :select="metadata.name"
-          :category="category"
-          @select="(url) => (selectedRegistryName = url)"
-        />
-      </div>
-      <div
-        class="column d-lg-block"
-        :class="{
-          'd-none': navItem === 0,
-        }"
-      >
-        <TokenId
-          :loading="metadata.loading"
-          :identity-snapshot="metadata.identitySnapshot"
-          :category="category"
-          class="d-none d-lg-block"
-        />
-        <NavPills
-          v-if="hasNftCapability"
-          v-model:select="tokenViewIndex"
-          :items="['table_view', 'grid_view']"
-        />
-        <template v-if="effectiveTokenViewMode === 'table'">
-          <TokenAddress
-            v-if="hasNftCapability"
-            :decimals="decimals"
-            :category="category"
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left Column: Registry & BCMR Info -->
+        <div
+          class="lg:col-span-4 space-y-6"
+          :class="{
+            'hidden lg:block': navItem === 1,
+          }"
+        >
+          <content-warp
+            v-if="tokenInfo"
+            :items="tokenInfo"
+            :loading="authchainLoading"
           />
-          <TokenTransaction :category="category" />
-        </template>
-        <TokenChild
-          :identity-snapshot="metadata.identitySnapshot"
-          :category="category"
-          :view-mode="effectiveTokenViewMode"
-        />
+          <bcmr-info
+            :loading="metadata.loading"
+            :identity-snapshot="metadata.identitySnapshot"
+          />
+          <TokenProvider
+            :select="metadata.name"
+            :category="category"
+            @select="(url) => (selectedRegistryName = url)"
+          />
+        </div>
+
+        <!-- Right Column: Details & Children/NFTs/Transactions -->
+        <div
+          class="lg:col-span-8 space-y-6"
+          :class="{
+            'hidden lg:block': navItem === 0,
+          }"
+        >
+          <TokenId
+            :loading="metadata.loading"
+            :identity-snapshot="metadata.identitySnapshot"
+            :category="category"
+            class="hidden lg:flex"
+          />
+
+          <NavPills
+            v-if="hasNftCapability"
+            v-model:select="tokenViewIndex"
+            :items="['table_view', 'grid_view']"
+          />
+
+          <template v-if="effectiveTokenViewMode === 'table'">
+            <TokenAddress
+              v-if="hasNftCapability"
+              :decimals="decimals"
+              :category="category"
+            />
+            <TokenTransaction :category="category" />
+          </template>
+
+          <TokenChild
+            :identity-snapshot="metadata.identitySnapshot"
+            :category="category"
+            :view-mode="effectiveTokenViewMode"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -119,7 +129,10 @@ onError(() => {
 });
 
 const selectedRegistryName = ref("");
-const tokenViewMode = useStorage<"table" | "grid">("token_page_view_mode", "table");
+const tokenViewMode = useStorage<"table" | "grid">(
+	"token_page_view_mode",
+	"table",
+);
 if (tokenViewMode.value !== "table" && tokenViewMode.value !== "grid") {
 	tokenViewMode.value = "table";
 }
@@ -175,8 +188,7 @@ const tokenInfo = computed(() => {
 			? null
 			: Number(reservedSupply.value);
 	const ownerAddress =
-		lockingBytecode &&
-		formatLockingBytecodeAddress(lockingBytecode);
+		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode);
 
 	const items: contentWarpItem[] = [
 		{
@@ -192,7 +204,7 @@ const tokenInfo = computed(() => {
 			copy: true,
 		},
 		{
-			title: "Token type",
+			title: "Token Type",
 			text: getTokenInfoType(genesisSupply, supplyNFTs.value),
 		},
 		{
@@ -200,26 +212,26 @@ const tokenInfo = computed(() => {
 			text: genesisSupply || null,
 		},
 		{
-			title: "Total amount NFTs",
+			title: "Total Amount NFTs",
 			text: supplyNFTs.value || null,
 		},
 		{
-			title: "Reserve supply",
+			title: "Reserve Supply",
 			text: reservedSupplyNumber,
 		},
 		{
-			title: "Circulating supply",
+			title: "Circulating Supply",
 			text:
 				reservedSupplyNumber === null
 					? null
 					: genesisSupply - reservedSupplyNumber,
 		},
 		{
-			title: "Is active minting",
+			title: "Is Active Minting",
 			text: isActiveMinting.value ? "Yes" : "No",
 		},
 		{
-			title: "Supply excluding burns",
+			title: "Supply Excluding Burns",
 			text: nonBurnTokens.value,
 		},
 	];
@@ -236,16 +248,3 @@ const tokenInfo = computed(() => {
 	return items;
 });
 </script>
-
-<style>
-.token-page {
-  grid-template-columns: 1fr 2.5fr;
-  gap: 15px;
-}
-.token-page .column {
-  overflow-x: hidden;
-}
-.token-page .column > * {
-  margin-top: 10px;
-}
-</style>

@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import codegen from "vite-plugin-graphql-codegen";
 import { watch } from "vite-plugin-watch";
 
@@ -27,7 +28,9 @@ export default defineNuxtConfig({
 				{
 					type: "module",
 					src: "https://static.cloudflareinsights.com/beacon.min.js",
-					"data-cf-beacon": JSON.stringify({ token: "704d5c00ab0b421d97a60a8c2ed3a3ef" }),
+					"data-cf-beacon": JSON.stringify({
+						token: "704d5c00ab0b421d97a60a8c2ed3a3ef",
+					}),
 					tagPosition: "bodyClose",
 				},
 			],
@@ -45,7 +48,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	css: ["~/assets/theme.scss"],
+	css: ["~/assets/css/main.css"],
 	srcDir: "src",
 	pages: true,
 	components: true,
@@ -62,8 +65,11 @@ export default defineNuxtConfig({
 	apollo: {
 		clients: {
 			default: {
-				httpEndpoint: process.env.CHAINGRAPH_HTTP || "https://gql.chaingraph.pat.mn/v1/graphql",
-				wsEndpoint: process.env.CHAINGRAPH_WS || "wss://gql.chaingraph.pat.mn/v1/graphql",
+				httpEndpoint:
+					process.env.CHAINGRAPH_HTTP ||
+					"https://gql.chaingraph.pat.mn/v1/graphql",
+				wsEndpoint:
+					process.env.CHAINGRAPH_WS || "wss://gql.chaingraph.pat.mn/v1/graphql",
 			},
 		},
 	},
@@ -90,6 +96,7 @@ export default defineNuxtConfig({
 			},
 		},
 		plugins: [
+			tailwindcss(),
 			codegen(),
 			watch({
 				pattern: "src/assets/icons/**/*.svg",

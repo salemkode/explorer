@@ -15,7 +15,6 @@ const swapList = ({
 	change.value++;
 };
 
-// TODO: move to another file.
 const removeItem = (index: number) => {
 	const url = registryStore.registryList.at(index)?.url;
 
@@ -27,21 +26,27 @@ const removeItem = (index: number) => {
 </script>
 
 <template>
-  <div v-if="registryStore.registryList.length >= 2" class="card p-3">
-    <h4 class="pt-2 pb-3">Register order</h4>
+  <div v-if="registryStore.registryList.length >= 2" class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs transition-colors">
+    <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3">
+      Registry Priority Order
+    </h3>
     <SortableList :key="change" @sort-end="swapList">
       <div
         v-for="(item, index) in registryStore.registryList"
         :key="index"
-        class="d-flex p-2 mb-2"
+        class="flex items-center gap-3 p-2.5 mb-2 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200/80 dark:border-zinc-800 text-xs font-medium text-slate-800 dark:text-zinc-200 hover:border-emerald-500/30 transition-colors select-none"
       >
-        <i class="uicon-draggable" style="cursor: grab" />
-        <span class="me-auto px-3" v-text="item.name" />
-        <i
+        <i class="uicon-draggable text-slate-400 dark:text-zinc-500 cursor-grab active:cursor-grabbing text-sm" />
+        <span class="flex-1 truncate" v-text="item.name" />
+        <button
           v-show="!registryStore.registryList.at(index)?.default"
-          class="uicon-trash text-danger pointer"
+          type="button"
+          class="p-1 text-slate-400 hover:text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors cursor-pointer"
+          aria-label="Remove registry"
           @click="removeItem(index)"
-        />
+        >
+          <i class="uicon-trash text-xs" />
+        </button>
       </div>
     </SortableList>
   </div>

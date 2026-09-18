@@ -6,7 +6,7 @@
       @update:select="updateActive"
     />
     <div
-      class="d-flex flex-column"
+      class="flex flex-col"
       :style="{
         '--fade-transition': `${TransitionTime}ms`,
       }"
@@ -26,41 +26,23 @@
 </template>
 
 <script setup lang="ts">
-const TransitionTime = 500;
+const TransitionTime = 300;
 const active = ref(0);
 const props = defineProps<{
 	items: readonly string[];
 }>();
 
 const updateActive = (value: number) => {
-	// Hide first one
 	active.value = -1;
 	setTimeout(() => {
 		active.value = value;
 	}, TransitionTime + 10);
 };
-
 </script>
 
-<style lang="scss" scoped>
-.nav-item {
-  &.active {
-    font-weight: bold;
-    .nav-line {
-      opacity: 1;
-    }
-  }
-  .nav-line {
-    opacity: 0;
-    height: 6px;
-    border-radius: 5px;
-    transform: scaleX(1.3);
-    transition: opacity 0.5s;
-  }
-}
-
+<style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity var(--fade-transition) ease;
+  transition: opacity var(--fade-transition, 300ms) ease;
 }
 </style>

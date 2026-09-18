@@ -1,17 +1,9 @@
 <template>
-  <div class="app">
+  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 transition-colors duration-200">
     <BaseHeader />
-    <div class="d-grid">
+    <main class="flex-1 w-full">
       <slot />
-    </div>
+    </main>
     <Footer />
   </div>
 </template>
-
-<style scoped>
-.app {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  min-height: 100vh;
-}
-</style>

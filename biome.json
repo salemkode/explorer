@@ -1,6 +1,14 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"files": {
-		"ignore": ["src/graphql", ".*", "node_modules"]
+		"ignore": [
+			"src/graphql",
+			"src/public",
+			".*",
+			"node_modules",
+			"dist",
+			".output",
+			".nuxt"
+		]
 	}
 }

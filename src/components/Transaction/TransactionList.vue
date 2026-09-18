@@ -1,13 +1,17 @@
 <template>
-  <Transition name="fade" mode="out-in">
-    <div :key="key">
-      <div
-        v-for="transaction in transactions"
-        :key="transaction.hash"
-        class="transaction-item"
-      >
+  <TransitionGroup
+    name="list"
+    tag="div"
+    class="relative divide-y divide-slate-100 dark:divide-zinc-800/60 overflow-hidden"
+  >
+    <div
+      v-for="transaction in transactions"
+      :key="transaction.hash"
+      class="group"
+    >
+        <!-- Clickable Header Row -->
         <div
-          class="content-warp d-flex p-3 w-100 pointer"
+          class="w-full px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors select-none"
           @click="
             showOperation.set(
               transaction.hash,
@@ -15,21 +19,25 @@
             )
           "
         >
-          <div class="content w-100">
-            <BaseCopy
-              :text="transaction.hash"
-              :copy="true"
-              :url="`/tx/${transaction.hash}`"
-              class="d-flex align-items-center"
-              short
-            />
-            <small>
+          <div class="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-center">
+            <!-- Tx Hash -->
+            <div class="md:col-span-4 min-w-0">
+              <BaseCopy
+                :text="transaction.hash"
+                :copy="true"
+                :url="`/tx/${transaction.hash}`"
+                short
+              />
+            </div>
+
+            <!-- Transfer Info (from -> to) -->
+            <div class="md:col-span-5 min-w-0 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500 dark:text-zinc-400">
               <div
                 v-for="(item, i) in transaction.transfer"
                 :key="i"
-                class="me-1"
+                class="inline-flex items-center gap-1"
               >
-                <b class="me-1" v-text="['from', 'to'][i]" />
+                <span class="font-semibold text-slate-400 dark:text-zinc-500 capitalize text-[11px]" v-text="['from', 'to'][i]" />
                 <BaseCopy
                   v-if="item.type === 'SingleSig'"
                   :url="item.url"
@@ -37,38 +45,44 @@
                   :copy="false"
                   short
                 />
-                <span v-else v-text="item.text" />
+                <span v-else class="font-mono text-xs" v-text="item.text" />
               </div>
-            </small>
-            <small class="amount">
+            </div>
+
+            <!-- Amount -->
+            <div class="md:col-span-3 text-left md:text-right font-mono font-bold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400">
               {{ formatPrice(transaction.amount || "0") }}
-            </small>
+            </div>
           </div>
-          <i
-            class="uicon-angle-small-down uicon-md ms-2 angle"
-            :style="{
-              transform: showOperation.get(transaction.hash)
-                ? 'rotate(-180deg)'
-                : 'rotate(0deg)',
-            }"
-          />
+
+          <!-- Expand / Collapse Arrow -->
+          <div class="p-1 rounded-lg text-slate-400 dark:text-zinc-500 group-hover:text-emerald-500 transition-colors shrink-0">
+            <i
+              class="uicon-angle-small-down text-xs transition-transform duration-300 inline-block"
+              :class="{ 'rotate-180': showOperation.get(transaction.hash) }"
+            />
+          </div>
         </div>
 
+        <!-- Collapsible UTXO Operations -->
         <SliderUpDown :active="showOperation.get(transaction.hash)">
-          <div class="transaction-list-operation d-lg-grid">
-            <TransactionListOperation
-              name="from"
-              :utxos="transaction.outpoints"
-              :is-coin-base="transaction.isCoinBase"
-            />
-            <div class="line d-none d-lg-block" />
-            <div class="line-row d-lg-none" />
-            <TransactionListOperation name="to" :utxos="transaction.outputs" />
+          <div class="bg-slate-50/60 dark:bg-zinc-950/40 border-t border-slate-100 dark:border-zinc-800/80 p-4 sm:p-5">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 divide-y lg:divide-y-0 lg:divide-x divide-slate-200/80 dark:divide-zinc-800/80">
+              <TransactionListOperation
+                name="from"
+                :utxos="transaction.outpoints"
+                :is-coin-base="transaction.isCoinBase"
+              />
+              <TransactionListOperation
+                name="to"
+                :utxos="transaction.outputs"
+                class="pt-4 lg:pt-0 lg:pl-6"
+              />
+            </div>
           </div>
         </SliderUpDown>
       </div>
-    </div>
-  </Transition>
+  </TransitionGroup>
 </template>
 
 <script lang="ts">
@@ -92,13 +106,9 @@ export type Transactions = Array<{
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useUsdPrice } from "~/hooks/usdPrice";
 
-const key = ref(0);
 const props = defineProps<{
-  transactions: Transactions;
+	transactions: Transactions;
 }>();
-watch(props, () => {
-  key.value += 1;
-});
 
 const { formatPrice } = useUsdPrice();
 
@@ -180,56 +190,3 @@ const transactions = computed(() => {
   });
 });
 </script>
-
-<style scoped lang="scss">
-$grid-breakpoints: (
-  xs: 0,
-  sm: 576px,
-  md: 768px,
-  lg: 992px,
-  xl: 1200px,
-  xxl: 1400px,
-) !default;
-@import "../../../node_modules/bootstrap/scss/mixins";
-@media (min-width: map-get($grid-breakpoints, md)) {
-  .transaction-item .content {
-    grid-template-columns: repeat(3, 1fr) auto;
-
-    .amount {
-      text-align: end;
-    }
-  }
-}
-
-.transaction-item {
-  .content-warp {
-    border: var(--bs-border-color) solid 1px;
-    border-width: 1px 0;
-
-    .content {
-      display: grid;
-      gap: 10px;
-      align-items: center;
-    }
-  }
-
-  .line {
-    width: 1px;
-    background-color: var(--bs-border-color);
-  }
-
-  .line-row {
-    height: 1px;
-    background-color: var(--bs-border-color);
-  }
-
-  .angle {
-    transition: transform 0.5s;
-  }
-
-  .transaction-list-operation {
-    border-width: 1px 0;
-    grid-template-columns: 1fr auto 1fr;
-  }
-}
-</style>

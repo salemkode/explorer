@@ -1,34 +1,48 @@
 <template>
-	<div class="container py-4 doctor-page">
-		<div class="card p-4">
-			<h3 class="mb-2">Doctor</h3>
-			<p class="text-body-secondary mb-3">
-				Enter a token ID to inspect the latest BCMR auth-chain publication, JSON
-				schema issues, and metadata hash mismatches.
-			</p>
+	<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+		<!-- Diagnostic Form Card -->
+		<div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-xs transition-colors">
+			<div class="mb-4">
+				<div class="flex items-center gap-2 mb-1.5">
+					<span class="w-2 h-2 rounded-full bg-emerald-500" />
+					<h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+						BCMR Doctor
+					</h1>
+				</div>
+				<p class="text-sm text-slate-500 dark:text-zinc-400">
+					Enter a token ID to inspect the latest BCMR auth-chain publication, JSON schema validity, and metadata hash integrity.
+				</p>
+			</div>
 
-			<form class="d-grid gap-3" @submit.prevent="submit">
+			<form class="space-y-4" @submit.prevent="submit">
 				<div>
-					<label class="form-label" for="doctor-token-id">Token ID</label>
+					<label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2" for="doctor-token-id">
+						Token Category ID
+					</label>
 					<input
 						id="doctor-token-id"
 						v-model="inputTokenId"
 						type="text"
-						class="form-control"
+						class="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 py-3 px-4 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
 						placeholder="64-character token ID"
 						autocomplete="off"
 						spellcheck="false"
 					/>
-					<div v-if="hasInvalidInput" class="text-danger mt-2">
+					<div v-if="hasInvalidInput" class="text-xs text-rose-500 font-medium mt-1.5">
 						Token ID must be a 64-character hexadecimal string.
 					</div>
 				</div>
 
-				<div class="d-flex gap-2">
-					<button class="btn btn-dark px-4" type="submit">Diagnose</button>
+				<div class="flex items-center gap-2 pt-1">
+					<button
+						class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-xs transition-colors cursor-pointer"
+						type="submit"
+					>
+						Diagnose
+					</button>
 					<button
 						v-if="route.query.token"
-						class="btn btn-outline-secondary"
+						class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-300 font-semibold text-sm transition-colors cursor-pointer"
 						type="button"
 						@click="clear"
 					>
@@ -38,26 +52,32 @@
 			</form>
 		</div>
 
-		<div v-if="activeTokenId" class="card p-4 mt-3">
-			<LoadingSpinner v-if="loading" />
+		<!-- Diagnostic Results Card -->
+		<div v-if="activeTokenId" class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-xs transition-colors">
+			<LoadingSpinner v-if="loading" class="py-12" />
 
 			<template v-else>
-				<h5 class="mb-3">Result</h5>
+				<h2 class="text-base font-bold text-slate-900 dark:text-white mb-4">
+					Diagnostic Result
+				</h2>
 
-				<div v-if="diagnosis?.status === 'token-not-found'" class="alert alert-danger mb-0">
+				<!-- Token Not Found -->
+				<div v-if="diagnosis?.status === 'token-not-found'" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-400">
 					Token ID was not found on the selected network.
 				</div>
 
+				<!-- AuthChain Not Found -->
 				<div
 					v-else-if="diagnosis?.status === 'authchain-not-found'"
-					class="alert alert-warning mb-0"
+					class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 dark:text-amber-400"
 				>
 					Token found, but no BCMR auth-chain publication was found.
 				</div>
 
+				<!-- Invalid OP_RETURN -->
 				<div
 					v-else-if="diagnosis?.status === 'invalid-opreturn'"
-					class="alert alert-danger mb-0"
+					class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-400"
 				>
 					{{ diagnosis.error }}
 				</div>
@@ -68,102 +88,121 @@
 						diagnosis?.status === 'json-parse-error' ||
 						diagnosis?.status === 'ok'
 					"
-					class="d-grid gap-3"
+					class="space-y-6"
 				>
-					<div class="status-grid">
-						<div class="status-card">
-							<div class="text-body-secondary small mb-1">JSON schema</div>
-							<div
-								:class="
-									diagnosisWithSchema?.schemaValid
-										? 'text-success'
-										: 'text-danger'
-								"
-							>
-								{{
-									diagnosisWithSchema?.schemaValid
-										? "Valid"
-										: "Issues found"
-								}}
+					<!-- Status Cards Grid -->
+					<div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+						<div class="p-4 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40">
+							<div class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1.5">
+								JSON Schema
+							</div>
+							<div>
+								<span
+									class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+									:class="
+										diagnosisWithSchema?.schemaValid
+											? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+											: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+									"
+								>
+									{{ diagnosisWithSchema?.schemaValid ? "Valid" : "Issues Found" }}
+								</span>
 							</div>
 						</div>
 
-						<div v-if="diagnosisWithHash" class="status-card">
-							<div class="text-body-secondary small mb-1">Metadata hash</div>
-							<div
-								:class="
-									diagnosisWithHash.hashMatches ? 'text-success' : 'text-danger'
-								"
-							>
-								{{ diagnosisWithHash.hashMatches ? "Matches" : "Mismatch" }}
+						<div v-if="diagnosisWithHash" class="p-4 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40">
+							<div class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1.5">
+								Metadata Hash
+							</div>
+							<div>
+								<span
+									class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+									:class="
+										diagnosisWithHash.hashMatches
+											? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+											: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+									"
+								>
+									{{ diagnosisWithHash.hashMatches ? "Matches" : "Mismatch" }}
+								</span>
 							</div>
 						</div>
 
-						<div v-if="diagnosisWithSchema" class="status-card">
-							<div class="text-body-secondary small mb-1">Token in registry</div>
-							<div
-								:class="
-									diagnosisWithSchema.tokenFoundInRegistry
-										? 'text-success'
-										: 'text-warning'
-								"
-							>
-								{{ diagnosisWithSchema.tokenFoundInRegistry ? "Found" : "Missing" }}
+						<div v-if="diagnosisWithSchema" class="p-4 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40">
+							<div class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1.5">
+								Registry Entry
+							</div>
+							<div>
+								<span
+									class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+									:class="
+										diagnosisWithSchema.tokenFoundInRegistry
+											? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+											: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+									"
+								>
+									{{ diagnosisWithSchema.tokenFoundInRegistry ? "Found" : "Missing" }}
+								</span>
 							</div>
 						</div>
 					</div>
 
-					<div class="detail-list">
-						<div class="detail-item">
-							<div class="text-body-secondary small">Token ID</div>
-							<code class="detail-text">{{ activeTokenId }}</code>
+					<!-- Details List -->
+					<div class="space-y-3">
+						<div class="p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800/80 bg-slate-50/30 dark:bg-zinc-800/20">
+							<div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1">Token ID</div>
+							<code class="block text-xs font-mono text-slate-800 dark:text-zinc-200 break-all">{{ activeTokenId }}</code>
 						</div>
-						<div class="detail-item">
-							<div class="text-body-secondary small">Registry URL</div>
-							<a :href="diagnosis.registryUrl" target="_blank" rel="noreferrer">
-								{{ diagnosis.registryUrl }}
+
+						<div class="p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800/80 bg-slate-50/30 dark:bg-zinc-800/20">
+							<div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1">Registry URL</div>
+							<a :href="diagnosis.registryUrl" target="_blank" rel="noreferrer" class="text-xs font-mono text-emerald-600 dark:text-emerald-400 hover:underline break-all">
+								{{ diagnosis.registryUrl }} ↗
 							</a>
 						</div>
-						<div class="detail-item">
-							<div class="text-body-secondary small">Expected hash</div>
-							<code class="detail-text">{{ diagnosis.expectedHash }}</code>
+
+						<div class="p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800/80 bg-slate-50/30 dark:bg-zinc-800/20">
+							<div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1">Expected Hash</div>
+							<code class="block text-xs font-mono text-slate-800 dark:text-zinc-200 break-all">{{ diagnosis.expectedHash }}</code>
 						</div>
-						<div v-if="diagnosisWithHash" class="detail-item">
-							<div class="text-body-secondary small">Actual hash</div>
-							<code class="detail-text">{{ diagnosisWithHash.actualHash }}</code>
+
+						<div v-if="diagnosisWithHash" class="p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800/80 bg-slate-50/30 dark:bg-zinc-800/20">
+							<div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1">Actual Hash</div>
+							<code class="block text-xs font-mono text-slate-800 dark:text-zinc-200 break-all">{{ diagnosisWithHash.actualHash }}</code>
 						</div>
+
 						<div
 							v-if="diagnosisWithHash && !diagnosisWithHash.hashMatches"
-							class="detail-item"
+							class="p-3.5 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-950/20"
 						>
-							<div class="text-body-secondary small">Correct hash</div>
-							<code class="detail-text text-danger">{{
-								diagnosisWithHash.actualHash
-							}}</code>
+							<div class="text-[11px] font-semibold uppercase tracking-wider text-rose-500 mb-1">Correct Hash Required</div>
+							<code class="block text-xs font-mono text-rose-600 dark:text-rose-400 break-all">{{ diagnosisWithHash.actualHash }}</code>
 						</div>
-						<div class="detail-item">
-							<div class="text-body-secondary small">BCMR OP_RETURN</div>
-							<code class="detail-text">{{ diagnosis.opReturnHex }}</code>
+
+						<div class="p-3.5 rounded-xl border border-slate-100 dark:border-zinc-800/80 bg-slate-50/30 dark:bg-zinc-800/20">
+							<div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1">BCMR OP_RETURN</div>
+							<code class="block text-xs font-mono text-slate-800 dark:text-zinc-200 break-all">{{ diagnosis.opReturnHex }}</code>
 						</div>
 					</div>
 
+					<!-- Error States -->
 					<div
 						v-if="diagnosis.status === 'json-parse-error'"
-						class="alert alert-danger mb-0"
+						class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-400"
 					>
 						JSON parse error: {{ diagnosis.error }}
 					</div>
 
-					<div v-else-if="diagnosisWithSchema && !diagnosisWithSchema.schemaValid" class="alert alert-danger mb-0">
-						<ul class="mb-0 ps-3">
+					<div v-else-if="diagnosisWithSchema && !diagnosisWithSchema.schemaValid" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-400">
+						<ul class="space-y-1">
 							<li v-for="(issue, index) in schemaIssues" :key="`${issue.path}-${index}`">
-								<code>{{ issue.path }}</code> {{ issue.message }}
+								<code class="font-mono">{{ issue.path }}</code>: {{ issue.message }}
 							</li>
 						</ul>
 					</div>
 
-					<div v-else-if="diagnosisWithSchema?.schemaValid" class="alert alert-success mb-0">
-						Registry JSON passes the BCMR schema.
+					<div v-else-if="diagnosisWithSchema?.schemaValid" class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-400">
+						Registry JSON passes the BCMR schema specification.
 					</div>
 				</div>
 			</template>
@@ -291,34 +330,3 @@ const clear = async () => {
 	});
 };
 </script>
-
-<style scoped>
-.doctor-page {
-	max-width: 980px;
-}
-
-.status-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-	gap: 12px;
-}
-
-.status-card,
-.detail-item {
-	border: 1px solid rgba(var(--bs-body-color-rgb), 0.12);
-	border-radius: 12px;
-	padding: 12px 14px;
-}
-
-.detail-list {
-	display: grid;
-	gap: 12px;
-}
-
-.detail-text {
-	display: block;
-	margin-top: 4px;
-	overflow-wrap: anywhere;
-	white-space: pre-wrap;
-}
-</style>

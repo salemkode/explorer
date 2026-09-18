@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--color-bch-50: #f0fdf4;
+	--color-bch-100: #dcfce7;
+	--color-bch-200: #bbf7d0;
+	--color-bch-300: #86efac;
+	--color-bch-400: #4ade80;
+	--color-bch-500: #22c55e;
+	--color-bch-600: #16a34a;
+	--color-bch-700: #15803d;
+	--color-bch-800: #166534;
+	--color-bch-900: #14532d;
+	--color-bch-950: #052e16;
+	--color-bch-green: #0d8514;
+	--color-bch-accent: #0ac18e;
+
+	--color-zinc-750: #313136;
+	--color-zinc-850: #202023;
+
+	--shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+	--shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -1px
+		rgb(0 0 0 / 0.06);
+	--shadow-glow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+}
+
+html {
+	color-scheme: light;
+}
+html.dark {
+	color-scheme: dark;
+}
+
+body {
+	min-height: 100vh;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	background-color: #f8fafc;
+	color: #0f172a;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, sans-serif;
+}
+
+.dark body,
+html.dark body {
+	background-color: #09090b;
+	color: #f4f4f5;
+}
+
+/* Icon font setup */
+[class^="uicon-"],
+[class*=" uicon-"] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-display: swap;
+	line-height: 1;
+}
+
+.uicon-md {
+	font-size: 26px;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+	width: 7px;
+	height: 7px;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: rgba(156, 163, 175, 0.5);
+	border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(156, 163, 175, 0.8);
+}
+.dark ::-webkit-scrollbar-thumb {
+	background: rgba(82, 82, 91, 0.6);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+	background: rgba(113, 113, 122, 0.8);
+}
+
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+
+/* List Transitions (Vue TransitionGroup) */
+.list-move,
+.list-enter-active,
+.list-leave-active {
+	transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.list-enter-from {
+	opacity: 0;
+	transform: translateY(-12px);
+}
+
+.list-leave-to {
+	opacity: 0;
+	transform: translateY(12px);
+}
+
+/* Ensure leaving elements do not occupy height in layout flow */
+.list-leave-active {
+	position: absolute;
+	width: 100%;
+	pointer-events: none;
+	z-index: 0;
+}

@@ -1,21 +1,19 @@
 <template>
-  <div class="d-flex text-center">
-    <div
+  <div class="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 gap-1 my-3">
+    <button
       v-for="(item, index) in props.items"
       :key="index"
-      class="pointer w-100 p-2"
+      type="button"
+      class="flex-1 py-2 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold text-center transition-all cursor-pointer select-none"
+      :class="
+        navItem === index
+          ? 'bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/60 dark:border-zinc-700/60'
+          : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200 border border-transparent'
+      "
       @click="navItem = index"
     >
-      <span
-        class="nav-item pointer d-inline-block"
-        :class="{
-          active: navItem === index,
-        }"
-      >
-        <div class="pt-2 mt-1" v-text="$t(item)" />
-        <div class="nav-line bg-primary mt-2" />
-      </span>
-    </div>
+      <span v-text="$t(item)" />
+    </button>
   </div>
 </template>
 
@@ -36,28 +34,3 @@ const navItem = computed({
 	},
 });
 </script>
-
-<style lang="scss" scoped>
-.nav-item {
-  &.active {
-    font-weight: bold;
-
-    .nav-line {
-      opacity: 1;
-    }
-  }
-
-  .nav-line {
-    opacity: 0;
-    height: 6px;
-    border-radius: 5px;
-    transform: scaleX(1.3);
-    transition: opacity 0.5s;
-  }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-</style>

@@ -79,7 +79,9 @@ const childNfts = computed<ChildNftItem[]>(() => {
 
 	let items = result.value.output.map((output: ChildOutput) => {
 		const commitment = output.nonfungible_token_commitment?.substring(2) || "";
-		const address = formatLockingBytecodeAddress(output.locking_bytecode.substring(2));
+		const address = formatLockingBytecodeAddress(
+			output.locking_bytecode.substring(2),
+		);
 
 		return {
 			category: props.category,

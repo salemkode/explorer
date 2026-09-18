@@ -1,45 +1,75 @@
 <template>
-  <div v-if="transaction" class="tx-page d-lg-grid container mx-auto">
-    <TxConfirm
-      v-if="transaction.blockHeight"
-      :block-height="transaction.blockHeight"
-      class="d-lg-none mt-3 mb-4"
-    />
-    <div class="column">
-      <content-warp
-        :loading="TxLoading"
-        :items="infoContent"
-        :token-category="authchainElement ? txid : undefined"
-      />
-      <bcmr-info
-        :loading="false"
-        :identity-snapshot="tokenIdentity.identity"
-        :token-category="txid"
-      />
-    </div>
-    <div class="column">
-      <TxConfirm
-        v-if="transaction.blockHeight"
-        :block-height="transaction.blockHeight"
-        class="d-none d-lg-block"
-      />
-      <div class="operation d-lg-grid">
-        <TransactionListOperation
-          name="from"
-          :utxos="transaction.inputUtxo"
-          :is-coin-base="transaction.transaction.is_coinbase"
-        />
-        <TransactionListOperation
-          name="to"
-          :utxos="transaction.transaction.outputs"
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div v-if="transaction" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Mobile TxConfirm -->
+      <div class="lg:hidden col-span-1">
+        <TxConfirm
+          v-if="transaction.blockHeight"
+          :block-height="transaction.blockHeight"
         />
       </div>
+
+      <!-- Left Column: Details & BCMR Info -->
+      <div class="lg:col-span-4 space-y-6">
+        <content-warp
+          :loading="TxLoading"
+          :items="infoContent"
+          :token-category="authchainElement ? txid : undefined"
+        />
+        <bcmr-info
+          :loading="false"
+          :identity-snapshot="tokenIdentity.identity"
+          :token-category="txid"
+        />
+      </div>
+
+      <!-- Right Column: Confirm & Operations (Inputs / Outputs) -->
+      <div class="lg:col-span-8 space-y-6">
+        <TxConfirm
+          v-if="transaction.blockHeight"
+          :block-height="transaction.blockHeight"
+          class="hidden lg:flex"
+        />
+
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs transition-colors">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-zinc-800/80">
+            <div>
+              <TransactionListOperation
+                name="from"
+                :utxos="transaction.inputUtxo"
+                :is-coin-base="transaction.transaction.is_coinbase"
+              />
+            </div>
+            <div class="pt-6 md:pt-0 md:pl-6">
+              <TransactionListOperation
+                name="to"
+                :utxos="transaction.transaction.outputs"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- 404 Not Found State -->
+    <div v-else-if="Tx && Tx.transaction.length === 0" class="py-16 text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 text-2xl">
+        ✕
+      </div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Transaction Not Found</h2>
+      <p class="text-sm text-slate-500 dark:text-zinc-400 max-w-md mx-auto mb-6">
+        This transaction was not found on the network or has not been broadcasted yet.
+      </p>
+      <NuxtLink
+        to="/"
+        class="inline-flex items-center px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-sm hover:opacity-90 transition-opacity"
+      >
+        Return to Home
+      </NuxtLink>
+    </div>
+
+    <LoadingView v-else />
   </div>
-  <div v-else-if="Tx && Tx.transaction.length === 0" class="container py-5">
-    <h2>This transaction is not found</h2>
-  </div>
-  <LoadingView v-else />
 </template>
 
 <script setup lang="ts">
@@ -97,7 +127,7 @@ const transaction = computed(() => {
 	}
 	if (!transaction) return transaction;
 	return {
-		blockHeight, // TODO: fix not work when block not found app store will update last block height
+		blockHeight,
 		timestamp: block ? new Date(+block.timestamp * 1000) : new Date(),
 		transaction,
 		inputUtxo: transaction.inputs
@@ -129,7 +159,7 @@ const infoContent = computed(() => {
 		transaction.value.transaction.output_value_satoshis;
 	return [
 		{
-			title: "Transaction hash",
+			title: "Transaction Hash",
 			text: txid.value as string,
 			copy: true,
 			warp: true,
@@ -139,26 +169,9 @@ const infoContent = computed(() => {
 			text: satoshis ? formatPrice(satoshis) : 0,
 		},
 		{
-			title: "Time",
+			title: "Timestamp",
 			text: formatDateString(transaction.value.timestamp),
 		},
 	];
 });
 </script>
-
-<style>
-.tx-page {
-  grid-template-columns: 1fr 2.5fr;
-  gap: 15px;
-}
-.tx-page .column {
-  overflow-x: hidden;
-}
-.tx-page .column > * {
-  margin-top: 10px;
-}
-.tx-page .operation {
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-</style>
