@@ -1,34 +1,33 @@
 <script setup lang="ts">
-import { prefersTheme, storedTheme } from "~/hooks/theme";
+import { isDark, prefersTheme, storedTheme } from "~/hooks/theme";
 import { uid } from "~/module/uid";
+
 const isDarkmode = computed({
-	get: () => {
-		if (storedTheme.value === "system") {
-			return prefersTheme.value === "dark";
-		}
-		return storedTheme.value === "dark";
-	},
+	get: () => isDark.value,
 	set: (checked: boolean) => {
-		if (checked) {
-			storedTheme.value = "dark";
-		} else {
-			storedTheme.value = "light";
-		}
+		storedTheme.value = checked ? "dark" : "light";
 	},
 });
+
+const toggleTheme = () => {
+	isDarkmode.value = !isDarkmode.value;
+};
+
 const id = uid();
 </script>
 
 <template>
-  <div>
-    <input
+  <div class="inline-flex items-center">
+    <button
       :id="id"
-      ref="input"
-      v-model="isDarkmode"
-      type="checkbox"
-      class="d-none"
-    />
-    <label :for="id" class="toggle" title="Toggle Dark Mode">
+      type="button"
+      role="switch"
+      :aria-checked="isDarkmode"
+      class="toggle"
+      :class="{ 'toggle--dark': isDarkmode }"
+      title="Toggle Dark Mode"
+      @click="toggleTheme"
+    >
       <svg
         aria-hidden="true"
         class="toggle__backdrop"
@@ -170,7 +169,7 @@ const id = uid();
           </g>
         </g>
       </svg>
-    </label>
+    </button>
   </div>
 </template>
 
@@ -194,6 +193,7 @@ const id = uid();
   fill: var(--ray);
 }
 
+:root.dark .toggle,
 [data-bs-theme="dark"] .toggle {
   --shadow: #22262a;
 }
@@ -367,6 +367,9 @@ const id = uid();
   translate: calc(var(--dark, 0) * (var(--width) - (3 / 8 * var(--width)))) 0;
 }
 
+.toggle--dark,
+:root.dark .toggle,
+[data-bs-theme="dark"] .toggle,
 input:checked ~ .toggle {
   --dark: 1;
 }

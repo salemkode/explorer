@@ -1,11 +1,13 @@
 <template>
   <div
     v-if="loading || error || items.length"
-    class="card"
+    class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden transition-colors"
   >
-    <h3 class="d-flex align-items-center p-3 header">
-      <span>{{ $t("nft_gallery") }}</span>
-      <div class="mx-auto" />
+    <!-- Header -->
+    <div class="px-5 py-4 border-b border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
+      <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <span>{{ $t("nft_gallery") }}</span>
+      </h3>
       <BasePagination
         v-show="hasPrevPage || hasNextPage"
         :has-prev-page="hasPrevPage"
@@ -13,38 +15,43 @@
         @next="emit('next')"
         @previous="emit('previous')"
       />
-    </h3>
+    </div>
 
-    <div v-if="error" class="m-auto py-5 my-5">
+    <div v-if="error" class="p-8 text-center text-sm text-rose-500">
       {{ error }}
     </div>
 
-    <div v-else class="p-3">
-      <div class="gallery-grid">
+    <div v-else class="p-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         <article
           v-for="item in items"
           :key="`${item.category}:${item.capability || 'none'}:${item.commitment || ''}`"
-          class="nft-card border rounded p-3"
+          class="group bg-slate-50/50 dark:bg-zinc-800/40 rounded-xl border border-slate-200/80 dark:border-zinc-700/60 p-3.5 hover:border-emerald-500/40 hover:shadow-md transition-all flex flex-col"
         >
-          <div class="image-wrap mb-3">
+          <div class="w-full aspect-square rounded-lg bg-white dark:bg-zinc-900 flex items-center justify-center p-3 mb-3 border border-slate-100 dark:border-zinc-700/40 overflow-hidden shrink-0">
             <bcmr-icon
               :token-category="item.category"
               :capability="item.capability || undefined"
               :commitment="item.commitment"
-              :size="160"
-              class="image"
+              :size="140"
+              class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
             />
           </div>
-          <div class="fw-semibold text-truncate mb-2" :title="item.name">{{ item.name }}</div>
 
-          <div class="mb-2">
-            <div class="small text-secondary">{{ $t("category") }}</div>
-            <BaseCopy :text="item.category" :copy="true" :short="true" />
+          <div class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate mb-2" :title="item.name">
+            {{ item.name }}
           </div>
 
-          <div>
-            <div class="small text-secondary">{{ $t("commitment") }}</div>
-            <BaseCopy :text="item.commitment || 'N/A'" :copy="!!item.commitment" :short="true" />
+          <div class="space-y-1.5 text-xs mt-auto pt-2 border-t border-slate-100 dark:border-zinc-800">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-500">{{ $t("category") }}</span>
+              <BaseCopy :text="item.category" :copy="true" :short="true" />
+            </div>
+
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] uppercase font-semibold text-slate-400 dark:text-zinc-500">{{ $t("commitment") }}</span>
+              <BaseCopy :text="item.commitment || 'N/A'" :copy="!!item.commitment" :short="true" />
+            </div>
           </div>
         </article>
       </div>
@@ -52,7 +59,7 @@
 
     <LoadingSpinner
       v-if="loading"
-      :class="loading && !items.length ? 'py-5 my-5' : 'py-2 mt-2'"
+      class="py-6"
     />
   </div>
 </template>
@@ -61,64 +68,23 @@
 import type { Capability } from "~/types";
 
 export interface ChildNftItem {
-  category: string;
-  capability?: Capability | null;
-  commitment: string;
-  address?: string;
-  name: string;
+	category: string;
+	capability?: Capability | null;
+	commitment: string;
+	address?: string;
+	name: string;
 }
 
 defineProps<{
-  items: ChildNftItem[];
-  loading: boolean;
-  error?: string;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
+	items: ChildNftItem[];
+	loading: boolean;
+	error?: string;
+	hasNextPage: boolean;
+	hasPrevPage: boolean;
 }>();
 
 const emit = defineEmits<{
-  (event: "next"): void;
-  (event: "previous"): void;
+	(event: "next"): void;
+	(event: "previous"): void;
 }>();
 </script>
-
-<style lang="scss" scoped>
-.gallery-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-@media (min-width: 576px) {
-  .gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 992px) {
-  .gallery-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1400px) {
-  .gallery-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.nft-card {
-  min-width: 0;
-}
-
-.image-wrap {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.image {
-  display: block;
-}
-</style>

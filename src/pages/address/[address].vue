@@ -2,29 +2,45 @@
 <template>
   <div
     v-if="lockingBytecode && tokenAddress"
-    class="address-page overflow-hidden container d-lg-grid"
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
   >
-    <AddressHeader :address="routeAddress" class="d-lg-none" />
-    <div class="column">
-      <content-warp
-        :loading="!addressInfoWarp.length"
-        :items="addressInfoWarp"
-      />
-    </div>
-    <div class="column">
-      <AddressHeader :address="routeAddress" class="d-none d-lg-flex" />
-      <VTabs :items="navItems">
-        <template #transaction>
-          <AddressTransaction
-            v-if="addressResponse.history.length"
-            :history="addressResponse.history"
-          />
-        </template>
-        <template #cash_token>
-          <AddressNFTs :locking-bytecode="lockingBytecode" />
-          <AddressTokens class="mt-4" :locking-bytecode="lockingBytecode" />
-        </template>
-      </VTabs>
+    <!-- Mobile Address Header -->
+    <AddressHeader :address="routeAddress" class="lg:hidden mb-6" />
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left Column: Address Information -->
+      <div class="lg:col-span-4 space-y-6">
+        <content-warp
+          :loading="!addressInfoWarp.length"
+          :items="addressInfoWarp"
+        />
+      </div>
+
+      <!-- Right Column: Desktop Header & Tabs -->
+      <div class="lg:col-span-8 space-y-6">
+        <AddressHeader :address="routeAddress" class="hidden lg:flex" />
+
+        <VTabs :items="navItems">
+          <template #transaction>
+            <AddressTransaction
+              v-if="addressResponse.history.length"
+              :history="addressResponse.history"
+            />
+            <div
+              v-else
+              class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-8 text-center text-sm text-slate-400 dark:text-zinc-500 shadow-xs"
+            >
+              No transaction history found for this address
+            </div>
+          </template>
+          <template #cash_token>
+            <div class="space-y-6">
+              <AddressNFTs :locking-bytecode="lockingBytecode" />
+              <AddressTokens :locking-bytecode="lockingBytecode" />
+            </div>
+          </template>
+        </VTabs>
+      </div>
     </div>
   </div>
 </template>
@@ -108,36 +124,16 @@ const addressInfoWarp = computed<contentWarpItem[]>(() => {
 			text: formatPrice(addressResponse.value?.balance.unconfirmed),
 		},
 		{
-			title: "First Transition",
+			title: "First Transaction",
 			text: addressInfo?.firstTx,
 			copy: true,
 			url: `/tx/${addressInfo?.firstTx}`,
 			warp: true,
 		},
 		{
-			title: "Transition count",
+			title: "Transaction Count",
 			text: addressInfo?.txCount,
 		},
 	];
 });
 </script>
-
-<style scoped>
-.address-page {
-  grid-template-columns: 1fr 2.5fr;
-  gap: 15px;
-}
-.address-page .column {
-  overflow-x: hidden;
-}
-.address-page .column > * {
-  margin-top: 10px;
-}
-
-.fade-enter-active {
-  transition-delay: 0.6s;
-}
-.fade-leave-active {
-  transition-delay: 0;
-}
-</style>

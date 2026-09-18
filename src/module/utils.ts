@@ -1,8 +1,8 @@
 import type { ValidateFunction } from "ajv";
 import BigNumber from "bignumber.js";
 import type { Registry, bigNum } from "~/types";
-import { selectedIpfsGateway } from "./ipfs";
 import { satToBch } from "./bitcoin";
+import { selectedIpfsGateway } from "./ipfs";
 
 export const bytesToMB = (bytes: number) => {
 	// One megabyte is equal to 1024 * 1024 bytes

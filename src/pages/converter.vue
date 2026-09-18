@@ -1,85 +1,110 @@
 <template>
-	<div class="container py-4 converter-page">
-		<div class="card p-4">
-			<div class="d-flex align-items-center gap-2 mb-2">
-				<h3 class="mb-0">{{ $t("converter_page_header") }}</h3>
-				<span v-if="showAlpha" class="badge text-bg-warning">
-					{{ $t("converter_alpha_badge") }}
-				</span>
+	<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-xs transition-colors space-y-6">
+			<!-- Header -->
+			<div>
+				<div class="flex items-center gap-2.5 mb-2">
+					<h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+						{{ $t("converter_page_header") }}
+					</h1>
+					<span v-if="showAlpha" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+						{{ $t("converter_alpha_badge") }}
+					</span>
+				</div>
+				<p class="text-sm text-slate-500 dark:text-zinc-400">
+					{{ $t("converter_page_subtext") }}
+				</p>
 			</div>
-			<p class="text-body-secondary mb-3">
-				{{ $t("converter_page_subtext") }}
-			</p>
 
-			<div v-if="showAlpha" class="alert alert-warning mb-3">
-				<div class="fw-semibold">{{ $t("converter_alpha_warning_title") }}</div>
+			<!-- Alpha Warning -->
+			<div v-if="showAlpha" class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 dark:text-amber-400 space-y-1 leading-relaxed">
+				<div class="font-bold">{{ $t("converter_alpha_warning_title") }}</div>
 				<div>{{ $t("converter_alpha_warning_body") }}</div>
 			</div>
 
-			<input
-				v-model="inputAddress"
-				type="text"
-				class="form-control"
-				:placeholder="$t('converter_input_placeholder')"
-			/>
+			<!-- Input -->
+			<div>
+				<label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">
+					Address to Convert
+				</label>
+				<input
+					v-model="inputAddress"
+					type="text"
+					class="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 py-3.5 px-4 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+					:placeholder="$t('converter_input_placeholder')"
+				/>
 
-			<div v-if="hasInvalidInput" class="text-danger mt-2">
-				{{ $t("converter_invalid_address") }}
+				<div v-if="hasInvalidInput" class="text-xs text-rose-500 font-medium mt-2">
+					{{ $t("converter_invalid_address") }}
+				</div>
+
+				<div v-else-if="addressType" class="mt-3 flex items-center gap-2">
+					<span class="text-xs text-slate-500 dark:text-zinc-400">
+						{{ $t("converter_detected_type") }}:
+					</span>
+					<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+						{{ addressType }}
+					</span>
+				</div>
 			</div>
 
-			<div v-else-if="addressType" class="mt-3">
-				<span class="text-body-secondary me-2">
-					{{ $t("converter_detected_type") }}:
-				</span>
-				<span class="badge text-bg-primary">{{ addressType }}</span>
-			</div>
-
+			<!-- Converted Outputs -->
 			<ContentWarp
 				v-if="addressInfoWarp.length"
-				class="mt-3"
 				:loading="false"
 				:items="addressInfoWarp"
 			/>
-			<div v-if="crossCheckMismatches.length" class="alert alert-warning mt-3 mb-0">
-				Cross-check mismatch for: {{ crossCheckMismatches.join(", ") }}. Please
-				verify with the external tools below.
+
+			<div v-if="crossCheckMismatches.length" class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700 dark:text-amber-400">
+				Cross-check mismatch for: {{ crossCheckMismatches.join(", ") }}. Please verify with the external tools below.
 			</div>
 
-			<hr class="my-4" />
+			<hr class="border-slate-100 dark:border-zinc-800" />
 
-			<h5 class="mb-2">{{ $t("converter_verify_header") }}</h5>
-			<p class="text-body-secondary mb-2">
-				{{ $t("converter_verify_subtext") }}
-			</p>
-			<ul class="mb-0">
-				<li>
-					<a
-						href="https://bch.info/en/tools/cashaddr"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						bch.info — Address conversion tool
-					</a>
-				</li>
-				<li>
-					<a
-						href="https://www.bitcoin.com/tools/cash-address-converter/"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Bitcoin.com — Cash Address Converter
-					</a>
-				</li>
-				<li>
-					<a
-						href="https://cashaddr.bitcoincash.org/"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						bitcoincash.org — CashAddr tool
-					</a>
-				</li>
-			</ul>
+			<!-- External Verification -->
+			<div>
+				<h5 class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">
+					{{ $t("converter_verify_header") }}
+				</h5>
+				<p class="text-xs text-slate-500 dark:text-zinc-400 mb-3">
+					{{ $t("converter_verify_subtext") }}
+				</p>
+				<ul class="space-y-2">
+					<li>
+						<a
+							href="https://bch.info/en/tools/cashaddr"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
+						>
+							<span>bch.info — Address conversion tool</span>
+							<span class="text-xs">↗</span>
+						</a>
+					</li>
+					<li>
+						<a
+							href="https://www.bitcoin.com/tools/cash-address-converter/"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
+						>
+							<span>Bitcoin.com — Cash Address Converter</span>
+							<span class="text-xs">↗</span>
+						</a>
+					</li>
+					<li>
+						<a
+							href="https://cashaddr.bitcoincash.org/"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
+						>
+							<span>bitcoincash.org — CashAddr tool</span>
+							<span class="text-xs">↗</span>
+						</a>
+					</li>
+				</ul>
+			</div>
 		</div>
 	</div>
 </template>
@@ -222,9 +247,3 @@ const addressInfoWarp = computed<contentWarpItem[]>(() => {
 	];
 });
 </script>
-
-<style scoped>
-.converter-page {
-	max-width: 900px;
-}
-</style>

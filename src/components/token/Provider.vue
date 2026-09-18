@@ -1,29 +1,39 @@
 <template>
-  <div class="card p-3">
-    <h5>Registry</h5>
-    <div class="d-flex flex-column">
+  <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs transition-colors">
+    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-3">
+      BCMR Registry Source
+    </h3>
+    <div class="space-y-1">
       <div
         v-for="{ name, registry, loading, isValidHash } in providers"
         :key="name"
-        class="d-flex py-2 align-items-center pointer registry-item"
+        class="w-full flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer select-none"
+        :class="
+          name === props.select
+            ? 'bg-emerald-500/10 border border-emerald-500/20'
+            : 'hover:bg-slate-50 dark:hover:bg-zinc-800/60 border border-transparent'
+        "
         @click="selectRegistry(name, registry)"
       >
-        <div v-if="loading" class="spinner-grow" alt="" />
-        <PopOver
-          v-else-if="!registry || !isValidHash"
-          :msg="
-            !isValidHash ? 'metadata hash matches' : 'not found in registry'
+        <div class="flex items-center gap-2.5 min-w-0">
+          <LoadingSpinner v-if="loading" small />
+          <PopOver
+            v-else-if="!registry || !isValidHash"
+            :msg="!isValidHash ? 'metadata hash matches' : 'not found in registry'"
+          >
+            <i class="uicon-unverified text-amber-500 text-base" />
+          </PopOver>
+          <i v-else class="uicon-verified text-emerald-500 text-base" />
+          <span class="text-xs sm:text-sm font-medium text-slate-800 dark:text-zinc-200 truncate" v-text="name" />
+        </div>
+
+        <div
+          class="w-2.5 h-2.5 rounded-full transition-all shrink-0 ml-2"
+          :class="
+            name === props.select
+              ? 'bg-emerald-500 ring-4 ring-emerald-500/20'
+              : 'border border-slate-300 dark:border-zinc-600'
           "
-        >
-          <i class="uicon-unverified text-danger" />
-        </PopOver>
-        <i v-else class="uicon-verified text-primary" />
-        <span class="px-3 me-auto" v-text="name" />
-        <span
-          class="select-boll me-1"
-          :class="{
-            active: name === props.select,
-          }"
         />
       </div>
     </div>
@@ -111,30 +121,3 @@ const selectRegistry = (name: string, registry?: Registry) => {
 	}
 };
 </script>
-
-<style scoped>
-[class^="uicon-"],
-[class*=" uicon-"] {
-  font-size: 22px;
-}
-
-.spinner-grow {
-  min-height: 18px;
-  min-width: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.select-boll.active {
-  opacity: 1;
-}
-
-.select-boll {
-  background-color: var(--bs-body-color);
-  min-width: 10px;
-  min-height: 10px;
-  border-radius: 1000px;
-  transition: opacity 0.5s;
-  opacity: 0;
-}
-</style>

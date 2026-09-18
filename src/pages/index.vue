@@ -1,20 +1,15 @@
 <template>
   <div>
     <HomeHero />
-    <div class="container">
-      <div class="home-content d-lg-grid my-3">
-        <HomeUnconfirmedTransaction />
-        <div class="mt-2 mt-lg-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-8 relative z-10 pb-16">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-7 xl:col-span-8">
+          <HomeUnconfirmedTransaction />
+        </div>
+        <div class="lg:col-span-5 xl:col-span-4">
           <HomeBlocksList />
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.home-content {
-  grid-template-columns: 1.5fr 1fr;
-  gap: 15px;
-}
-</style>

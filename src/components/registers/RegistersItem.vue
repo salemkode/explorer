@@ -1,63 +1,69 @@
 <template>
   <div
     v-if="typeof registry.registryIdentity === 'object'"
-    class="card p-3 h-max-content pointer"
+    class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs hover:border-emerald-500/40 transition-all cursor-pointer"
     @click="open = !open"
   >
-    <div class="content d-flex flex-column flex-md-row gap-3">
-      <div>
+    <div class="flex flex-col sm:flex-row items-start gap-4">
+      <div class="w-16 h-16 rounded-xl bg-slate-50 dark:bg-zinc-800 p-2 border border-slate-200/80 dark:border-zinc-700 flex items-center justify-center shrink-0">
         <Image
           :href="registry.registryIdentity.uris?.icon || ''"
-          :size="80"
+          :size="56"
           :failure-href="EmptyImage"
           :token-category="registry.registryIdentity.name"
           :icon="registry.registryIdentity.uris?.icon || ''"
+          class="max-w-full max-h-full object-contain"
         />
       </div>
-      <div v-if="typeof registry.registryIdentity !== 'string'" class="w-100">
-        <div class="d-flex w-100 justify-content-between mb-1">
-          <h5 v-text="registry.registryIdentity.name" />
-          <small
-            class="white-space-nowrap"
+
+      <div v-if="typeof registry.registryIdentity !== 'string'" class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2 mb-1">
+          <h4 class="text-base font-bold text-slate-900 dark:text-white truncate" v-text="registry.registryIdentity.name" />
+          <span
+            class="text-[11px] font-mono text-slate-400 dark:text-zinc-500 shrink-0"
             v-text="formatTimeAgo(registry.latestRevision)"
           />
         </div>
-        <p class="mb-1" v-text="registry.registryIdentity.description || ''" />
-        <div v-if="registry.registryIdentity.tags" class="mb-2">
+        <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed mb-2" v-text="registry.registryIdentity.description || ''" />
+
+        <div v-if="registry.registryIdentity.tags" class="flex flex-wrap gap-1.5">
           <span
             v-for="tag in registry.registryIdentity.tags"
             :key="tag"
-            class="badge text-bg-primary"
+            class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
             v-text="tag"
           />
         </div>
       </div>
     </div>
+
     <SliderUpDown :active="open" @click.stop>
-      <TableView
-        title="Register tokens"
-        :rows="transactions"
-        :columns="['token', 'category', 'symbol']"
-        :has-prev-page="!!pagination"
-        :has-next-page="pagination < maxPagination"
-        header-less
-        :style="{
-          '--bs-table-striped-bg': 'none',
-        }"
-        class="mt-3"
-        @next="maxPagination++"
-        @previous="maxPagination--"
-      />
-      <div class="d-flex mt-3">
-        <DropDown class="d-md-none" :title="$t('uris')" :items="uris" />
-        <a
-          v-for="url in uris"
-          :key="url.name"
-          :href="url.href"
-          target="_blank"
-          class="btn d-none d-md-block"
-          v-text="$t(url.name)"
+      <div class="border-t border-slate-100 dark:border-zinc-800/80 pt-4 mt-4">
+        <TableView
+          title="Register tokens"
+          :rows="transactions"
+          :columns="['token', 'category', 'symbol']"
+          :has-prev-page="!!pagination"
+          :has-next-page="pagination < maxPagination"
+          header-less
+          class="mt-2"
+          @next="maxPagination++"
+          @previous="maxPagination--"
         />
+        <div class="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-zinc-800/60">
+          <DropDown class="sm:hidden" :title="$t('uris')" :items="uris" />
+          <a
+            v-for="url in uris"
+            :key="url.name"
+            :href="url.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/60 hover:bg-slate-100 dark:hover:bg-zinc-700 text-xs font-semibold text-slate-700 dark:text-zinc-200 transition-colors"
+          >
+            <span>{{ $t(url.name) }}</span>
+            <span class="text-[10px] opacity-60">↗</span>
+          </a>
+        </div>
       </div>
     </SliderUpDown>
   </div>
@@ -118,7 +124,6 @@ const transactions = computed<tableColumn[][]>(() => {
 const uris = computed(() => {
 	const registryIdentity = props.registry.registryIdentity;
 
-	// TODO: add auth chain support.
 	if (typeof registryIdentity !== "object") return [];
 	return [
 		{

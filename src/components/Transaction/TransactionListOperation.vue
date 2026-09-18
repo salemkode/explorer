@@ -1,50 +1,57 @@
 <template>
-  <div class="px-3">
-    <b class="d-block py-2" v-text="$t(props.name)" />
-    <ul class="mb-0 nav flex-column text-break">
+  <div>
+    <div class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-3 flex items-center gap-1.5">
+      <span class="w-1.5 h-1.5 rounded-full" :class="props.name === 'from' ? 'bg-amber-500' : 'bg-emerald-500'" />
+      <span v-text="$t(props.name)" />
+    </div>
+
+    <ul class="space-y-3">
       <li
         v-for="(utxo, i) in utxos"
         :key="i"
-        class="mb-2 w-100"
-        style="font-size: 12.8px"
+        class="flex items-start gap-2.5 text-xs"
       >
-        <div class="d-flex">
-          <b class="pe-2 mt-1 order-number">
-            {{ (i < 9 ? "0" : "") + (i + 1) }}
-          </b>
-          <div>
-            <template v-if="utxo.type === 'address'">
-              <div class="d-flex flex-wrap">
-                <div
-                  v-if="utxo.addressType"
-                  class="badge text-bg-primary d-flex align-items-center me-1 mb-1"
-                >
-                  {{ utxo.addressType }}
-                </div>
-              </div>
+        <span class="font-mono font-bold text-[11px] text-slate-400 dark:text-zinc-500 w-5 pt-0.5 shrink-0 select-none">
+          {{ (i < 9 ? "0" : "") + (i + 1) }}
+        </span>
+
+        <div class="flex-1 min-w-0">
+          <template v-if="utxo.type === 'address'">
+            <div v-if="utxo.addressType" class="mb-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                {{ utxo.addressType }}
+              </span>
+            </div>
+            <div class="min-w-0 break-all">
               <BaseCopy
                 :text="utxo.address"
                 :url="`/address/${utxo.address}`"
                 warp
                 copy
               />
-            </template>
-            <b v-else-if="utxo.type === 'op_return'">
-              OP_RETURN {{ utxo.data }}
-            </b>
-            <b v-else-if="utxo.type === 'coinbase'"> Block Reward </b>
-            <div class="amount">
-              {{ formatPrice(utxo.valueSatoshis || "0") }}
             </div>
-            <template v-if="'category' in utxo && utxo.category">
-              <TransactionOperationToken
-                :category="utxo.category"
-                :token-amount="utxo.tokenAmount"
-                :token-capability="utxo.tokenCapability"
-                :token-commitment="utxo.tokenCommitment"
-              />
-            </template>
+          </template>
+
+          <div v-else-if="utxo.type === 'op_return'" class="font-mono text-xs text-slate-700 dark:text-zinc-300 break-all bg-slate-100 dark:bg-zinc-800/80 p-1.5 rounded-lg">
+            <span class="text-amber-600 dark:text-amber-400 font-bold">OP_RETURN</span> {{ utxo.data }}
           </div>
+
+          <div v-else-if="utxo.type === 'coinbase'" class="font-semibold text-emerald-600 dark:text-emerald-400">
+            Block Reward (Coinbase)
+          </div>
+
+          <div class="font-mono text-xs font-semibold text-slate-600 dark:text-zinc-400 mt-1">
+            {{ formatPrice(utxo.valueSatoshis || "0") }}
+          </div>
+
+          <template v-if="'category' in utxo && utxo.category">
+            <TransactionOperationToken
+              :category="utxo.category"
+              :token-amount="utxo.tokenAmount"
+              :token-capability="utxo.tokenCapability"
+              :token-commitment="utxo.tokenCommitment"
+            />
+          </template>
         </div>
       </li>
     </ul>
@@ -53,8 +60,8 @@
 
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
-import { useAuthChains } from "~/hooks/authchains";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
+import { useAuthChains } from "~/hooks/authchains";
 import { useUsdPrice } from "~/hooks/usdPrice";
 import { getAddressType } from "~/module/bitcoin";
 import { useRegistryStore } from "~/store";
@@ -122,10 +129,3 @@ const getAddress = (lockingBytecode: string, removePrefix = true) => {
 	);
 };
 </script>
-
-<style scoped>
-.order-number {
-  font-size: 14px;
-  min-width: 35px;
-}
-</style>

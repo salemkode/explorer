@@ -1,10 +1,13 @@
 <template>
-  <div v-if="result" class="container">
-    <div class="block-page overflow-hidden d-lg-grid">
-      <div class="column">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div v-if="result" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left Column: Block Info Warp -->
+      <div class="lg:col-span-4 space-y-6">
         <content-warp :loading="false" :items="blockItemWarp" />
       </div>
-      <div class="column">
+
+      <!-- Right Column: Header Navigator & Transactions -->
+      <div class="lg:col-span-8 space-y-6">
         <BlockHeader :height="result.block.at(0)?.height || ''" />
         <BlockTransaction
           v-model:offset="offsetTxs"
@@ -14,8 +17,8 @@
         />
       </div>
     </div>
+    <LoadingView v-else-if="loading" />
   </div>
-  <LoadingView v-else-if="loading" />
 </template>
 
 <script setup lang="ts">
@@ -53,25 +56,25 @@ const blockItemWarp = computed<contentWarpItem[]>(() => {
 			warp: true,
 		},
 		{
-			title: "Block height",
+			title: "Block Height",
 			text: block?.height,
 			copy: true,
 			warp: true,
 		},
 		{
-			title: "Input total",
+			title: "Input Total",
 			text: formatPrice(block.input_value_satoshis || "0"),
 		},
 		{
-			title: "Output total",
+			title: "Output Total",
 			text: formatPrice(block.output_value_satoshis || "0"),
 		},
 		{
-			title: "Input count",
+			title: "Input Count",
 			text: block.input_count,
 		},
 		{
-			title: "Output count",
+			title: "Output Count",
 			text: block.output_count,
 		},
 	];
@@ -85,23 +88,3 @@ const transactions = computed(() => {
 	return block.transactions?.map(({ transaction }) => transaction);
 });
 </script>
-
-<style scoped>
-.block-page {
-  grid-template-columns: 1fr 2.5fr;
-  gap: 15px;
-}
-.block-page .column {
-  overflow-x: hidden;
-}
-.block-page .column > * {
-  margin-top: 10px;
-}
-
-.fade-enter-active {
-  transition-delay: 0.6s;
-}
-.fade-leave-active {
-  transition-delay: 0;
-}
-</style>

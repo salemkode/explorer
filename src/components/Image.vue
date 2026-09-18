@@ -57,7 +57,7 @@ const handleImageLoaded = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 img {
   object-fit: contain;
 }

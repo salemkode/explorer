@@ -1,21 +1,23 @@
 <template>
-  <div class="transaction-list card">
-    <h3 class="p-3 justify-content-between d-flex">
-      Last transaction
+  <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden transition-colors">
+    <div class="px-5 py-4 border-b border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
+      <h3 class="text-base font-bold text-slate-900 dark:text-white">
+        Latest Transactions
+      </h3>
       <BasePagination
         :has-next-page="hasNextPage"
         :has-prev-page="hasPrevPage"
         @next="offset += limit"
         @previous="offset -= limit"
       />
-    </h3>
+    </div>
     <Transition name="fade" mode="out-in">
-      <LoadingSpinner v-if="loading" class="m-auto my-5" />
+      <LoadingSpinner v-if="loading" class="py-12" />
       <div
         v-else-if="transactions.length === 0 || error"
-        class="text-center my-5 py-5"
+        class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500"
       >
-        Not Found Transactions
+        No transactions found for this address
       </div>
       <TransactionList v-else :transactions="transactions" />
     </Transition>

@@ -1,12 +1,19 @@
 <template>
   <div
     v-if="loading || error || rows.length"
-    class="card"
-    :class="{ 'border-less': headerLess }"
+    :class="[
+      headerLess
+        ? 'w-full'
+        : 'bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden transition-colors'
+    ]"
   >
-    <h3 class="d-flex align-items-center p-3 header">
-      <span>{{ props.title }}</span>
-      <div class="mx-auto" />
+    <div
+      v-if="!headerLess"
+      class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-zinc-800/80"
+    >
+      <h3 class="text-sm font-bold text-slate-900 dark:text-white">
+        {{ props.title }}
+      </h3>
       <BasePagination
         v-show="props.hasPrevPage || props.hasNextPage"
         :has-prev-page="props.hasPrevPage"
@@ -14,27 +21,34 @@
         @next="event('next')"
         @previous="event('previous')"
       />
-    </h3>
-    <div v-if="error" class="m-auto py-5 my-5">
+    </div>
+
+    <div v-if="error" class="p-8 text-center text-sm text-rose-500">
       {{ error }}
     </div>
-    <div v-else class="overflow-x-auto text-nowrap">
+
+    <div v-else class="overflow-x-auto w-full">
       <table
         v-if="loading || !!rows.length"
-        class="table fade show table-striped mb-0"
+        class="w-full text-left border-collapse"
       >
-        <thead v-if="props.columns">
+        <thead v-if="props.columns" class="bg-slate-50/80 dark:bg-zinc-900/80 border-b border-slate-100 dark:border-zinc-800/80">
           <tr>
-            <td
+            <th
               v-for="(column, index) in props.columns"
               :key="index"
+              class="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500"
               v-text="$t(column)"
             />
           </tr>
         </thead>
         <Transition name="fade" mode="out-in">
-          <tbody :key="change.count">
-            <tr v-for="(row, index) in rows" :key="index">
+          <tbody :key="change.count" class="divide-y divide-slate-100 dark:divide-zinc-800/60">
+            <tr
+              v-for="(row, index) in rows"
+              :key="index"
+              class="hover:bg-slate-50/75 dark:hover:bg-zinc-800/40 transition-colors"
+            >
               <table-cell
                 v-for="(column, columnIndex) in row"
                 :key="columnIndex"
@@ -45,9 +59,10 @@
         </Transition>
       </table>
     </div>
+
     <LoadingSpinner
       v-if="loading"
-      :class="loading && !rows.length ? 'py-5 my-5' : 'py-2 mt-2'"
+      class="py-6"
     />
   </div>
 </template>
@@ -109,33 +124,3 @@ watch(toRef(props, "rows"), () => {
 	}
 });
 </script>
-
-<style lang="scss" scoped>
-.table {
-  animation: fade 0.8s linear;
-}
-
-.border-less {
-  border: none;
-
-  .header {
-    padding: 8px 0 0 !important;
-    display: none !important;
-  }
-
-  .table {
-    --bs-table-border-color: transparent;
-    --bs-table-striped-bg: transparent;
-    padding: 8px 0 0 !important;
-  }
-}
-
-@keyframes fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-</style>

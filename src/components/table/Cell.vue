@@ -1,18 +1,17 @@
 <template>
-  <td>
-    <div class="d-flex align-items-center">
+  <td class="px-5 py-3.5 text-sm text-slate-700 dark:text-zinc-300 align-middle whitespace-nowrap">
+    <div class="flex items-center gap-2">
       <bcmr-icon
         v-if="column.token"
         :token-category="column.token.category"
         :commitment="column.token.commitment"
         :capability="column.token.capability"
         small
-        class="icon mb-2 me-2"
+        class="shrink-0"
       />
 
       <!-- Copyable value of item -->
       <BaseCopy
-        class="d-flex align-items-center"
         :short="column.short"
         :text="column.text"
         :copy="!!column.copy"
@@ -29,12 +28,3 @@ defineProps<{
 	column: tableColumn;
 }>();
 </script>
-
-<style scoped>
-pre {
-  margin: 0;
-}
-td {
-  vertical-align: middle;
-}
-</style>

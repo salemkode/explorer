@@ -1,13 +1,36 @@
 <template>
-  <Transition name="slider">
-    <div v-if="!isHomePage" class="search-bar container">
-      <i class="uicon-search me-2 text-white pointer" @click="search" />
-      <input
-        v-model="query"
-        type="text"
-        :placeholder="$t('search_placeholder')"
-        @keydown="keydownHandler"
-      />
+  <Transition
+    enter-active-class="transition-all duration-300 ease-out overflow-hidden"
+    leave-active-class="transition-all duration-200 ease-in overflow-hidden"
+    enter-from-class="max-h-0 opacity-0"
+    enter-to-class="max-h-16 opacity-100"
+    leave-from-class="max-h-16 opacity-100"
+    leave-to-class="max-h-0 opacity-0"
+  >
+    <div
+      v-if="!isHomePage"
+      class="w-full bg-slate-900 dark:bg-zinc-900 border-b border-slate-800 dark:border-zinc-800/80 shadow-inner"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-3">
+        <button
+          type="button"
+          class="text-slate-400 hover:text-emerald-400 transition-colors p-1"
+          aria-label="Search"
+          @click="search"
+        >
+          <i class="uicon-search text-base" />
+        </button>
+        <input
+          v-model="query"
+          type="text"
+          class="flex-1 bg-transparent text-white placeholder-slate-400 text-sm outline-none border-0 focus:ring-0"
+          :placeholder="$t('search_placeholder')"
+          @keydown="keydownHandler"
+        />
+        <kbd class="hidden sm:inline-flex items-center text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-slate-800 dark:bg-zinc-800 text-slate-400 border border-slate-700 dark:border-zinc-700">
+          Enter
+        </kbd>
+      </div>
     </div>
   </Transition>
 </template>
@@ -25,46 +48,3 @@ function keydownHandler(event: KeyboardEvent) {
 	}
 }
 </script>
-
-<style scoped>
-input:focus,
-button:focus {
-  box-shadow: none !important;
-}
-
-.search-bar {
-  display: flex;
-  background: var(--bs-dark);
-  max-height: 200px;
-  box-shadow: 0 0 0 100vmax var(--bs-dark);
-  clip-path: inset(0 -100vmax);
-}
-
-.search-bar input {
-  background: transparent;
-  border: none;
-  padding: 5px;
-  width: 100%;
-  color: white;
-  outline: none;
-}
-
-.search-bar input::placeholder {
-  color: white;
-}
-
-.slider-enter-active,
-.slider-leave-active {
-  transition: max-height 1s;
-}
-
-.slider-leave-from,
-.slider-enter-to {
-  max-height: 100px;
-}
-
-.slider-enter-from,
-.slider-leave-to {
-  max-height: 0;
-}
-</style>

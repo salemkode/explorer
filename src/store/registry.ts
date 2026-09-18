@@ -1,13 +1,13 @@
 import { binToHex, sha256, utf8ToBin } from "@bitauth/libauth";
 import { defineStore } from "pinia";
+import { useStorage } from "~/hooks/storage";
 import { getChildToken } from "~/module/bcmr";
 import {
-	opreturnToAuthChainElement,
 	normalizeMetadataUrl,
+	opreturnToAuthChainElement,
 } from "~/module/bitcoin";
 import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, RegistryProvider, tokenCapability } from "~/types";
-import { useStorage } from "~/hooks/storage";
 
 // TODO: move to customize json at root of project
 export const defaultProviders = [
