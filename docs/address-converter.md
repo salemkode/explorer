@@ -12,7 +12,8 @@ it does not query balances, send funds, or verify a wallet's capabilities.
 - Output network: Mainnet uses `bitcoincash:` and mainnet legacy versions.
   Chipnet uses `bchtest:` and testnet legacy versions. Testnet and Chipnet
   share address encodings, so an input cannot identify which test chain holds
-  funds. Changing this selection changes the encoding, not the funds' network.
+  funds. This selection stays local to the converter and does not switch the
+  explorer's browsing network. It changes the encoding, not the funds' network.
 - Token-aware and regular outputs identify the same locking script. Only the
   token-aware format signals CashTokens support. Converting an address does
   not make a wallet token-compatible.

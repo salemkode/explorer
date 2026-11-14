@@ -56,16 +56,16 @@
 
 			<div>
 				<label for="converter-network" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">Output network</label>
-				<select id="converter-network" v-model="stateStore.network" aria-describedby="converter-network-help" class="w-full rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 py-3 px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+				<select id="converter-network" v-model="outputNetwork" aria-describedby="converter-network-help" class="w-full rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 py-3 px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
 					<option v-for="(network, value) in converterNetworks" :key="value" :value="value">{{ network.label }}</option>
 				</select>
 				<p id="converter-network-help" class="mt-2 text-xs text-slate-500 dark:text-zinc-400">
-					All outputs use this network. Changing the encoding does not move funds between networks. Chipnet shares the testnet address format.
+					This selection applies only to these converted outputs. Changing the encoding does not move funds between networks. Chipnet shares the testnet address format.
 				</p>
 			</div>
 
 			<section v-if="conversion.status === 'ready'" class="space-y-4" aria-labelledby="converter-results-title">
-				<h2 id="converter-results-title" class="text-sm font-semibold text-slate-900 dark:text-white">Equivalent addresses · {{ converterNetworks[stateStore.network].label }}</h2>
+				<h2 id="converter-results-title" class="text-sm font-semibold text-slate-900 dark:text-white">Equivalent addresses · {{ converterNetworks[outputNetwork].label }}</h2>
 				<ConverterOutput
 					:key="conversion.tokenAddress"
 					id="converter-token"
@@ -154,8 +154,9 @@ const showAlpha = computed(
 );
 const stateStore = useStateStore();
 const inputAddress = ref("");
+const outputNetwork = ref(stateStore.network);
 const conversion = computed(() =>
-	convertAddress(inputAddress.value, stateStore.network),
+	convertAddress(inputAddress.value, outputNetwork.value),
 );
 
 useHead(() => ({
