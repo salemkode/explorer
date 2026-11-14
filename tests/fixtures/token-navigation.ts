@@ -97,18 +97,26 @@ const { default: ContentWarp } = await import(
 	"../../src/components/ContentWarp.vue"
 );
 
-const { GetSupplyNFTs } = await import("../../src/hooks/nftSupply");
-const { GetUseNonBurnTokens } = await import("../../src/hooks/nonSpentToken");
-const { GetMintingToken } = await import("../../src/hooks/activeMinting");
-const { GetAccountingNode } = await import("../../src/hooks/confirmedNode");
 const { GetAuthChains } = await import("../../src/module/chaingraph");
 const { decodeAuthChain } = await import("../../src/module/bcmr");
 
+const balanceRows = new Map<
+	string,
+	import("../../src/graphql/graphql").GetTokenBalanceOutputsQuery["output"]
+>();
+const apolloClients = new Map<
+	string,
+	ApolloClient<import("@apollo/client/core").NormalizedCacheObject>
+>();
+Object.assign(globalThis, {
+	useApollo: () => ({ clients: { default: apolloClients.get("default") } }),
+});
 const requests = new Map<Operation, Observer<FetchResult>>();
 const cleanup: (() => void)[] = [];
 
 beforeEach(() => {
 	requests.clear();
+	balanceRows.clear();
 	route.params = { category: tokenA, txid: txB };
 	route.query = {};
 });
@@ -122,7 +130,7 @@ async function settle() {
 	await nextTick();
 }
 
-function mountPages(initial = "token", cachedCount = 0) {
+function mountPages(initial = "token") {
 	const pinia = createPinia();
 	setActivePinia(pinia);
 	const client = new ApolloClient({
@@ -131,53 +139,69 @@ function mountPages(initial = "token", cachedCount = 0) {
 			(operation) =>
 				new Observable((observer) => {
 					requests.set(operation, observer);
-					if (operation.operationName === "GetAccountingNode")
+					if (operation.operationName === "GetTokenBalanceBlock")
 						observer.next({
 							data: {
-								node: [
+								block: [
 									{
-										internal_id:
-											operation.variables.network === "chipnet" ? 2 : 1,
+										hash: "\\xdead",
+										height: "100",
+										accepted_by: [
+											{
+												node_internal_id:
+													operation.variables.node._eq ??
+													(operation.variables.network === "chipnet" ? 2 : 1),
+											},
+										],
 									},
 								],
 							},
 						});
+					if (operation.operationName === "GetTokenBalanceBlock")
+						observer.complete();
+					if (operation.operationName === "GetTokenBalanceOutputs") {
+						const where = operation.variables.where;
+						const category = where._and[0].token_category._eq;
+						const genesis = where._and[0].transaction_hash;
+						const rows = genesis
+							? [
+									{
+										transaction_hash: genesis._eq,
+										output_index: "0",
+										token_category: category,
+										locking_bytecode: "\\x51",
+										fungible_token_amount: "100",
+										nonfungible_token_capability: null,
+									},
+								]
+							: (balanceRows.get(category) ?? [
+									{
+										transaction_hash: "\\xab",
+										output_index: "0",
+										token_category: category,
+										locking_bytecode: "\\x51",
+										fungible_token_amount: "60",
+										nonfungible_token_capability: null,
+									},
+								]);
+						const cursor = where._and[1]?._or[1]?.output_index?._gt;
+						observer.next({
+							data: {
+								output: rows
+									.filter(
+										(row) =>
+											cursor === undefined ||
+											BigInt(row.output_index) > BigInt(cursor),
+									)
+									.slice(0, 500),
+							},
+						});
+						observer.complete();
+					}
 				}),
 		),
 	});
-	if (cachedCount) {
-		client.cache.writeQuery({
-			query: GetAccountingNode,
-			variables: { network: "mainnet" },
-			data: { node: [{ internal_id: 1 }] },
-		});
-		client.cache.writeQuery({
-			query: GetAuthChains,
-			variables: { network: "mainnet", tokenCategory: [`\\x${tokenA}`] },
-			data: chainResponse(tokenA),
-		});
-		client.cache.writeQuery({
-			query: GetMintingToken,
-			variables: { node: 1, tokenCategory: `\\x${tokenA}` },
-			data: { output: [] },
-		});
-		for (const query of [GetSupplyNFTs, GetUseNonBurnTokens])
-			client.cache.writeQuery({
-				query,
-				variables: {
-					node: 1,
-					tokenCategory: `\\x${tokenA}`,
-					offset: 0,
-					limit: 5000,
-				},
-				data: {
-					output: Array.from({ length: cachedCount }, () => ({
-						locking_bytecode: "\\x51" as const,
-						fungible_token_amount: "50",
-					})),
-				},
-			});
-	}
+	apolloClients.set("default", client);
 	const page = ref(initial);
 	const root = createNode("root");
 	const app = renderer.createApp({
@@ -267,9 +291,13 @@ function request(
 		({ operation }) =>
 			operation.operationName === name &&
 			(operation.variables.network === network ||
-				operation.variables.node === (network === "chipnet" ? 2 : 1)) &&
+				operation.variables.where?.transaction?.block_inclusions?.block
+					?.accepted_by?.node_internal_id?._eq ===
+					(network === "chipnet" ? 2 : 1)) &&
 			(operation.variables.hash === `\\x${category}` ||
 				operation.variables.tokenCategory === `\\x${category}` ||
+				operation.variables.where?._and?.[0]?.token_category?._eq ===
+					`\\x${category}` ||
 				operation.variables.tokenCategory?.includes(`\\x${category}`)) &&
 			(operation.variables.offset || 0) === offset,
 	);
@@ -284,17 +312,6 @@ async function answerToken(category: string, network = "mainnet") {
 	await settle();
 	request("GetAuthChains", category, network).observer.next?.({
 		data: chainResponse(category),
-	});
-	request("GetMintingToken", category, network).observer.next?.({
-		data: { output: [] },
-	});
-	request("GetSupplyNFTs", category, network).observer.next?.({
-		data: { output: [] },
-	});
-	request("GetUseNonBurnTokens", category, network).observer.next?.({
-		data: {
-			output: [{ locking_bytecode: "\\x51", fungible_token_amount: "60" }],
-		},
 	});
 	await settle();
 }
@@ -330,7 +347,7 @@ describe("token and transaction navigation", () => {
 		const screen = mountPages();
 		await settle();
 		const old = request("GetAuthChains", tokenA);
-		const oldSupply = request("GetUseNonBurnTokens", tokenA);
+		const oldSupply = request("GetTokenBalanceOutputs", tokenA);
 		screen.store.authchains.set(tokenC, registry(tokenC, "Token Charlie"));
 		route.params = { category: tokenC, txid: txB };
 		await settle();
@@ -345,7 +362,7 @@ describe("token and transaction navigation", () => {
 		expect(screen.text()).toContain("Token Charlie");
 		expect(screen.text()).not.toContain("not found");
 		expect(screen.text()).not.toContain("could not be loaded");
-		expect(screen.text()).toMatch(/Supply Excluding Burns\s+60/);
+		expect(screen.text()).toMatch(/Unspent fungible supply\s+60/);
 		expect(screen.text()).not.toContain("9999");
 	});
 
@@ -412,56 +429,6 @@ describe("token and transaction navigation", () => {
 		await settle();
 		expect(screen.text()).not.toContain("Mainnet Alpha");
 	});
-	test("paginated supplies count each page once and reset for a new token", async () => {
-		const screen = mountPages();
-		await settle();
-		screen.store.authchains.set(tokenA, registry(tokenA, "Token Alpha"));
-		screen.store.authchains.set(tokenC, registry(tokenC, "Token Charlie"));
-		request("GetAuthChains", tokenA).observer.next?.({
-			data: chainResponse(tokenA),
-		});
-		request("GetMintingToken", tokenA).observer.next?.({
-			data: { output: [] },
-		});
-		request("GetSupplyNFTs", tokenA).observer.next?.({
-			data: {
-				output: Array.from({ length: 5000 }, () => ({
-					locking_bytecode: "\\x51",
-				})),
-			},
-		});
-		request("GetUseNonBurnTokens", tokenA).observer.next?.({
-			data: {
-				output: Array.from({ length: 5000 }, () => ({
-					locking_bytecode: "\\x51",
-					fungible_token_amount: "2",
-				})),
-			},
-		});
-		await settle();
-		const nfts = request("GetSupplyNFTs", tokenA, "mainnet", 5000);
-		const supply = request("GetUseNonBurnTokens", tokenA, "mainnet", 5000);
-		const lastNfts = {
-			output: [{ locking_bytecode: "\\x51" }, { locking_bytecode: "\\x52" }],
-		};
-		const lastSupply = {
-			output: [{ locking_bytecode: "\\x51", fungible_token_amount: "7" }],
-		};
-		nfts.observer.next?.({ data: lastNfts });
-		supply.observer.next?.({ data: lastSupply });
-		await settle();
-		expect(screen.text()).toMatch(/Total Amount NFTs\s+5002/);
-		expect(screen.text()).toMatch(/Supply Excluding Burns\s+10007/);
-		nfts.observer.next?.({ data: lastNfts });
-		supply.observer.next?.({ data: lastSupply });
-		await settle();
-		expect(screen.text()).toMatch(/Supply Excluding Burns\s+10007/);
-		route.params = { category: tokenC, txid: txB };
-		await settle();
-		await answerToken(tokenC);
-		expect(screen.text()).toMatch(/Supply Excluding Burns\s+60/);
-		expect(screen.text()).not.toContain("10007");
-	});
 
 	test("a pending registry fetch cannot repopulate a different network, even after switching back", async () => {
 		const screen = mountPages();
@@ -509,11 +476,11 @@ describe("token and transaction navigation", () => {
 		);
 		cleanup.push(() => fetchMock.mockRestore());
 		await answerToken(tokenA);
-		expect(screen.text()).toContain("Genesis Transaction");
+		expect(screen.text()).toContain("Genesis transaction");
 		expect(screen.text()).toContain("Loading token metadata");
 		deferred.resolve(new Response("Unavailable", { status: 503 }));
 		await settle();
-		expect(screen.text()).toContain("Genesis Transaction");
+		expect(screen.text()).toContain("Genesis transaction");
 		expect(screen.text()).toContain("Auth-chain metadata could not be loaded");
 		expect(screen.text()).not.toContain("Loading token metadata");
 	});
@@ -530,48 +497,39 @@ describe("token and transaction navigation", () => {
 		request("GetAuthChains", tokenC).observer.next?.({
 			data: { transaction: [] },
 		});
-		request("GetMintingToken", tokenC).observer.next?.({
-			data: { output: [] },
-		});
-		request("GetSupplyNFTs", tokenC).observer.next?.({ data: { output: [] } });
-		request("GetUseNonBurnTokens", tokenC).observer.next?.({
-			data: { output: [] },
-		});
 		await settle();
 		expect(screen.text()).toContain("Token not found");
 		expect(screen.text()).not.toContain("could not be loaded");
 	});
 });
 
-test("initial cached complete balances and auth-chain results are consumed without a network response", async () => {
-	const screen = mountPages("token", 2);
+test("complete paged balances count each outpoint once and reset across token changes", async () => {
+	balanceRows.set(
+		`\\x${tokenA}`,
+		Array.from({ length: 1002 }, (_, index) => ({
+			transaction_hash: "\\xab",
+			output_index: String(index),
+			token_category: `\\x${tokenA}`,
+			locking_bytecode: "\\x51",
+			fungible_token_amount: index === 1001 ? "7" : "2",
+			nonfungible_token_capability: "none",
+		})),
+	);
+	const screen = mountPages();
 	await settle();
-	expect(screen.text()).toMatch(/Supply Excluding Burns\s+100/);
-	expect(screen.text()).toMatch(/Total Amount NFTs\s+2/);
-	expect(screen.text()).toContain("1 available");
-	expect(
-		[...requests.keys()].some(
-			(op) => op.operationName === "GetUseNonBurnTokens",
-		),
-	).toBe(false);
-});
-
-test("cached first pages advance and repeated terminal emissions are counted once", async () => {
-	const screen = mountPages("token", 5000);
+	await answerToken(tokenA);
 	await settle();
-	const nfts = request("GetSupplyNFTs", tokenA, "mainnet", 5000);
-	const supply = request("GetUseNonBurnTokens", tokenA, "mainnet", 5000);
-	const finalNfts = { output: [{ locking_bytecode: "\\x51" }] };
-	const finalSupply = {
-		output: [{ locking_bytecode: "\\x51", fungible_token_amount: "7" }],
-	};
-	for (const _ of [0, 1]) {
-		nfts.observer.next?.({ data: finalNfts });
-		supply.observer.next?.({ data: finalSupply });
-		await settle();
-		expect(screen.text()).toMatch(/Supply Excluding Burns\s+250007/);
-		expect(screen.text()).toMatch(/Total Amount NFTs\s+5001/);
-	}
+	expect(screen.text()).toMatch(/Unspent fungible supply\s+2009/);
+	expect(screen.text()).toMatch(/Unspent NFTs \(all capabilities\)\s+1002/);
+	const old = request("GetTokenBalanceOutputs", tokenA);
+	old.observer.next?.({ data: { output: [] } });
+	await settle();
+	expect(screen.text()).toMatch(/Unspent fungible supply\s+2009/);
+	route.params = { category: tokenC, txid: txB };
+	await settle();
+	await answerToken(tokenC);
+	expect(screen.text()).toMatch(/Unspent fungible supply\s+60/);
+	expect(screen.text()).not.toContain("2009");
 });
 
 test("genesis checks every authorizing input and rejects BCH-only or foreign category outputs", () => {
@@ -583,7 +541,7 @@ test("genesis checks every authorizing input and rejects BCH-only or foreign cat
 		outpoint_transaction_hash: `\\x${txB}`,
 		outpoint_index: "0",
 	});
-	expect(decodeAuthChain(data, tokenA)?.genesesTx.genesisSupply).toBe(100);
+	expect(decodeAuthChain(data, tokenA)?.genesesTx.genesisSupply).toBe("100");
 	tx.outputs[0]!.fungible_token_amount = "0";
 	tx.outputs[0]!.nonfungible_token_capability = "none";
 	expect(decodeAuthChain(data, tokenA)).toBeDefined();
@@ -626,26 +584,6 @@ test("transaction metadata is publication-specific across A → B → A and igno
 			name === "Publication A" ? "Publication B" : "Publication A",
 		);
 	}
-});
-
-test("confirmed accounting queries pin the same node for creations and spends, retaining pending transfers", async () => {
-	const { print } = await import("graphql");
-	for (const query of [GetSupplyNFTs, GetUseNonBurnTokens, GetMintingToken]) {
-		const source = print(query);
-		expect(source).toContain("node_internal_id: {_eq: $node}");
-		expect(source).toContain(
-			"spent_by: {transaction: {block_inclusions: {block: {accepted_by:",
-		);
-	}
-	const screen = mountPages();
-	await settle();
-	await answerToken(tokenA);
-	expect(screen.text()).toMatch(/Supply Excluding Burns\s+60/);
-	request("GetMintingToken", tokenA).observer.next?.({
-		data: { output: [{ locking_bytecode: "\\x51" }] },
-	});
-	await settle();
-	expect(screen.text()).toMatch(/Is Active Minting\s+Yes/);
 });
 
 test("missing revisions retain recovery controls and network rejection clears selected identity", async () => {
