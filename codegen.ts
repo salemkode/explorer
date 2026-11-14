@@ -1,14 +1,13 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
-const config: CodegenConfig = {
-	schema: "./src/graphql/schema.graphql",
-	documents: ["src/**/**.ts"],
+export default {
+	schema: "./schema/chaingraph.graphql",
+	documents: ["src/**/*.{ts,vue}", "!src/**/*.d.ts", "!src/graphql/**"],
 	config: {
 		scalars: {
 			bytea: "bytea",
 			bigint: "string",
 			timestamp: "number",
-			// eslint-disable-next-line quotes
 			enum_nonfungible_token_capability: '"none" | "mutable" | "minting"',
 		},
 	},
@@ -18,7 +17,6 @@ const config: CodegenConfig = {
 			plugins: [
 				{
 					add: {
-						// eslint-disable-next-line quotes
 						content: 'import type { bytea } from "~/types/index";',
 					},
 				},
@@ -31,7 +29,4 @@ const config: CodegenConfig = {
 			},
 		},
 	},
-	ignoreNoDocuments: true,
-};
-
-export default config;
+} satisfies CodegenConfig;
