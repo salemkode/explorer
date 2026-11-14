@@ -47,6 +47,7 @@
             :items="tokenInfo"
             :loading="authchainLoading"
           />
+          <TokenSupply :category="category" :decimals="decimals" :authhead="selection.chain?.id" />
           <bcmr-info
             :token-category="category"
             :loading="metadata.loading"
@@ -115,7 +116,7 @@ import { useConfirmedTokenBalances } from "~/hooks/confirmedTokenBalances";
 import { useStorage } from "~/hooks/storage";
 import { decodeAuthChain } from "~/module/bcmr";
 import { calculateDecimal } from "~/module/bitcoin";
-import { exactTokenAmount, summarizeTokenBalances } from "~/module/tokenBalances";
+import { summarizeTokenBalances } from "~/module/tokenBalances";
 import { useRegistryStore, useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
@@ -156,7 +157,6 @@ const authchainElement = computed(
 	() => authchain.value && selection.value.chain && selection.value.revision &&
 		decodeAuthChain(authchain.value, category.value, selection.value.chain.id, selection.value.revision.id),
 );
-const reservedSupply = computed(() => selection.value.chain?.reservedSupply);
 const queryError = authchainError;
 const selectedRegistryName = ref("auth_chain");
 watch(
@@ -178,32 +178,7 @@ const totals = computed(() =>
 		? summarizeTokenBalances(balanceState.value.outputs)
 		: undefined,
 );
-// Genesis totals include outputs that have since been spent. Page them independently
-// rather than trusting a potentially truncated nested authchain output list.
-const genesisScope = computed(() => {
-	const hash = authchainElement.value?.genesesTx.hash;
-	return hash
-		? {
-				network: stateStore.network,
-				includeSpent: true,
-				filter: {
-					token_category: { _eq: `\\x${category.value}` as const },
-					transaction_hash: { _eq: `\\x${hash}` as const },
-				},
-			}
-		: null;
-});
-const { state: genesisState, refresh: refreshGenesis } =
-	useConfirmedTokenBalances(genesisScope);
-const genesisTotal = computed(() =>
-	genesisState.value.status === "ready"
-		? summarizeTokenBalances(genesisState.value.outputs).fungible
-		: undefined,
-);
-function refreshTokenBalances() {
-	refreshBalances();
-	refreshGenesis();
-}
+function refreshTokenBalances() { refreshBalances(); }
 
 const tokenViewMode = useStorage<"table" | "grid">(
 	"token_page_view_mode",
@@ -266,14 +241,6 @@ const tokenInfo = computed(() => {
 			copy: true,
 		},
 		{
-			title: "Genesis fungible supply",
-			text: genesisTotal.value
-				? calculateDecimal(genesisTotal.value, decimals.value).toFixed()
-				: authchainLoading.value || genesisState.value.status === "loading"
-					? "Loading…"
-					: "Unknown",
-		},
-		{
 			title: "Unspent fungible supply",
 			text: totals.value
 				? calculateDecimal(totals.value.fungible, decimals.value).toFixed()
@@ -287,9 +254,6 @@ const tokenInfo = computed(() => {
 			title: "Minting-capable NFT exists",
 			text: totals.value ? (totals.value.minting ? "Yes" : "No") : pending,
 		},
-		{ title: "BCMR authhead output balance (not issuer reserves)", text: (() => { try { return reservedSupply.value == null ? "Unknown" : calculateDecimal(exactTokenAmount(reservedSupply.value), decimals.value).toFixed(); } catch { return "Unavailable"; } })() },
-		{ title: "Issuer reserves", text: "Unknown" },
-		{ title: "Circulating supply", text: "Unknown" },
 	];
 	if (genesisAddress) {
 		items.push({
