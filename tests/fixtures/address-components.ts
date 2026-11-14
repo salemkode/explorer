@@ -1,4 +1,4 @@
-import { beforeEach, expect, test } from "bun:test";
+import { beforeEach, expect, mock, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { cashAddressToLockingBytecode } from "@bitauth/libauth";
 import { compileScript, parse } from "@vue/compiler-sfc";
@@ -15,9 +15,14 @@ import {
 	reactive,
 	ref,
 	shallowReactive,
+	shallowRef,
 	useId,
 	watch,
 } from "vue";
+
+mock.module("../../src/hooks/authchains", () => ({
+	useAuthChains: () => undefined,
+}));
 
 // Compile the actual Vue components, rather than duplicating their mapping logic.
 plugin({
@@ -40,6 +45,7 @@ Object.assign(globalThis, {
 	ref,
 	reactive,
 	shallowReactive,
+	shallowRef,
 	watch,
 	onMounted,
 	onBeforeUnmount,

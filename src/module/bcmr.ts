@@ -1,4 +1,4 @@
-import type { GetAuthChainsQuery } from "~/graphql/graphql";
+import type { GetAuthChainsQuery, GetTxQuery } from "~/graphql/graphql";
 import type { Capability, IdentitySnapshot, tokenCapability } from "~/types";
 import { opreturnToAuthChainElement } from "./bitcoin";
 
@@ -32,11 +32,19 @@ export const decodeAuthChain = (
 		const transaction = migration?.transaction?.at(0);
 
 		// Get token genesis information
-		const isGenesesTx =
-			transaction?.inputs.at(0)?.outpoint_transaction_hash.substring(2) ===
-			category;
+		const isGenesesTx = transaction?.inputs.some(
+			(input) =>
+				String(input.outpoint_index) === "0" &&
+				input.outpoint_transaction_hash.substring(2) === category,
+		);
 
-		if (isGenesesTx) {
+		if (
+			transaction &&
+			isGenesesTx &&
+			transaction.outputs.some(
+				(output) => output.token_category?.substring(2) === category,
+			)
+		) {
 			genesesTx.hash = transaction?.hash.substring(2) || "";
 			genesesTx.genesisSupply = transaction.outputs.reduce(
 				(total: number, { fungible_token_amount }) =>
@@ -49,7 +57,11 @@ export const decodeAuthChain = (
 				(tokenCategory) =>
 					tokenCategory.token_category?.substring(2) === category,
 			);
-			genesesTx.nftCapability = output?.nonfungible_token_capability;
+			genesesTx.nftCapability = transaction.outputs.find(
+				(output) =>
+					output.token_category?.substring(2) === category &&
+					output.nonfungible_token_capability,
+			)?.nonfungible_token_capability;
 			genesesTx.lockingBytecode = output?.locking_bytecode.substring(2);
 		}
 
@@ -95,3 +107,19 @@ export const getChildToken = (
 		}
 	}
 };
+
+/** Never present a descendant's latest metadata as a publication of this transaction. */
+export function getTransactionTokenPublication(
+	transaction: GetTxQuery["transaction"][number] | undefined,
+	authchain: GetAuthChainsQuery | undefined,
+	category: string,
+) {
+	if (!transaction || transaction.hash.substring(2) !== category || !authchain)
+		return;
+	const chain = decodeAuthChain(authchain, category);
+	if (!chain?.opreturn) return;
+	const publication = transaction.outputs.find(
+		(output) => output.locking_bytecode === `\\x${chain.opreturn}`,
+	);
+	if (publication) return { category, opreturn: chain.opreturn };
+}

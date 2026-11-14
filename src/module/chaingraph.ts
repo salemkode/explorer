@@ -381,6 +381,7 @@ export const GetAuthChains = gql(`
             }
             inputs(where: { outpoint_index: { _eq: 0 } }) {
               outpoint_transaction_hash
+              outpoint_index
             }
             outputs {
               token_category

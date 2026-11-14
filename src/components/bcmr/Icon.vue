@@ -48,15 +48,17 @@
 </template>
 
 <script setup lang="ts">
+import { getChildToken } from "~/module/bcmr";
 import { createIdenticon } from "~/module/IconGenerator";
 import { getHttpsUrl, svgToBase64 } from "~/module/utils";
 import { useRegistryStore } from "~/store";
-import type { Capability } from "~/types";
+import type { Capability, IdentitySnapshot } from "~/types";
 
 const registryStore = useRegistryStore();
 const reference = ref<HTMLElement>();
 const props = defineProps<{
 	tokenCategory: string;
+	identitySnapshot?: IdentitySnapshot | null;
 	commitment?: string;
 	capability?: Capability;
 	small?: boolean;
@@ -74,6 +76,11 @@ const resetState = () => {
 const tokenInfo = computed(() => {
 	resetState();
 
+	if (props.identitySnapshot !== undefined) {
+		if (!props.identitySnapshot) return;
+		const identity = getChildToken(props.identitySnapshot, props.capability, props.commitment) || props.identitySnapshot;
+		return { name: identity.name, icon: identity.uris?.icon, image: identity.uris?.image };
+	}
 	return registryStore.getToken(
 		props.tokenCategory,
 		props.capability,

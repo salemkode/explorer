@@ -6,11 +6,12 @@ import {
 } from "@bitauth/libauth";
 import { createPinia, setActivePinia } from "pinia";
 import { computed, ref } from "vue";
+import { gql } from "../src/graphql/gql";
 
 Object.assign(globalThis, {
 	ref,
 	computed,
-	gql: (source: string) => source,
+	gql,
 	useSubscription: () => ({ result: ref() }),
 });
 const { useStateStore } = await import("../src/store/state");
