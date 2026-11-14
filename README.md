@@ -143,3 +143,8 @@ View visits, page views, referrers, and performance in the Cloudflare account's
 **Analytics → Web Analytics → explorer.salemkode.com** dashboard. The beacon token
 is a public site identifier, not an API credential. Future builds retain the
 tracking script automatically.
+
+The compact badge suite also retains issue #26's exact-value regressions, including
+`72624976668144285` and the maximum fungible amount. Its disclosure and copy-value
+assertions replace the earlier raw-only text snapshots because compact labels
+and registry decimal scaling intentionally change the visible summary.
