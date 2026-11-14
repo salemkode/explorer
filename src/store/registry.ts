@@ -115,7 +115,7 @@ export const useRegistryStore = defineStore("registry", () => {
 		const tokenIdentities = registry?.identities?.[tokenCategory];
 		if (tokenIdentities) {
 			const timestamp = Object.keys(tokenIdentities)
-				.filter((revision) => +new Date(revision) < +new Date())
+				.filter((revision) => +new Date(revision) < Date.now())
 				.reduce(
 					(timestamp1, timestamp2) =>
 						new Date(timestamp1) > new Date(timestamp2)
@@ -134,8 +134,7 @@ export const useRegistryStore = defineStore("registry", () => {
 	const getRegistryHasCategory = (category: string) => {
 		const opreturnResult = authchains.get(category);
 		// for in array
-		for (let i = 0; i < registryList.value.length; i++) {
-			const { url } = registryList.value[i];
+		for (const { url } of registryList.value) {
 			const isAuthChain = url === "auth_chain";
 			const registry = isAuthChain
 				? opreturnResult

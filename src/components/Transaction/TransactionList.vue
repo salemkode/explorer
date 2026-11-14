@@ -11,18 +11,20 @@
     >
         <!-- Clickable Header Row -->
         <div
-          class="w-full px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 cursor-pointer transition-colors select-none"
-          @click="
-            showOperation.set(
-              transaction.hash,
-              !showOperation.get(transaction.hash)
-            )
-          "
+          class="relative w-full px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition-colors select-none"
         >
-          <div class="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-center">
+          <button
+            type="button"
+            class="absolute inset-0 w-full cursor-pointer rounded-lg"
+            :aria-expanded="!!showOperation.get(transaction.hash)"
+            :aria-label="`Toggle transaction ${transaction.hash} details`"
+            @click="showOperation.set(transaction.hash, !showOperation.get(transaction.hash))"
+          />
+          <div class="relative pointer-events-none flex-1 min-w-0 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-center">
             <!-- Tx Hash -->
             <div class="md:col-span-4 min-w-0">
               <BaseCopy
+                class="pointer-events-auto"
                 :text="transaction.hash"
                 :copy="true"
                 :url="`/tx/${transaction.hash}`"
@@ -39,6 +41,7 @@
               >
                 <span class="font-semibold text-slate-400 dark:text-zinc-500 capitalize text-[11px]" v-text="['from', 'to'][i]" />
                 <BaseCopy
+                  class="pointer-events-auto"
                   v-if="item.type === 'SingleSig'"
                   :url="item.url"
                   :text="item.text"
@@ -56,7 +59,7 @@
           </div>
 
           <!-- Expand / Collapse Arrow -->
-          <div class="p-1 rounded-lg text-slate-400 dark:text-zinc-500 group-hover:text-emerald-500 transition-colors shrink-0">
+          <div class="relative pointer-events-none p-1 rounded-lg text-slate-400 dark:text-zinc-500 group-hover:text-emerald-500 transition-colors shrink-0">
             <i
               class="uicon-angle-small-down text-xs transition-transform duration-300 inline-block"
               :class="{ 'rotate-180': showOperation.get(transaction.hash) }"
