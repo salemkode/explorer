@@ -49,12 +49,15 @@ export function chainResponse(category: string, opreturn = publication) {
 				authchains: [
 					{
 						authchain_length: 1,
+						authhead_transaction_hash: `\\x${category}` as const,
+						unspent_authhead: true,
 						authhead: {
 							hash: `\\x${category}` as const,
 							identity_output: [{ fungible_token_amount: "40" }],
 						},
 						migrations: [
 							{
+								migration_index: "0",
 								transaction: [
 									{
 										hash: `\\x${"ee".repeat(32)}` as const,

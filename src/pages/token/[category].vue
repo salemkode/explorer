@@ -1,5 +1,16 @@
 <template>
   <div class="w-full">
+      <TokenAuthChains
+        :chains="chains"
+        :selection="selection"
+        :metadata="selectedMetadata"
+        :loading="authchainQueryLoading"
+        :error="Boolean(authchainError)"
+        @chain="selectChain"
+        @revision="selectRevision"
+        @reset="resetSelection"
+        @retry="refetch()"
+      />
     <p v-if="queryError" role="alert" class="max-w-7xl mx-auto px-4 py-16 text-center text-sm text-rose-600 dark:text-rose-400">
       Token details could not be loaded. Check your connection and reload the page.
     </p>
@@ -9,10 +20,11 @@
       <p class="text-sm text-slate-500 dark:text-zinc-400">No token genesis was found for this ID on the selected network.</p>
     </div>
     <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
       <!-- Mobile Header -->
       <TokenId
         :loading="metadata.loading"
-        :identity-snapshot="metadata.identitySnapshot"
+        :identity-snapshot="metadata.identitySnapshot || null"
         :category="category"
         class="lg:hidden mb-4"
       />
@@ -36,6 +48,7 @@
             :loading="authchainLoading"
           />
           <bcmr-info
+            :token-category="category"
             :loading="metadata.loading"
             :identity-snapshot="metadata.identitySnapshot"
           />
@@ -46,7 +59,8 @@
             {{ metadata.failed ? 'Auth-chain metadata could not be loaded. You can choose another registry below.' : 'No token metadata is available from the selected registry.' }}
           </p>
           <TokenProvider
-            :select="metadata.name"
+            :select="selectedRegistryName"
+            :auth-metadata="selectedMetadata"
             :category="category"
             @select="(url) => (selectedRegistryName = url)"
           />
@@ -61,7 +75,7 @@
         >
           <TokenId
             :loading="metadata.loading"
-            :identity-snapshot="metadata.identitySnapshot"
+            :identity-snapshot="metadata.identitySnapshot || null"
             :category="category"
             class="hidden lg:flex"
           />
@@ -84,7 +98,7 @@
 
           <TokenChild
             :key="`${stateStore.network}:${category}:children`"
-            :identity-snapshot="metadata.identitySnapshot"
+            :identity-snapshot="metadata.identitySnapshot || null"
             :category="category"
             :view-mode="effectiveTokenViewMode"
           />
@@ -97,6 +111,7 @@
 <script setup lang="ts">
 import { useIsActiveMinting } from "~/hooks/activeMinting";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
+import { useAuthChainSelection } from "~/hooks/authChainSelection";
 import { useAuthChains } from "~/hooks/authchains";
 import { useNftSupply } from "~/hooks/nftSupply";
 import { useNonBurnTokens } from "~/hooks/nonSpentToken";
@@ -107,7 +122,10 @@ import { useRegistryStore, useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
-const category = computed(() => String(route.params.category || ""));
+const category = computed(() =>
+	typeof route.params.category === "string" ? route.params.category : "",
+);
+const router = useRouter();
 
 const stateStore = useStateStore();
 const registryStore = useRegistryStore();
@@ -117,7 +135,24 @@ const {
 	result: authchain,
 	loading: authchainQueryLoading,
 	error: authchainError,
-} = useAuthChains(toRef(() => [tokenCategory.value]));
+	refetch,
+} = useAuthChains(toRef(() => [`\\x${category.value}` as const]), false);
+
+const { chains, selection, metadata: selectedMetadata } = useAuthChainSelection(
+	authchain,
+	category,
+	toRef(() => typeof route.query.chain === "string" ? route.query.chain : undefined),
+	toRef(() => typeof route.query.revision === "string" ? route.query.revision : undefined),
+);
+function selectChain(id: string) {
+	return router.push({ query: { ...route.query, chain: id, revision: undefined } });
+}
+function selectRevision(id: string) {
+	return router.push({ query: { ...route.query, chain: selection.value.chain?.id, revision: id } });
+}
+function resetSelection() {
+	return router.push({ query: { ...route.query, chain: undefined, revision: undefined } });
+}
 
 const {
 	supplyNFTs,
@@ -135,25 +170,20 @@ const {
 	loading: nonBurnTokensLoading,
 } = useNonBurnTokens(tokenCategory);
 const authchainElement = computed(
-	() => authchain.value && decodeAuthChain(authchain.value, category.value),
+	() => authchain.value && selection.value.chain && selection.value.revision &&
+		decodeAuthChain(authchain.value, category.value, selection.value.chain.id, selection.value.revision.id),
 );
-const reservedSupply = computed(
-	() =>
-		authchain.value?.transaction
-			.at(0)
-			?.authchains.at(0)
-			?.authhead?.identity_output?.at(0)?.fungible_token_amount,
-);
+const reservedSupply = computed(() => selection.value.chain?.reservedSupply);
 const queryError = computed(
 	() => authchainError.value || supplyNFTsError.value ||
 		activeMintingError.value || nonBurnTokensError.value,
 );
 
-const selectedRegistryName = ref("");
+const selectedRegistryName = ref("auth_chain");
 watch(
 	() => [category.value, stateStore.network],
 	() => {
-		selectedRegistryName.value = "";
+		selectedRegistryName.value = "auth_chain";
 		navItem.value = 0;
 	},
 	{ flush: "sync" },
@@ -174,17 +204,16 @@ const tokenViewIndex = computed({
 	},
 });
 const metadata = computed(() => {
-	const isAuthchainLoading =
-		registryStore.authchains.get(category.value) === true;
-	const registryState = registryStore.getTokenIdentity(
-		category.value,
-		selectedRegistryName.value,
-	);
-
+	if (selectedRegistryName.value === "auth_chain") {
+		return {
+			loading: selectedMetadata.value.status === "loading",
+			failed: selectedMetadata.value.status === "unavailable",
+			identitySnapshot: selectedMetadata.value.status === "ready" ? selectedMetadata.value.identity : undefined,
+		};
+	}
+	const registryState = registryStore.getTokenIdentity(category.value, selectedRegistryName.value);
 	return {
-		loading: registryStore.loadingProviders || isAuthchainLoading,
-		failed: registryStore.authchains.get(category.value) === false,
-		name: registryState?.name || "",
+		loading: registryStore.loadingProviders,
 		identitySnapshot: registryState?.identity,
 	};
 });
@@ -230,7 +259,7 @@ const tokenInfo = computed(() => {
 			warp: true,
 		},
 		{
-			title: "BCMR OP_RETURN",
+			title: "Selected BCMR OP_RETURN",
 			text: opreturn || null,
 			copy: true,
 		},
@@ -247,11 +276,11 @@ const tokenInfo = computed(() => {
 			text: supplyNFTs.value || null,
 		},
 		{
-			title: "Reserve Supply",
+			title: "Authhead Reserve Supply",
 			text: reservedSupplyNumber,
 		},
 		{
-			title: "Circulating Supply",
+			title: "Supply Outside Authhead",
 			text:
 				reservedSupplyNumber === null
 					? null
@@ -269,7 +298,7 @@ const tokenInfo = computed(() => {
 
 	if (ownerAddress) {
 		items.push({
-			title: "Owner Address",
+			title: "Genesis Token Address",
 			text: ownerAddress,
 			url: `/address/${ownerAddress}`,
 			copy: true,

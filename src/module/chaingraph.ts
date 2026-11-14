@@ -347,31 +347,16 @@ export const GetAuthChains = gql(`
       hash
       authchains {
         authchain_length
+        authhead_transaction_hash
+        unspent_authhead
         authhead {
           hash
           identity_output {
             fungible_token_amount
           }
         }
-        migrations(
-          where: {
-            _or: [
-              {
-                transaction: {
-                  outputs: { locking_bytecode_pattern: { _regex: "6a04" } }
-                }
-              }
-              {
-                transaction: {
-                  inputs: {
-                    outpoint_transaction_hash: { _in: $tokenCategory }
-                    outpoint_index: { _eq: 0 }
-                  }
-                }
-              }
-            ]
-          }
-        ) {
+        migrations(order_by: { migration_index: desc }) {
+          migration_index
           transaction {
             hash
             block_inclusions {

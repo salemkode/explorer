@@ -55,7 +55,10 @@ Bun.plugin({
 	},
 });
 
-const route = shallowReactive({ params: { category: tokenA, txid: txB } });
+const route = shallowReactive({
+	params: { category: tokenA, txid: txB },
+	query: {},
+});
 Object.assign(globalThis, {
 	computed,
 	ref,
@@ -66,6 +69,11 @@ Object.assign(globalThis, {
 	toRef,
 	onMounted: () => undefined,
 	useRoute: () => route,
+	useRouter: () => ({
+		push: ({ query }: { query: object }) => {
+			route.query = query;
+		},
+	}),
 	useSubscription: () => ({ result: ref() }),
 	useFetch: () => ({ data: ref() }),
 	useRuntimeConfig: () => ({
@@ -79,6 +87,9 @@ const { default: TokenPage } = await import(
 	"../../src/pages/token/[category].vue"
 );
 const { default: TxPage } = await import("../../src/pages/tx/[txid].vue");
+const { default: TokenAuthChains } = await import(
+	"../../src/components/token/AuthChains.vue"
+);
 const { default: BcmrInfo } = await import(
 	"../../src/components/bcmr/Info.vue"
 );
@@ -99,6 +110,7 @@ const cleanup: (() => void)[] = [];
 beforeEach(() => {
 	requests.clear();
 	route.params = { category: tokenA, txid: txB };
+	route.query = {};
 });
 afterEach(() => {
 	for (const stop of cleanup.splice(0)) stop();
@@ -174,6 +186,7 @@ function mountPages(initial = "token", cachedCount = 0) {
 	app.use(pinia);
 	app.provide(DefaultApolloClient, client);
 	app.component("BcmrInfo", BcmrInfo);
+	app.component("TokenAuthChains", TokenAuthChains);
 	app.component("ContentWarp", ContentWarp);
 	app.component(
 		"BaseCopy",
@@ -535,7 +548,7 @@ test("initial cached complete balances and auth-chain results are consumed witho
 	await settle();
 	expect(screen.text()).toMatch(/Supply Excluding Burns\s+100/);
 	expect(screen.text()).toMatch(/Total Amount NFTs\s+2/);
-	expect(screen.store.authchains.has(tokenA)).toBe(true);
+	expect(screen.text()).toContain("1 available");
 	expect(
 		[...requests.keys()].some(
 			(op) => op.operationName === "GetUseNonBurnTokens",
@@ -633,4 +646,28 @@ test("confirmed accounting queries pin the same node for creations and spends, r
 	});
 	await settle();
 	expect(screen.text()).toMatch(/Is Active Minting\s+Yes/);
+});
+
+test("missing revisions retain recovery controls and network rejection clears selected identity", async () => {
+	const screen = mountPages();
+	await settle();
+	screen.store.authchains.set(tokenA, registry(tokenA, "Mainnet selected"));
+	await answerToken(tokenA);
+	expect(screen.text()).toContain("Mainnet selected");
+	route.query = { revision: "missing-revision" };
+	await settle();
+	expect(screen.text()).toContain("Show the default chain");
+	expect(screen.text()).not.toContain("Mainnet selected");
+	route.query = {};
+	await settle();
+	expect(screen.text()).toContain("Mainnet selected");
+	screen.state.network = "chipnet";
+	await settle();
+	request("GetAuthChains", tokenA, "chipnet").observer.error?.(
+		new Error("chipnet offline"),
+	);
+	await settle();
+	expect(screen.text()).not.toContain("Mainnet selected");
+	expect(screen.text()).toContain("Retry auth chains");
+	expect(screen.text()).toContain("0 available");
 });

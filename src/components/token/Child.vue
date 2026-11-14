@@ -135,6 +135,7 @@ const outputs = computed<tableColumn[][]>(() => {
 				text: types.value?.[commitment]?.name || "N/A",
 				token: {
 					category: props.category,
+					identitySnapshot: props.identitySnapshot || null,
 					commitment,
 					capability: output.nonfungible_token_capability || undefined,
 				},
