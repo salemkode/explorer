@@ -18,7 +18,7 @@
 
       <!-- Main Title -->
       <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-4 leading-tight">
-        <span v-text="$t('index_page_header')" />
+        {{ $t("index_page_header") }}
       </h1>
 
       <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-8 font-normal leading-relaxed">
@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import wallpaper from "~/assets/images/wallpaper.webp";
 import { useSearch } from "~/hooks/search";
+
 const { query, search } = useSearch();
 
 function keydownHandler(event: KeyboardEvent) {

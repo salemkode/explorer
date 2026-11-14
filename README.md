@@ -1,12 +1,17 @@
 # Bitcoin Cash Explorer
 
-Nuxt 3 explorer with CashTokens, address tools, and transaction analytics.
+Nuxt 4 explorer with CashTokens, address tools, and transaction analytics.
 
 ## Development
 
+Use Bun **1.4.4** and Node **24.15.0+** (the supported LTS line is pinned in
+`.node-version`). Node must satisfy the `engines` range in `package.json`.
+Bun is the package manager for local work, CI, and Cloudflare; commit `bun.lock`
+when dependencies change. Do not generate npm or pnpm lockfiles.
+
 ```bash
-pnpm install --frozen-lockfile
-pnpm dev
+bun install --frozen-lockfile
+bun run dev
 ```
 
 The default data source is `gql.chaingraph.pat.mn`, matching the configured
@@ -33,22 +38,67 @@ The Settings page includes these public gateway options:
 The selected gateway is stored in the browser and overrides the deployment
 default for that browser.
 
+## Generated assets
+
+`bun install` generates the typed GraphQL documents and prepares Nuxt. The checked-in
+`schema/chaingraph.graphql` snapshot makes installation, typechecking, and builds
+independent of the live indexer's availability. Generated files in `src/graphql`
+and icon fonts in `src/public/font` are ignored; the Vite plugins regenerate them
+for development and production builds.
+
+After changing a GraphQL operation, run `bun run codegen` (also run automatically
+by `lint:type` and Vite). To deliberately update the schema from the configured
+Chaingraph endpoint, run `bun run schema:pull` and review the snapshot diff.
+Use `bun run icons` to regenerate the icon font manually.
+
+## Dependency maintenance
+
+This project uses Nuxt 4, Vue 3, Vue Router 5, Pinia 4, Tailwind 4, and Biome 2.
+Tailwind configuration lives in `src/assets/css/main.css` and runs through the
+Vite plugin. Biome checks Vue templates and scripts; `bun run lint` is read-only
+and `bun run lint:fix` applies safe formatting and fixes.
+
+Two packages intentionally use the latest compatible release:
+
+- TypeScript **6.0.3**: `vue-tsc` currently requires the JavaScript compiler entry
+  point that TypeScript 7 no longer exports.
+- GraphQL **16.15.0**: Nuxt Apollo's current Nuxt-compatible release
+  (`5.0.0-alpha.16`) depends on Apollo Client 3 and GraphQL 16. The package's
+  `latest` dist-tag points to the older Nuxt 2 module, so it is pinned explicitly.
+
+The deprecated `electrum-cash` dependency has been replaced by
+`@electrum-cash/network`; balance and history responses are validated with Valibot.
+A scoped Undici 6 override patches the icon-generation toolchain without changing
+Nuxt's or Wrangler's newer Undici major versions.
+
+`bun audit` currently reports three upstream build-tool advisories: `deepmerge`
+(low, no patched release), and `glob` / `minimatch` (moderate, older major ranges
+required by their consumers). No high or critical advisories remain. Recheck these
+when updating the toolchain; do not force incompatible transitive major versions.
+
 ## Verification and deployment
 
 ```bash
-pnpm lint:type
-pnpm generate
-wrangler deploy --dry-run
-wrangler deploy
+bun run lint
+bun run test
+bun run lint:type
+bun run build
+bunx wrangler deploy --dry-run
+bunx wrangler deploy
 ```
 
 Wrangler runs a fresh static build and uploads `.output/public` to the `explorer`
 Worker, with SPA routing for address, transaction, block, and token URLs.
 The configured custom domain is `explorer.salemkode.com`.
 
-Use Wrangler 4 and authenticate with `wrangler login` before deploying.
+Wrangler 4 is installed with the project. Authenticate with
+`bunx wrangler login` before deploying.
 The Cloudflare account must manage the `salemkode.com` zone. An existing DNS record
 for the custom domain may need replacement when moving from another host.
+
+The GitHub Actions workflow runs a frozen install, lint, regression tests,
+typechecking, and a static build on pull requests and `main`. Cloudflare owns
+deployments; the obsolete GitHub Pages deployment has been removed.
 
 ## Automatic GitHub deployments
 

@@ -1,19 +1,29 @@
 <template>
   <div class="inline-flex items-center my-0.5">
-    <div ref="reference" class="inline-flex items-center cursor-pointer" @click.stop="openPopUp">
+    <button
+      ref="reference"
+      type="button"
+      class="inline-flex items-center cursor-pointer"
+      aria-label="View token image"
+      :aria-expanded="state.open"
+      @click.stop="openPopUp"
+    >
       <Image
         :key="iconURL"
         :size="imageSize"
         :href="iconURL"
         :failure-href="IdentIcon"
+        :alt="tokenInfo?.name || 'Token icon'"
         class="rounded-lg object-contain"
         @success="state.success = true"
       />
-    </div>
+    </button>
 
     <Teleport to="body">
-      <div
+      <button
         v-if="state.open"
+        type="button"
+        aria-label="Close token image"
         class="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs transition-opacity"
         @click="closePopUp()"
       />
@@ -23,6 +33,7 @@
           :key="iconURL"
           :href="imageURL"
           :failure-href="iconURL"
+          :alt="tokenInfo?.name || 'Token image'"
           :style="{
             '--x': `${position.x}px`,
             '--y': `${position.y}px`,
