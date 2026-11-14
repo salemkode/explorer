@@ -20,9 +20,10 @@
 	--color-zinc-750: #313136;
 	--color-zinc-850: #202023;
 
-	--shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-	--shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -1px
-		rgb(0 0 0 / 0.06);
+	--shadow-card:
+		0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+	--shadow-card-hover:
+		0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -1px rgb(0 0 0 / 0.06);
 	--shadow-glow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
 }
 
@@ -39,8 +40,9 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 	background-color: #f8fafc;
 	color: #0f172a;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-		"Helvetica Neue", Arial, sans-serif;
+	font-family:
+		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+		Arial, sans-serif;
 }
 
 .dark body,

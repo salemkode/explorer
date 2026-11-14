@@ -1,10 +1,16 @@
 <template>
   <div
     v-if="typeof registry.registryIdentity === 'object'"
-    class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs hover:border-emerald-500/40 transition-all cursor-pointer"
-    @click="open = !open"
+    class="relative bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs hover:border-emerald-500/40 transition-all cursor-pointer"
   >
-    <div class="flex flex-col sm:flex-row items-start gap-4">
+    <button
+      type="button"
+      class="absolute inset-0 w-full cursor-pointer rounded-2xl"
+      :aria-expanded="open"
+      :aria-label="`Toggle ${registry.registryIdentity.name} registry details`"
+      @click="open = !open"
+    />
+    <div class="relative pointer-events-none flex flex-col sm:flex-row items-start gap-4">
       <div class="w-16 h-16 rounded-xl bg-slate-50 dark:bg-zinc-800 p-2 border border-slate-200/80 dark:border-zinc-700 flex items-center justify-center shrink-0">
         <Image
           :href="registry.registryIdentity.uris?.icon || ''"
@@ -37,7 +43,7 @@
       </div>
     </div>
 
-    <SliderUpDown :active="open" @click.stop>
+    <SliderUpDown :active="open" class="relative">
       <div class="border-t border-slate-100 dark:border-zinc-800/80 pt-4 mt-4">
         <TableView
           title="Register tokens"
@@ -97,7 +103,7 @@ const transactions = computed<tableColumn[][]>(() => {
 				props.registry,
 				identity,
 			);
-			if (!metadata) return;
+			if (!metadata) return undefined;
 			const category = metadata.token?.category || "N/A";
 			return [
 				{
