@@ -16,6 +16,9 @@ Object.assign(globalThis, {
 });
 
 import { ref, watch } from "vue";
+import type { GetAuthChainsQuery } from "../src/graphql/graphql";
+
+const { decodeAuthChain } = await import("../src/module/bcmr");
 
 const {
 	addPrefixToAddress,
@@ -181,4 +184,143 @@ describe("BCMR publication decoding", () => {
 			utf8ToBin("a"),
 		]);
 	});
+});
+
+describe("BCMR genesis supply", () => {
+	function authchain(amount: string | null) {
+		const tokenOutput = {
+			token_category: "\\xaaaa" as const,
+			locking_bytecode: "\\x0011" as const,
+			fungible_token_amount: amount,
+			nonfungible_token_capability: "none" as const,
+			nonfungible_token_commitment: "\\x" as const,
+		};
+		return {
+			transaction: [
+				{
+					hash: "\\xaaaa" as const,
+					authchains: [
+						{
+							authchain_length: 1,
+							authhead_transaction_hash: "\\xcccc" as const,
+							unspent_authhead: true,
+							authhead: null,
+							migrations: [
+								{
+									migration_index: "0",
+									transaction: [
+										{
+											hash: "\\xcccc" as const,
+											block_inclusions: [],
+											inputs: [
+												{
+													outpoint_index: "0",
+													outpoint_transaction_hash: "\\xaaaa" as const,
+												},
+											],
+											outputs: [
+												tokenOutput,
+												{
+													...tokenOutput,
+													fungible_token_amount: amount ? "7" : null,
+												},
+												{
+													...tokenOutput,
+													token_category: "\\xbbbb" as const,
+													fungible_token_amount: "9223372036854775807",
+												},
+											],
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		} satisfies GetAuthChainsQuery;
+	}
+
+	test("sums only the requested category without rounding large amounts", () => {
+		const genesis = decodeAuthChain(authchain("9007199254740993"), "aaaa");
+		expect(genesis?.genesesTx.genesisSupply).toBe("9007199254741000");
+		expect(genesis?.genesesTx.lockingBytecode).toBe("0011");
+		expect(
+			calculateDecimal(genesis?.genesesTx.genesisSupply || "0", 8).toFixed(),
+		).toBe("90071992.54741");
+	});
+
+	test("does not treat a nonzero first outpoint as token genesis", () => {
+		const data = authchain("9007199254740993");
+		const input =
+			data.transaction[0]?.authchains[0]?.migrations[0]?.transaction[0]
+				?.inputs[0];
+		if (input) input.outpoint_index = "1";
+		expect(decodeAuthChain(data, "aaaa")).toBeUndefined();
+	});
+
+	test("retains a zero fungible supply for NFT-only categories", () => {
+		expect(
+			decodeAuthChain(authchain(null), "aaaa")?.genesesTx.genesisSupply,
+		).toBe("0");
+		expect(decodeAuthChain(authchain(null), "absent")).toBeUndefined();
+	});
+});
+
+test("a later index-zero input authorizes genesis with either safe numeric or string indices", () => {
+	const data: GetAuthChainsQuery = {
+		transaction: [
+			{
+				hash: "\\xaaaa",
+				authchains: [
+					{
+						authchain_length: 1,
+						authhead_transaction_hash: "\\xcccc",
+						unspent_authhead: true,
+						authhead: null,
+						migrations: [
+							{
+								migration_index: "0",
+								transaction: [
+									{
+										hash: "\\xcccc",
+										block_inclusions: [],
+										inputs: [
+											{
+												outpoint_transaction_hash: "\\xffff",
+												outpoint_index: "0",
+											},
+											{
+												outpoint_transaction_hash: "\\xaaaa",
+												outpoint_index: "0",
+											},
+										],
+										outputs: [
+											{
+												token_category: "\\xaaaa",
+												locking_bytecode: "\\x51",
+												fungible_token_amount: null,
+												nonfungible_token_capability: "none",
+												nonfungible_token_commitment: "\\x",
+											},
+										],
+									},
+								],
+							},
+						],
+					},
+				],
+			},
+		],
+	};
+	const input =
+		data.transaction[0]!.authchains[0]!.migrations[0]!.transaction![0]!
+			.inputs[1]!;
+	for (const index of ["0", 0]) {
+		Object.defineProperty(input, "outpoint_index", {
+			value: index,
+			configurable: true,
+		});
+		expect(decodeAuthChain(data, "aaaa")?.genesesTx.nftCapability).toBe("none");
+	}
 });

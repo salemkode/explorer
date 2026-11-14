@@ -88,10 +88,9 @@
 
           <template v-if="effectiveTokenViewMode === 'table'">
             <TokenAddress
-              v-if="hasNftCapability"
+               :state="balanceState"
               :key="`${stateStore.network}:${category}:addresses`"
               :decimals="decimals"
-              :category="category"
             />
             <TokenTransaction :key="`${stateStore.network}:${category}:transactions`" :category="category" />
           </template>
@@ -109,15 +108,14 @@
 </template>
 
 <script setup lang="ts">
-import { useIsActiveMinting } from "~/hooks/activeMinting";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useAuthChainSelection } from "~/hooks/authChainSelection";
 import { useAuthChains } from "~/hooks/authchains";
-import { useNftSupply } from "~/hooks/nftSupply";
-import { useNonBurnTokens } from "~/hooks/nonSpentToken";
+import { useConfirmedTokenBalances } from "~/hooks/confirmedTokenBalances";
 import { useStorage } from "~/hooks/storage";
 import { decodeAuthChain } from "~/module/bcmr";
-import { getTokenInfoType } from "~/module/bitcoin";
+import { calculateDecimal } from "~/module/bitcoin";
+import { exactTokenAmount, summarizeTokenBalances } from "~/module/tokenBalances";
 import { useRegistryStore, useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
@@ -154,31 +152,12 @@ function resetSelection() {
 	return router.push({ query: { ...route.query, chain: undefined, revision: undefined } });
 }
 
-const {
-	supplyNFTs,
-	error: supplyNFTsError,
-	loading: supplyNFTsLoading,
-} = useNftSupply(tokenCategory);
-const {
-	isActiveMinting,
-	error: activeMintingError,
-	loading: activeMintingLoading,
-} = useIsActiveMinting(tokenCategory);
-const {
-	nonBurnTokens,
-	error: nonBurnTokensError,
-	loading: nonBurnTokensLoading,
-} = useNonBurnTokens(tokenCategory);
 const authchainElement = computed(
 	() => authchain.value && selection.value.chain && selection.value.revision &&
 		decodeAuthChain(authchain.value, category.value, selection.value.chain.id, selection.value.revision.id),
 );
 const reservedSupply = computed(() => selection.value.chain?.reservedSupply);
-const queryError = computed(
-	() => authchainError.value || supplyNFTsError.value ||
-		activeMintingError.value || nonBurnTokensError.value,
-);
-
+const queryError = authchainError;
 const selectedRegistryName = ref("auth_chain");
 watch(
 	() => [category.value, stateStore.network],
@@ -188,6 +167,44 @@ watch(
 	},
 	{ flush: "sync" },
 );
+const balanceScope = computed(() => ({
+	network: stateStore.network,
+	filter: { token_category: { _eq: `\\x${category.value}` as const } },
+}));
+const { state: balanceState, refresh: refreshBalances } =
+	useConfirmedTokenBalances(balanceScope);
+const totals = computed(() =>
+	balanceState.value.status === "ready"
+		? summarizeTokenBalances(balanceState.value.outputs)
+		: undefined,
+);
+// Genesis totals include outputs that have since been spent. Page them independently
+// rather than trusting a potentially truncated nested authchain output list.
+const genesisScope = computed(() => {
+	const hash = authchainElement.value?.genesesTx.hash;
+	return hash
+		? {
+				network: stateStore.network,
+				includeSpent: true,
+				filter: {
+					token_category: { _eq: `\\x${category.value}` as const },
+					transaction_hash: { _eq: `\\x${hash}` as const },
+				},
+			}
+		: null;
+});
+const { state: genesisState, refresh: refreshGenesis } =
+	useConfirmedTokenBalances(genesisScope);
+const genesisTotal = computed(() =>
+	genesisState.value.status === "ready"
+		? summarizeTokenBalances(genesisState.value.outputs).fungible
+		: undefined,
+);
+function refreshTokenBalances() {
+	refreshBalances();
+	refreshGenesis();
+}
+
 const tokenViewMode = useStorage<"table" | "grid">(
 	"token_page_view_mode",
 	"table",
@@ -217,13 +234,7 @@ const metadata = computed(() => {
 		identitySnapshot: registryState?.identity,
 	};
 });
-const authchainLoading = computed(
-	() =>
-		authchainQueryLoading.value ||
-		supplyNFTsLoading.value ||
-		activeMintingLoading.value ||
-		nonBurnTokensLoading.value,
-);
+const authchainLoading = authchainQueryLoading;
 const decimals = computed(
 	() => metadata.value.identitySnapshot?.token?.decimals || 0,
 );
@@ -234,77 +245,60 @@ const effectiveTokenViewMode = computed(() =>
 	hasNftCapability.value ? tokenViewMode.value : "table",
 );
 const tokenInfo = computed(() => {
-	if (!authchainElement.value) return;
-	const {
-		hash: genesisTx,
-		genesisSupply,
-		lockingBytecode,
-	} = authchainElement.value.genesesTx;
-	const opreturn = authchainElement.value.opreturn;
-	const reservedSupplyNumber =
-		reservedSupply.value === null || reservedSupply.value === undefined
-			? null
-			: Number(reservedSupply.value);
-	const ownerAddress =
-		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode, {
-			tokenCategory: `\\x${category.value}`,
-		});
-
+	const genesis = authchainElement.value?.genesesTx;
+	const status = balanceState.value;
+	const pending =
+		status.status === "loading" ? "Loading…" : "Unavailable — refresh balances";
+	const genesisAddress =
+		genesis?.lockingBytecode &&
+		formatLockingBytecodeAddress(genesis.lockingBytecode, { tokenCategory: `\\x${category.value}` });
 	const items: contentWarpItem[] = [
 		{
-			title: "Genesis Transaction",
-			text: genesisTx,
-			url: `/tx/${genesisTx}`,
+			title: "Genesis transaction",
+			text: genesis?.hash,
+			url: genesis?.hash ? `/tx/${genesis.hash}` : undefined,
 			copy: true,
 			warp: true,
 		},
 		{
 			title: "Selected BCMR OP_RETURN",
-			text: opreturn || null,
+			text: authchainElement.value?.opreturn || null,
 			copy: true,
 		},
 		{
-			title: "Token Type",
-			text: getTokenInfoType(genesisSupply, supplyNFTs.value),
+			title: "Genesis fungible supply",
+			text: genesisTotal.value
+				? calculateDecimal(genesisTotal.value, decimals.value).toFixed()
+				: authchainLoading.value || genesisState.value.status === "loading"
+					? "Loading…"
+					: "Unknown",
 		},
 		{
-			title: "Genesis Supply",
-			text: genesisSupply || null,
+			title: "Unspent fungible supply",
+			text: totals.value
+				? calculateDecimal(totals.value.fungible, decimals.value).toFixed()
+				: pending,
 		},
 		{
-			title: "Total Amount NFTs",
-			text: supplyNFTs.value || null,
+			title: "Unspent NFTs (all capabilities)",
+			text: totals.value ? totals.value.nfts.toFixed() : pending,
 		},
 		{
-			title: "Authhead Reserve Supply",
-			text: reservedSupplyNumber,
+			title: "Minting-capable NFT exists",
+			text: totals.value ? (totals.value.minting ? "Yes" : "No") : pending,
 		},
-		{
-			title: "Supply Outside Authhead",
-			text:
-				reservedSupplyNumber === null
-					? null
-					: genesisSupply - reservedSupplyNumber,
-		},
-		{
-			title: "Is Active Minting",
-			text: isActiveMinting.value ? "Yes" : "No",
-		},
-		{
-			title: "Supply Excluding Burns",
-			text: nonBurnTokens.value,
-		},
+		{ title: "BCMR authhead output balance (not issuer reserves)", text: (() => { try { return reservedSupply.value == null ? "Unknown" : calculateDecimal(exactTokenAmount(reservedSupply.value), decimals.value).toFixed(); } catch { return "Unavailable"; } })() },
+		{ title: "Issuer reserves", text: "Unknown" },
+		{ title: "Circulating supply", text: "Unknown" },
 	];
-
-	if (ownerAddress) {
+	if (genesisAddress) {
 		items.push({
-			title: "Genesis Token Address",
-			text: ownerAddress,
-			url: `/address/${ownerAddress}`,
+			title: "First genesis recipient",
+			text: genesisAddress,
+			url: `/address/${genesisAddress}`,
 			copy: true,
 		});
 	}
-
 	return items;
 });
 </script>

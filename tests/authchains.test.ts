@@ -142,7 +142,7 @@ describe("auth-chain and migration selection", () => {
 			},
 		);
 		expect(decodeAuthChain(fixture, category)?.genesesTx.genesisSupply).toBe(
-			1000,
+			"1000",
 		);
 	});
 });

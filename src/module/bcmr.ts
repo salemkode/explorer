@@ -1,6 +1,8 @@
+import BigNumber from "bignumber.js";
 import type { GetAuthChainsQuery, GetTxQuery } from "~/graphql/graphql";
 import type { IdentitySnapshot, tokenCapability } from "~/types";
 import { listAuthChains, selectAuthChain } from "./authchains";
+import { exactTokenAmount } from "./tokenBalances";
 
 /** Decode an explicit chain/migration, or a deterministic default for list views. */
 export function decodeAuthChain(
@@ -26,18 +28,27 @@ export function decodeAuthChain(
 		({ token_category }) => token_category?.substring(2) === category,
 	);
 	if (!output) return;
-	return {
-		genesesTx: {
-			hash: transaction.hash.substring(2),
-			genesisSupply: transaction.outputs
+	const genesisSupply = (() => {
+		try {
+			return transaction.outputs
 				.filter(
 					({ token_category }) => token_category?.substring(2) === category,
 				)
 				.reduce(
 					(total, { fungible_token_amount }) =>
-						total + Number(fungible_token_amount || 0),
-					0,
-				),
+						total.plus(exactTokenAmount(fungible_token_amount)),
+					new BigNumber("0"),
+				)
+				.toFixed();
+		} catch {
+			return undefined;
+		}
+	})();
+	if (genesisSupply === undefined) return;
+	return {
+		genesesTx: {
+			hash: transaction.hash.substring(2),
+			genesisSupply,
 			lockingBytecode: output?.locking_bytecode.substring(2),
 			nftCapability: transaction.outputs.find(
 				(output) =>
