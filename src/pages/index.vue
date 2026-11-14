@@ -10,6 +10,7 @@
           <HomeBlocksList />
         </div>
       </div>
+      <HomeCashTokenActivity class="mt-6" />
     </div>
   </div>
 </template>
