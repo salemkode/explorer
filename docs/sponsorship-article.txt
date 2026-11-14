@@ -1,0 +1,61 @@
+# Why We Need Funding
+
+By Salem Kode
+
+## First, thank you
+
+Before I talk about funding, I want to remember how this project started. The 2023 Flipstarter campaign gave me the support to begin building this Bitcoin Cash explorer. People believed in the idea while it was still taking shape, and helped turn it into something the community could use.
+
+I am proud of what we have built, and grateful to everyone who supported that campaign. When you use the explorer today, you are seeing something that those early supporters helped make possible. Thank you for trusting me with it.
+
+## Thank you, Pat, for the infrastructure behind it
+
+There is another person I want to thank: [Pat](https://github.com/mainnet-pat), a developer behind [mainnet.js](https://github.com/mainnet-cash/mainnet-js) and someone who has contributed a great deal to the Bitcoin Cash community. Pat hosts the Chaingraph service used by this explorer’s default configuration, at gql.chaingraph.pat.mn. His [development updates](https://gist.github.com/mainnet-pat/95df7e844987af8ca4bebbff90f1f625) also describe helping me build token queries when the explorer was getting started.
+
+[Chaingraph](https://github.com/bitauth/chaingraph) indexes blockchain data into PostgreSQL and exposes it through a GraphQL API. This explorer uses that API to look up blocks, transactions, address histories, and CashTokens data, including token categories and the transaction chains used to find BCMR metadata. Pat hosts an instance of this open-source software; the credit for creating Chaingraph belongs to its own developers.
+
+It is easy to notice the interface and overlook the service behind it. But Pat’s hosting supports core functionality that makes this explorer useful. I appreciate his work and generosity, and I want that contribution to be visible in the app’s Settings as well.
+
+## Keeping the project moving
+
+I now work full-time outside this project. I still care about the explorer, and I continue to make improvements when I can: a small feature, a fix, a clearer screen, or a better interface. Those changes add up, but maintaining the project as well as I would like takes more time than I currently have available.
+
+I have never been comfortable returning to crowdfunding again and again. The 2023 campaign made a real difference, and I remain thankful for it. For the next stage, I would like to build a steadier source of support through direct sponsorships.
+
+## The explorer is growing
+
+In the Cloudflare Workers & Pages metrics captured on October 2, 2026, the explorer recorded 6.71 million asset requests over the previous 30 days. Seeing that activity makes me happy: the project has grown far beyond its first steps.
+
+That figure measures requests for website assets. It does not mean 6.71 million visitors, page views, or advertising impressions: one page can load several assets, and automated traffic can also generate requests. For sponsorship discussions, I want to be clear about what each number actually measures.
+
+![Cloudflare traffic snapshot](https://explorer.salemkode.com/sponsorship-traffic-2026-10-02.png)
+
+We also use [Cloudflare Web Analytics](https://developers.cloudflare.com/web-analytics/data-metrics/) to understand visits and page views. Those are separate metrics that can help us explain the explorer’s audience to potential sponsors.
+
+## Support for the explorer—and the wider ecosystem
+
+Sponsorship revenue could help improve the explorer’s hosting and give me more room to maintain and develop it. I would also like it to make supporting Pat’s Chaingraph hosting possible, including better server capacity when needed. That is a goal for future revenue, rather than a claim that we already fund his service.
+
+The point is support for Chaingraph infrastructure serving Bitcoin Cash mainnet. It would benefit more than this explorer: other projects use Pat’s public service too. Helping shared infrastructure can help the wider Bitcoin Cash ecosystem.
+
+Running Chaingraph means maintaining an indexer, a database, and connections to full nodes. Storing and querying blockchain history takes resources and ongoing care. In my experience, replacing the richer CashTokens queries we depend on would be difficult. Other tools exist, and someone may eventually build a lighter or cheaper approach, but today this service is an important part of how the explorer works.
+
+If you can help Pat directly with hosting, server resources, or infrastructure work, please [reach out to him](https://github.com/mainnet-pat). His contribution deserves support in its own right.
+
+## Sponsorships that fit my values
+
+The explorer offers a place for companies and projects to introduce useful services to people exploring Bitcoin Cash. A wallet, a merchant service, a developer tool, or another relevant business may find value here. Sponsors do not have to be Bitcoin Cash projects, as long as their offering is suitable for our users and fits the principles below.
+
+I want to work directly with sponsors. I do not plan to use Google AdSense because I have concerns about using that service and want to choose which businesses appear here.
+
+I am Muslim, so the services I advertise must be compatible with Islamic principles. I will review sponsorship proposals individually. I will not accept promotions for gambling, alcohol, pornography, or interest-based lending. A sponsorship must be something I can responsibly put in front of the community.
+
+Paid placements will be clearly marked as sponsored. If your service fits, contact me so we can discuss the placement, duration, and price. I want an arrangement that gives sponsors useful exposure while helping keep the explorer available and improving for everyone.
+
+## Thank you for helping it continue
+
+To the 2023 Flipstarter supporters, to Pat, and to everyone who uses the explorer, reports a problem, or suggests an improvement: thank you. You have all helped this project move forward.
+
+If you would like to sponsor the explorer or help with its infrastructure, I would be happy to hear from you. My hope is to turn the project’s growth into lasting support for the explorer and the shared tools it depends on.
+
+Contact: [Telegram](https://t.me/salemkode), [X](https://x.com/salemkode), or [email](mailto:hello@salemkode.com).

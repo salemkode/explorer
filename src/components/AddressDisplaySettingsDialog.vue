@@ -209,14 +209,15 @@
                   {{ stateStore.network || 'Chipnet' }}
                 </div>
                 <div class="text-[11px] text-slate-400 dark:text-zinc-500 font-mono">
-                  Chaingraph Connected
+                  Chaingraph
                 </div>
               </div>
               <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live
+                Configured
               </span>
             </div>
+            <IndexerCredit />
           </section>
         </div>
 

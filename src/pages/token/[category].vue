@@ -2,6 +2,8 @@
   <div class="w-full">
     <LoadingView v-if="authchainLoading" />
     <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <AdBanner slot-id="token-top" class="mb-6" />
+
       <!-- Mobile Header -->
       <TokenId
         :loading="metadata.loading"

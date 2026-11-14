@@ -1,5 +1,7 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AdBanner slot-id="tx-top" class="mb-6" />
+
     <div v-if="transaction" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- Mobile TxConfirm -->
       <div class="lg:hidden col-span-1">
