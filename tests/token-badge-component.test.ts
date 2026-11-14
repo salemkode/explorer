@@ -13,6 +13,7 @@ import {
 	shallowReactive,
 	watch,
 } from "vue";
+import type { Capability } from "~/types";
 
 // Exercise the real SFCs without adding a second Vue test runner or DOM library.
 plugin({
@@ -50,9 +51,10 @@ const { default: TokenBadgeValue } = await import(
 const { default: BaseCopy } = await import("../src/components/BaseCopy.vue");
 
 async function inspectBadges(
-	tokenAmount: string | null,
+	tokenAmount: string | null | undefined,
 	tokenCommitment: string | null,
 	decimals?: number,
+	tokenCapability: Capability = "none",
 ) {
 	const category = "ab".repeat(32);
 	const app = createSSRApp({
@@ -84,7 +86,7 @@ async function inspectBadges(
 					category,
 					tokenAmount,
 					tokenCommitment,
-					tokenCapability: "none",
+					tokenCapability,
 				});
 		},
 	});
@@ -137,6 +139,58 @@ async function inspectBadges(
 }
 
 describe("transaction badges rendered with the registry and BaseCopy", () => {
+	test.each([
+		"1",
+		"9007199254740993",
+		"72624976668144285",
+		"9223372036854775807",
+	])(
+		"preserves issue #26's exact raw amount %s when compact display is enabled",
+		async (raw) => {
+			const result = await inspectBadges(raw, null);
+			expect(result.summaries.has(raw)).toBe(true);
+			expect(result.text).toContain(raw);
+			expect(result.copyButtons).toBe(1);
+		},
+	);
+
+	test.each([undefined, null])(
+		"missing amount %s stays absent",
+		async (raw) => {
+			const result = await inspectBadges(raw, null);
+			expect(result.disclosures).toBe(0);
+			expect(result.copyButtons).toBe(0);
+		},
+	);
+
+	test.each(["none", "mutable", "minting"] as const)(
+		"NFT %s retains its commitment and capability without an FT amount",
+		async (capability) => {
+			const result = await inspectBadges(
+				undefined,
+				"00ff",
+				undefined,
+				capability,
+			);
+			expect(result.summaries.has("00ff")).toBe(true);
+			expect(result.copyButtons).toBe(1);
+			if (capability !== "none")
+				expect(result.text).toContain(`${capability} nft`);
+		},
+	);
+
+	test("combined FT and NFT outputs preserve the maximum amount and commitment", async () => {
+		const result = await inspectBadges(
+			"9223372036854775807",
+			"00ff",
+			undefined,
+			"mutable",
+		);
+		expect(result.summaries.has("9223372036854775807")).toBe(true);
+		expect(result.summaries.has("00ff")).toBe(true);
+		expect(result.copyButtons).toBe(2);
+	});
+
 	test("keeps compact summaries separate from exact decimal and base-unit copy values", async () => {
 		const commitment = `0000000${"ab".repeat(20)}92461b87`;
 		const result = await inspectBadges("9007199254740993", commitment, 2);
