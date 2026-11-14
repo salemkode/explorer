@@ -15,7 +15,8 @@ const props = defineProps<{
 }>();
 const amount = computed(() => {
 	if (!props.tokenAmount) return;
-	return calculateDecimal(+props.tokenAmount, 0).toString();
+	// Raw token amounts can exceed Number.MAX_SAFE_INTEGER; keep the source string.
+	return calculateDecimal(props.tokenAmount, 0).toString();
 });
 const metadata = computed(() => {
 	if (!props.category) return;

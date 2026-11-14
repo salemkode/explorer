@@ -94,6 +94,19 @@ describe("address conversion with Libauth 3", () => {
 });
 
 describe("decimal conversion with BigNumber 11", () => {
+	test.each([
+		["72624976668144285", 0, "72624976668144285"],
+		["72624976668144285", 8, "726249766.68144285"],
+		["0", 8, "0"],
+		["9223372036854775807", 0, "9223372036854775807"],
+		["9223372036854775807", 2, "92233720368547758.07"],
+	] as const)(
+		"preserves token amount %s with %s decimals",
+		(amount, decimals, expected) => {
+			expect(calculateDecimal(amount, decimals).toString()).toBe(expected);
+		},
+	);
+
 	test("retains satoshi precision beyond JavaScript's safe integer range", () => {
 		expect(satToBch("9007199254740993", 8)).toBe("90071992.54740993");
 		expect(satToBch("1", 8)).toBe("1e-8");
