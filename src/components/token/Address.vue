@@ -66,6 +66,7 @@ const addressList = computed(() => {
 		([lockingBytecode, amount]) => {
 			const address = formatLockingBytecodeAddress(
 				lockingBytecode.substring(2),
+				{ tokenCategory: `\\x${props.category}` },
 			);
 			if (typeof address !== "string") {
 				return [];

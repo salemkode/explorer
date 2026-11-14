@@ -106,7 +106,7 @@ export type Transactions = Array<{
 </script>
 
 <script setup lang="ts">
-import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
+import { formatUtxoAddress } from "~/hooks/addressDisplay";
 import { useUsdPrice } from "~/hooks/usdPrice";
 
 const props = defineProps<{
@@ -116,16 +116,13 @@ const props = defineProps<{
 const { formatPrice } = useUsdPrice();
 
 const getTransferAddress = (utxos: Utxo[]) => {
-  // remove op_returns
-  const utxosAddress = utxos.filter(
-    ({ locking_bytecode }) => !locking_bytecode.startsWith("6a")
-  );
-
-  if (utxosAddress.length === 1) {
-    return formatLockingBytecodeAddress(
-      utxosAddress.at(0)?.locking_bytecode.substring(2) || ""
-    );
-  }
+	const addressOutputs = utxos.filter(
+		({ locking_bytecode }) => !/^(?:\\x)?6a/i.test(locking_bytecode),
+	);
+	const [output] = addressOutputs;
+	if (addressOutputs.length === 1 && output) {
+		return formatUtxoAddress(output);
+	}
 };
 const getFrom = (outpoints: Utxo[],  isCoinBase: boolean, length: number) => {
   if (isCoinBase) {
@@ -139,8 +136,8 @@ const getFrom = (outpoints: Utxo[],  isCoinBase: boolean, length: number) => {
     if (address) {
       return {
         type: "SingleSig" as const,
-        text: address,
-        url: `/address/${address}`,
+        text: address.address,
+        url: address.url,
       };
     } else {
       return {
@@ -156,8 +153,8 @@ const getTo = (utxos: Utxo[]) => {
   if (address) {
     return {
       type: "SingleSig" as const,
-      text: address,
-      url: `/address/${address}`,
+      text: address.address,
+      url: address.url,
     };
   } else {
     return {

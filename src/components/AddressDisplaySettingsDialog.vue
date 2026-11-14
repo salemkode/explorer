@@ -129,64 +129,7 @@
               {{ $t("address_display_format") }}
             </h3>
 
-            <div class="grid grid-cols-1 gap-2.5">
-              <button
-                type="button"
-                class="flex items-start gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer group"
-                :class="
-                  addressDisplayMode === 'token'
-                    ? 'border-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10 shadow-xs'
-                    : 'border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 bg-slate-50/50 dark:bg-zinc-800/30'
-                "
-                @click="addressDisplayMode = 'token'"
-              >
-                <div class="mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors"
-                  :class="addressDisplayMode === 'token' ? 'border-emerald-600 bg-emerald-600 dark:border-emerald-500 dark:bg-emerald-500' : 'border-slate-300 dark:border-zinc-600'"
-                >
-                  <div v-if="addressDisplayMode === 'token'" class="w-1.5 h-1.5 rounded-full bg-white" />
-                </div>
-
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 mb-0.5">
-                    <span class="text-sm font-semibold text-slate-900 dark:text-white">
-                      {{ $t("token_address") }}
-                    </span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                      Recommended
-                    </span>
-                  </div>
-                  <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
-                    Token-aware cashaddr format supporting CashTokens FTs & NFTs.
-                  </p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                class="flex items-start gap-3 p-3.5 rounded-2xl border text-left transition-all cursor-pointer group"
-                :class="
-                  addressDisplayMode === 'regular'
-                    ? 'border-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10 shadow-xs'
-                    : 'border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 bg-slate-50/50 dark:bg-zinc-800/30'
-                "
-                @click="addressDisplayMode = 'regular'"
-              >
-                <div class="mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors"
-                  :class="addressDisplayMode === 'regular' ? 'border-emerald-600 bg-emerald-600 dark:border-emerald-500 dark:bg-emerald-500' : 'border-slate-300 dark:border-zinc-600'"
-                >
-                  <div v-if="addressDisplayMode === 'regular'" class="w-1.5 h-1.5 rounded-full bg-white" />
-                </div>
-
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-semibold text-slate-900 dark:text-white mb-0.5">
-                    {{ $t("regular_address") }}
-                  </div>
-                  <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
-                    Standard regular cashaddr format without token prefix.
-                  </p>
-                </div>
-              </button>
-            </div>
+            <AddressFormatSettings />
           </section>
 
           <hr class="border-slate-100 dark:border-zinc-800" />
@@ -239,7 +182,6 @@
 </template>
 
 <script setup lang="ts">
-import { addressDisplayMode } from "~/hooks/addressDisplay";
 import { storedTheme } from "~/hooks/theme";
 import { useStateStore } from "~/store";
 

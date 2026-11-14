@@ -81,6 +81,7 @@ const childNfts = computed<ChildNftItem[]>(() => {
 		const commitment = output.nonfungible_token_commitment?.substring(2) || "";
 		const address = formatLockingBytecodeAddress(
 			output.locking_bytecode.substring(2),
+			{ tokenCategory: `\\x${props.category}` },
 		);
 
 		return {
@@ -112,6 +113,7 @@ const outputs = computed<tableColumn[][]>(() => {
 		// Convert locking bytecode to cash address
 		const address = formatLockingBytecodeAddress(
 			output.locking_bytecode.substring(2),
+			{ tokenCategory: `\\x${props.category}` },
 		);
 		// Get nonfungible token commitment
 		const commitment = output.nonfungible_token_commitment?.substring(2);
