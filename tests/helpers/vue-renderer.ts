@@ -11,7 +11,17 @@ interface RenderNode {
 
 export function createNode(type: string, text = "") {
 	const children: RenderNode[] = [];
-	return { type, text, children, props: new Map<string, unknown>() };
+	return {
+		type,
+		text,
+		children,
+		props: new Map<string, unknown>(),
+		addEventListener() {},
+		removeEventListener() {},
+		get options() {
+			return children;
+		},
+	};
 }
 
 export const renderer = createRenderer<RenderNode, RenderNode>({
