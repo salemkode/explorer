@@ -8,22 +8,22 @@
           Latest Transactions
         </h3>
       </div>
-      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        Mempool
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+        <span class="w-1.5 h-1.5 rounded-full bg-current" />
+        {{ status.label }}
       </span>
     </div>
 
     <Transition name="fade" mode="out-in">
       <div
-        v-if="loading && transactions.length === 0"
+        v-if="status.type === 'connecting'"
         key="loading"
         class="divide-y divide-slate-100 dark:divide-zinc-800/60"
       >
         <div
-          v-for="i in limit"
+          v-for="i in 9"
           :key="i"
-          class="flex items-center justify-between gap-4 px-5 py-3.5 animate-pulse"
+          class="flex items-center justify-between gap-4 px-5 py-3.5 motion-safe:animate-pulse"
         >
           <div class="h-3.5 bg-slate-200 dark:bg-zinc-800 rounded-md w-32" />
           <div class="h-3 bg-slate-100 dark:bg-zinc-800/60 rounded-md w-48 hidden md:block" />
@@ -31,11 +31,18 @@
         </div>
       </div>
       <div
+        v-else-if="!hasNode || (transactions.length === 0 && status.type !== 'live')"
+        key="unavailable"
+        class="py-12 px-5 text-center text-sm text-slate-500 dark:text-zinc-400"
+      >
+        {{ status.message }}
+      </div>
+      <div
         v-else-if="transactions.length === 0"
         key="empty"
         class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500"
       >
-        No unconfirmed transactions in mempool
+        No unconfirmed transactions reported by this node.
       </div>
       <TransactionList
         v-else
@@ -47,46 +54,12 @@
 </template>
 
 <script setup lang="ts">
-import { MonitorMempools } from "@/module/chaingraph";
-import { useStateStore } from "~/store";
+import type { Transactions } from "~/components/Transaction/TransactionList.vue";
+import type { useNetworkStatus } from "~/composables/useNetworkStatus";
 
-const limit = ref(9);
-const offset = ref(0);
-const stateStore = useStateStore();
-const variables = computed(() => ({
-	network: stateStore.network,
-	offset: offset.value,
-	limit: limit.value,
-}));
-
-const timestampKey = ref<NodeJS.Timeout | undefined>();
-const { onResult, result, loading } = useSubscription(
-	MonitorMempools,
-	variables,
-);
-
-const sortTransactions = () => {
-	const node = result.value?.node.at(0);
-
-	// Stop if no data
-	if (!node) return [];
-
-	// Sort transactions
-	return node.unconfirmed_transactions.map(({ transaction }) => transaction);
-};
-const transactions = ref<ReturnType<typeof sortTransactions>>([]);
-
-onResult(() => {
-	const setTransactions = () => {
-		transactions.value = sortTransactions();
-		return transactions.value;
-	};
-
-	if (transactions.value.length !== limit.value) {
-		transactions.value = setTransactions();
-	} else {
-		if (timestampKey.value) clearTimeout(timestampKey.value);
-		timestampKey.value = setTimeout(setTransactions, 5000);
-	}
-});
+defineProps<{
+	transactions: Transactions;
+	status: ReturnType<typeof useNetworkStatus>["status"]["value"];
+	hasNode: boolean;
+}>();
 </script>

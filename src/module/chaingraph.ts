@@ -193,40 +193,54 @@ export const GetBlocks = gql(`
   }
 `);
 
-export const MonitorMempools = gql(`
-  subscription MonitorMempools($limit: Int, $offset: Int, $network: String) {
-    node(where: { name: { _regex: $network } }) {
-      name
-      user_agent
-      unconfirmed_transaction_count
-      unconfirmed_transactions(
-        limit: $limit
-        offset: $offset
-        order_by: { validated_at: desc }
+export const MonitorHomeNetwork = gql(`
+  subscription MonitorHomeNetwork($limit: Int, $offset: Int, $network: String) {
+    block(
+      where: { accepted_by: { node: { name: { _regex: $network } } } }
+      order_by: { height: desc }
+      limit: 1
+    ) {
+      height
+      timestamp
+      accepted_by(
+        where: { node: { name: { _regex: $network } } }
+        order_by: { node_internal_id: asc }
+        limit: 1
       ) {
-        validated_at
-        transaction {
-          hash
-          input_value_satoshis
-          output_value_satoshis
-          is_coinbase
-          inputs {
-            outpoint {
-              token_category
-              fungible_token_amount
-              nonfungible_token_capability
-              nonfungible_token_commitment
-              locking_bytecode
-              value_satoshis
+        node {
+          name
+          user_agent
+          unconfirmed_transaction_count
+          unconfirmed_transactions(
+            limit: $limit
+            offset: $offset
+            order_by: { validated_at: desc }
+          ) {
+            validated_at
+            transaction {
+              hash
+              input_value_satoshis
+              output_value_satoshis
+              is_coinbase
+              inputs {
+                outpoint {
+                  token_category
+                  fungible_token_amount
+                  nonfungible_token_capability
+                  nonfungible_token_commitment
+                  locking_bytecode
+                  value_satoshis
+                }
+              }
+              outputs {
+                token_category
+                fungible_token_amount
+                nonfungible_token_capability
+                nonfungible_token_commitment
+                locking_bytecode
+                value_satoshis
+              }
             }
-          }
-          outputs {
-            token_category
-            fungible_token_amount
-            nonfungible_token_capability
-            nonfungible_token_commitment
-            locking_bytecode
-            value_satoshis
           }
         }
       }

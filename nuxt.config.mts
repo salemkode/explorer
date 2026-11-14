@@ -2,11 +2,17 @@ import tailwindcss from "@tailwindcss/vite";
 import codegen from "vite-plugin-graphql-codegen";
 import { watch } from "vite-plugin-watch";
 
+const chaingraphHttp =
+	process.env.CHAINGRAPH_HTTP || "https://gql.chaingraph.pat.mn/v1/graphql";
+const chaingraphWs =
+	process.env.CHAINGRAPH_WS || "wss://gql.chaingraph.pat.mn/v1/graphql";
+
 export default defineNuxtConfig({
 	ssr: false,
 
 	runtimeConfig: {
 		public: {
+			chaingraphSource: new URL(chaingraphWs).host,
 			ipfsGateway:
 				process.env.NUXT_PUBLIC_IPFS_GATEWAY ||
 				process.env.IPFS_GATEWAY ||
@@ -69,11 +75,8 @@ export default defineNuxtConfig({
 	apollo: {
 		clients: {
 			default: {
-				httpEndpoint:
-					process.env.CHAINGRAPH_HTTP ||
-					"https://gql.chaingraph.pat.mn/v1/graphql",
-				wsEndpoint:
-					process.env.CHAINGRAPH_WS || "wss://gql.chaingraph.pat.mn/v1/graphql",
+				httpEndpoint: chaingraphHttp,
+				wsEndpoint: chaingraphWs,
 			},
 		},
 	},
