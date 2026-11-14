@@ -140,6 +140,9 @@
       <div>
         <IpfsGatewaySettings />
       </div>
+
+      <hr class="border-slate-100 dark:border-zinc-800" />
+      <IndexerCredit />
     </div>
   </div>
 </template>
