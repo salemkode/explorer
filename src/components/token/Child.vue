@@ -8,18 +8,20 @@
     :has-next-page="!!hasNextPage"
     :loading="loading"
     :error="error?.message"
-    @next="offset += pageSize"
-    @previous="offset -= pageSize"
+    @next="next(loading, hasNextPage && !error)"
+    @previous="previous(loading)"
   />
   <NFTGallery
     v-else
     :items="childNfts"
+    :identity-snapshot="identitySnapshot"
     :loading="loading"
     :error="error?.message"
     :has-prev-page="!!offset"
     :has-next-page="!!hasNextPage"
-    @next="offset += pageSize"
-    @previous="offset -= pageSize"
+    @next="next(loading, hasNextPage && !error)"
+    @previous="previous(loading)"
+    @retry="refetch()"
   />
 </template>
 
@@ -27,29 +29,31 @@
 import type { GetTokenChildQuery } from "@/module/chaingraph";
 import { GetTokenChild } from "@/module/chaingraph";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
+import { nftPage, useNftPagination } from "~/hooks/nftPagination";
 import { useStateStore } from "~/store";
 import type { IdentitySnapshot, tableColumn } from "~/types/index.js";
 import NFTGallery, { type ChildNftItem } from "./NFTGallery.vue";
 
 const stateStore = useStateStore();
-const offset = ref(0);
 const props = defineProps<{
 	category: string;
-	identitySnapshot?: IdentitySnapshot;
+	identitySnapshot?: IdentitySnapshot | null;
 	viewMode?: "table" | "grid";
 }>();
 const effectiveViewMode = computed(() =>
 	props.viewMode === "grid" ? "grid" : "table",
 );
-const pageSize = computed(() => (effectiveViewMode.value === "grid" ? 24 : 8));
-const limit = computed(() => pageSize.value + 1);
+const { offset, pageSize, limit, next, previous } = useNftPagination(
+	() => `${stateStore.network}:${props.category}`,
+	() => effectiveViewMode.value,
+);
 const variable = computed(() => ({
 	network: stateStore.network,
 	tokenCategory: `\\x${props.category}` as const,
 	offset: offset.value,
 	limit: limit.value,
 }));
-const { result, loading, error } = useQuery(GetTokenChild, variable);
+const { result, loading, error, refetch } = useQuery(GetTokenChild, variable);
 const types = computed(() => props.identitySnapshot?.token?.nfts?.parse.types);
 
 const showTokenColumn = computed(() => {
@@ -64,52 +68,37 @@ const column = computed(() => {
 	}
 	return result;
 });
-const hasNextPage = computed(() => {
-	if (result.value) {
-		return result.value.output.length === limit.value;
-	}
-	return false;
-});
+const page = computed(() => nftPage(result.value?.output || [], pageSize.value));
+const hasNextPage = computed(() => page.value.hasNextPage);
 type ChildOutput = GetTokenChildQuery["output"][number];
 
-const childNfts = computed<ChildNftItem[]>(() => {
-	if (!result.value) {
-		return [];
-	}
+const childNfts = computed<ChildNftItem[]>(() =>
+	page.value.items.flatMap((output) => {
+		if (!output.nonfungible_token_capability) return [];
 
-	let items = result.value.output.map((output: ChildOutput) => {
 		const commitment = output.nonfungible_token_commitment?.substring(2) || "";
 		const address = formatLockingBytecodeAddress(
 			output.locking_bytecode.substring(2),
 			{ tokenCategory: `\\x${props.category}` },
 		);
 
-		return {
+
+		return [{
+			id: `${output.transaction_hash.substring(2)}:${output.output_index}`,
 			category: props.category,
 			capability: output.nonfungible_token_capability,
 			commitment,
-			address: typeof address === "string" ? address : undefined,
-			name: types.value?.[commitment]?.name || "N/A",
-		};
-	});
-
-	if (items.length === limit.value) {
-		items = items.slice(0, -1);
-	}
-
-	return items;
-});
-
-watch(effectiveViewMode, () => {
-	offset.value = 0;
-});
+			address,
+		}];
+	}),
+);
 
 const outputs = computed<tableColumn[][]>(() => {
 	if (!result.value) {
 		return [];
 	}
 
-	let items = result.value?.output.map((output: ChildOutput) => {
+	const items = page.value.items.map((output: ChildOutput) => {
 		// Convert locking bytecode to cash address
 		const address = formatLockingBytecodeAddress(
 			output.locking_bytecode.substring(2),
@@ -155,10 +144,6 @@ const outputs = computed<tableColumn[][]>(() => {
 		return item;
 	});
 
-	// Remove last item if it reaches the limit
-	if (items.length === limit.value) {
-		items = items.slice(0, -1);
-	}
 	return items;
 });
 </script>

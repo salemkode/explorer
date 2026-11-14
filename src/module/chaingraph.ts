@@ -406,6 +406,7 @@ export const GetTokenChild = gql(`
     output(
       limit: $limit
       offset: $offset
+      order_by: [{ transaction_hash: asc }, { output_index: asc }]
       where: {
         transaction: {
           block_inclusions: {
@@ -417,6 +418,8 @@ export const GetTokenChild = gql(`
         _not: { spent_by: { transaction: { hash: { _gt: "" } } } }
       }
     ) {
+      transaction_hash
+      output_index
       locking_bytecode
       nonfungible_token_capability
       nonfungible_token_commitment
@@ -434,6 +437,7 @@ export const GetAddressNFTs = gql(`
     search_output(
       limit: $limit
       offset: $offset
+      order_by: [{ transaction_hash: asc }, { output_index: asc }]
       args: { locking_bytecode_hex: $lockingBytecode }
       where: {
         token_category: { _is_null: false }
@@ -446,6 +450,8 @@ export const GetAddressNFTs = gql(`
         _not: { spent_by: { transaction: { hash: { _gt: "" } } } }
       }
     ) {
+      transaction_hash
+      output_index
       token_category
       nonfungible_token_capability
       nonfungible_token_commitment
