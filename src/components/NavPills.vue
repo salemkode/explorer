@@ -4,7 +4,8 @@
       v-for="(item, index) in props.items"
       :key="index"
       type="button"
-      class="flex-1 py-2 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold text-center transition-all cursor-pointer select-none"
+      :aria-pressed="navItem === index"
+      class="flex-1 py-2 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold text-center transition-all motion-reduce:transition-none cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-emerald-500"
       :class="
         navItem === index
           ? 'bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/60 dark:border-zinc-700/60'

@@ -1,5 +1,7 @@
 <template>
   <svg
+    role="img"
+    :aria-label="`Progress: ${props.percentage}%`"
     class="stat-circle shrink-0"
     :class="{
       full: props.percentage >= 100,
@@ -8,6 +10,7 @@
     height="72"
     viewBox="0 0 20 20"
   >
+    <title>Progress: {{ props.percentage }}%</title>
     <circle class="bg" cx="10" cy="10" r="8" />
     <circle
       class="progress-hover"
@@ -82,10 +85,6 @@ onBeforeUnmount(() => {
   stroke-width: 2;
 }
 
-:global(.dark) .stat-circle circle.bg {
-  stroke: rgba(63, 63, 70, 0.5);
-}
-
 .stat-circle circle:is(.progress, .progress-hover) {
   fill: none;
   stroke-width: 2;
@@ -112,16 +111,24 @@ onBeforeUnmount(() => {
   stroke: none;
 }
 
+:global(.dark) .stat-circle circle.bg {
+  stroke: rgba(63, 63, 70, 0.5);
+}
+
+:global(.dark) .stat-circle.full circle.bg {
+  stroke: none;
+}
+
 .stat-circle.full circle:is(.progress, .progress-hover) {
   animation: full 1s;
 }
 
 @keyframes full {
   from {
-    stroke-dashoffset: -102 !important;
+    stroke-dashoffset: -102;
   }
   to {
-    stroke-dashoffset: 0 !important;
+    stroke-dashoffset: 0;
   }
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
   <Transition name="fade" mode="out-in">
     <img
+      alt=""
       ref="reference"
       :key="state.href"
       :src="state.href"

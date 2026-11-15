@@ -16,11 +16,20 @@
           :items="infoContent"
           :token-category="authchainElement ? txid : undefined"
         />
-        <bcmr-info
-          :loading="false"
-          :identity-snapshot="tokenIdentity.identity"
-          :token-category="txid"
-        />
+        <template v-if="tokenPublication">
+          <p v-if="publicationMetadata.loading.value" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
+            Loading token metadata…
+          </p>
+          <bcmr-info
+            v-else-if="tokenIdentity.identity"
+            :loading="false"
+            :identity-snapshot="tokenIdentity.identity"
+            :token-category="txid"
+          />
+          <p v-else role="status" class="text-sm text-slate-500 dark:text-zinc-400">
+            Token metadata is unavailable for this publication.
+          </p>
+        </template>
       </div>
 
       <!-- Right Column: Confirm & Operations (Inputs / Outputs) -->
@@ -51,8 +60,12 @@
       </div>
     </div>
 
+    <p v-else-if="TxError" role="alert" class="py-16 text-center text-sm text-rose-600 dark:text-rose-400">
+      Transaction details could not be loaded. Check your connection and reload the page.
+    </p>
+
     <!-- 404 Not Found State -->
-    <div v-else-if="Tx && Tx.transaction.length === 0" class="py-16 text-center">
+    <div v-else-if="!TxLoading && Tx && !transaction" class="py-16 text-center">
       <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 text-2xl">
         ✕
       </div>
@@ -74,14 +87,16 @@
 
 <script setup lang="ts">
 import { useAuthChains } from "~/hooks/authchains";
+import { useScopedQuery } from "~/hooks/scopedQuery";
+import { useTransactionMetadata } from "~/hooks/transactionMetadata";
 import { useUsdPrice } from "~/hooks/usdPrice";
-import { decodeAuthChain } from "~/module/bcmr";
+import { decodeAuthChain, getTransactionTokenPublication } from "~/module/bcmr";
 import { GetTx } from "~/module/chaingraph";
 import { formatDateString } from "~/module/utils";
 import { useRegistryStore, useStateStore } from "~/store";
 
 const route = useRoute();
-const txid = toRef(route.params, "txid") as Ref<string>;
+const txid = computed(() => String(route.params.txid || ""));
 const stateStore = useStateStore();
 const { formatPrice } = useUsdPrice();
 
@@ -100,17 +115,12 @@ const authchainElement = computed(() => {
 	return decodeAuthChain(authchain.value, txid.value);
 });
 
-const tokenIdentity = computed(() =>
-	registryStore.getTokenIdentity(txid.value),
-);
-
 /* Getting transaction info */
 const {
 	result: Tx,
 	loading: TxLoading,
-	onError,
-	onResult,
-} = useQuery(GetTx, variables);
+	error: TxError,
+} = useScopedQuery(GetTx, variables);
 
 const transaction = computed(() => {
 	const node = Tx.value?.node.at(0);
@@ -136,22 +146,16 @@ const transaction = computed(() => {
 	};
 });
 
-onError(() => {
-	throw showError({
-		statusCode: 404,
-		message: "This transaction is not found",
-	});
-});
+const tokenPublication = computed(() =>
+	getTransactionTokenPublication(
+		transaction.value?.transaction,
+		authchain.value,
+		txid.value,
+	),
+);
 
-onResult(() => {
-	if (!TxLoading.value && transaction.value === undefined) {
-		throw showError({
-			statusCode: 404,
-			message: "This transaction is not found",
-		});
-	}
-});
-
+const publicationMetadata = useTransactionMetadata(tokenPublication, () => stateStore.network);
+const tokenIdentity = computed(() => ({ identity: publicationMetadata.identity.value }));
 const infoContent = computed(() => {
 	if (!transaction.value) return [];
 	const satoshis: string | null | undefined =
@@ -160,7 +164,7 @@ const infoContent = computed(() => {
 	return [
 		{
 			title: "Transaction Hash",
-			text: txid.value as string,
+			text: txid.value,
 			copy: true,
 			warp: true,
 		},

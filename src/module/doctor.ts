@@ -16,7 +16,7 @@ const getRegistryTokenIdentity = (
 	}
 
 	const timestamp = Object.keys(tokenIdentities)
-		.filter((revision) => +new Date(revision) < +new Date())
+		.filter((revision) => +new Date(revision) < Date.now())
 		.reduce(
 			(timestamp1, timestamp2) =>
 				new Date(timestamp1) > new Date(timestamp2) ? timestamp1 : timestamp2,

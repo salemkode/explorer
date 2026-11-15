@@ -24,10 +24,11 @@
 
 			<!-- Input -->
 			<div>
-				<label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">
+				<label for="converter-address" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">
 					Address to Convert
 				</label>
 				<input
+					id="converter-address"
 					v-model="inputAddress"
 					type="text"
 					class="w-full rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 py-3.5 px-4 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -180,23 +181,23 @@ const legacyAddress = computed(() => {
 const cashAddressLibauth = computed(() => {
 	if (!lockingBytecode.value) return;
 	const prefix = stateStore.network === "mainnet" ? "bitcoincash" : "bchtest";
-	const address = lockingBytecodeToCashAddress(
-		hexToBin(lockingBytecode.value),
+	const address = lockingBytecodeToCashAddress({
+		bytecode: hexToBin(lockingBytecode.value),
 		prefix,
-		{ tokenSupport: false },
-	);
-	return typeof address === "string" ? address : undefined;
+		tokenSupport: false,
+	});
+	return typeof address === "string" ? undefined : address.address;
 });
 
 const tokenAddressLibauth = computed(() => {
 	if (!lockingBytecode.value) return;
 	const prefix = stateStore.network === "mainnet" ? "bitcoincash" : "bchtest";
-	const address = lockingBytecodeToCashAddress(
-		hexToBin(lockingBytecode.value),
+	const address = lockingBytecodeToCashAddress({
+		bytecode: hexToBin(lockingBytecode.value),
 		prefix,
-		{ tokenSupport: true },
-	);
-	return typeof address === "string" ? address : undefined;
+		tokenSupport: true,
+	});
+	return typeof address === "string" ? undefined : address.address;
 });
 
 const crossCheckMismatches = computed(() => {
