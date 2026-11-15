@@ -38,6 +38,24 @@ The Settings page includes these public gateway options:
 The selected gateway is stored in the browser and overrides the deployment
 default for that browser.
 
+## Transaction token badges
+
+Transaction input/output badges use compact **display** amounts: `2000` becomes
+`2k`. Amounts below 1000 retain every decimal; larger amounts use up to three
+significant digits with `k`, `m`, `b`, or `t` (scientific notation from `10^15`).
+`≈` marks rounding, including rounding up into the next suffix. BCMR token
+decimals are applied before compaction using arbitrary-precision arithmetic.
+Until metadata is available, the amount is shown in base units and identified
+as such in its exact-value disclosure.
+
+Long NFT commitments show the first seven and last eight characters, separated
+by `......`; values of 21 characters or fewer stay intact, including leading zeros.
+Tap/click an amount or commitment, or focus it and press Enter/Space, to inspect
+and copy the full exact value. Token disclosures also include the original
+on-chain base units when they differ. Titles and accessible labels contain the
+exact value. Compact text is never used for copying or on-chain operations;
+other full-value tables and details keep their existing exact-display behavior.
+
 ## Generated assets
 
 `bun install` generates the typed GraphQL documents and prepares Nuxt. The checked-in
@@ -125,3 +143,8 @@ View visits, page views, referrers, and performance in the Cloudflare account's
 **Analytics → Web Analytics → explorer.salemkode.com** dashboard. The beacon token
 is a public site identifier, not an API credential. Future builds retain the
 tracking script automatically.
+
+The compact badge suite also retains issue #26's exact-value regressions, including
+`72624976668144285` and the maximum fungible amount. Its disclosure and copy-value
+assertions replace the earlier raw-only text snapshots because compact labels
+and registry decimal scaling intentionally change the visible summary.
