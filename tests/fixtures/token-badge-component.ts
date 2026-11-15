@@ -42,6 +42,7 @@ Object.assign(globalThis, {
 	shallowRef,
 	watch,
 	gql: (source: string) => source,
+	useSubscription: () => ({ result: ref() }),
 });
 const { useRegistryStore } = await import("../../src/store/registry");
 const { default: TransactionOperationToken } = await import(
