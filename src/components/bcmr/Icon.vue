@@ -1,19 +1,29 @@
 <template>
   <div class="inline-flex items-center my-0.5">
-    <div ref="reference" class="inline-flex items-center cursor-pointer" @click.stop="openPopUp">
+    <button
+      ref="reference"
+      type="button"
+      class="inline-flex items-center cursor-pointer"
+      aria-label="View token image"
+      :aria-expanded="state.open"
+      @click.stop="openPopUp"
+    >
       <Image
         :key="iconURL"
         :size="imageSize"
         :href="iconURL"
         :failure-href="IdentIcon"
+        :alt="tokenInfo?.name || 'Token icon'"
         class="rounded-lg object-contain"
         @success="state.success = true"
       />
-    </div>
+    </button>
 
     <Teleport to="body">
-      <div
+      <button
         v-if="state.open"
+        type="button"
+        aria-label="Close token image"
         class="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs transition-opacity"
         @click="closePopUp()"
       />
@@ -23,6 +33,7 @@
           :key="iconURL"
           :href="imageURL"
           :failure-href="iconURL"
+          :alt="tokenInfo?.name || 'Token image'"
           :style="{
             '--x': `${position.x}px`,
             '--y': `${position.y}px`,
@@ -37,15 +48,17 @@
 </template>
 
 <script setup lang="ts">
+import { getChildToken } from "~/module/bcmr";
 import { createIdenticon } from "~/module/IconGenerator";
 import { getHttpsUrl, svgToBase64 } from "~/module/utils";
 import { useRegistryStore } from "~/store";
-import type { Capability } from "~/types";
+import type { Capability, IdentitySnapshot } from "~/types";
 
 const registryStore = useRegistryStore();
 const reference = ref<HTMLElement>();
 const props = defineProps<{
 	tokenCategory: string;
+	identitySnapshot?: IdentitySnapshot | null;
 	commitment?: string;
 	capability?: Capability;
 	small?: boolean;
@@ -56,13 +69,12 @@ const state = reactive({
 	open: false,
 	success: false,
 });
-const resetState = () => {
-	state.open = false;
-	state.success = false;
-};
 const tokenInfo = computed(() => {
-	resetState();
-
+	if (props.identitySnapshot !== undefined) {
+		if (!props.identitySnapshot) return;
+		const identity = getChildToken(props.identitySnapshot, props.capability, props.commitment) || props.identitySnapshot;
+		return { name: identity.name, icon: identity.uris?.icon, image: identity.uris?.image };
+	}
 	return registryStore.getToken(
 		props.tokenCategory,
 		props.capability,
@@ -76,6 +88,14 @@ const iconURL = computed(() =>
 const imageURL = computed(() =>
 	tokenInfo.value?.image ? getHttpsUrl(tokenInfo.value?.image) : "",
 );
+
+watch(iconURL, () => {
+	state.success = false;
+});
+watch(tokenInfo, () => {
+	state.open = false;
+});
+
 const imageSize = computed(() => props.size || (props.small ? 24 : 80));
 const IdentIcon = computed(() =>
 	svgToBase64(createIdenticon(props.tokenCategory)),

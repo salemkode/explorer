@@ -1,108 +1,84 @@
 <template>
-  <TableView
-    title="Address Tokens"
-    :rows="transactions"
-    :columns="['token', 'category', 'amount']"
-    :has-prev-page="!!offset"
-    :has-next-page="!!hasNextPage"
-    :loading="loading"
-    :error="error?.message"
-    @next="offset += 8"
-    @previous="offset -= 8"
-  />
+  <div class="space-y-3">
+    <TokenBalanceStatus :state="state" @refresh="refresh" />
+    <TableView
+      title="Address Tokens"
+      :rows="transactions"
+      :columns="['token', 'category', 'amount']"
+      :row-keys="page.map((item) => item.key)"
+      empty-message="No confirmed token balances at this address."
+      :has-prev-page="offset > 0"
+      :has-next-page="offset + 8 < balances.length"
+      :loading="state.status === 'loading'"
+      :error="state.status === 'error' ? state.message : ''"
+      @next="offset += 8"
+      @previous="offset -= 8"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { GetAddressTokens } from "@/module/chaingraph";
 import { useAuthChains } from "~/hooks/authchains";
+import { useConfirmedTokenBalances } from "~/hooks/confirmedTokenBalances";
 import { calculateDecimal } from "~/module/bitcoin";
+import { groupTokenBalances } from "~/module/tokenBalances";
 import { useRegistryStore, useStateStore } from "~/store";
 import type { tableColumn } from "~/types/index.js";
 
-const limit = ref(9);
-const offset = ref(0);
-const props = defineProps<{
-	lockingBytecode: string;
-}>();
+const props = defineProps<{ lockingBytecode: string }>();
 const stateStore = useStateStore();
-const variables = computed(() => ({
-	network: stateStore.network,
-	lockingBytecode: `{${props.lockingBytecode}}`,
-	offset: offset.value,
-	limit: limit.value,
-}));
-
 const registryStore = useRegistryStore();
-const {
-	result: transaction,
-	error,
-	loading,
-} = useQuery(GetAddressTokens, variables);
-const hasNextPage = computed(() => {
-	if (transaction.value) {
-		return transaction.value.search_output.length === limit.value;
-	}
-	return false;
-});
-const transactions = computed<tableColumn[][]>(() => {
-	if (!transaction.value) {
-		return [];
-	}
-	let outputs = transaction.value?.search_output;
-	if (outputs.length === limit.value) {
-		outputs = outputs.slice(0, -1);
-	}
-
-	// Remove duplicate
-	const tokens = new Map<string, number>();
-	for (const item of outputs) {
-		if (!item.token_category) continue;
-
-		const inMapItem = tokens.get(item.token_category);
-		if (inMapItem) {
-			tokens.set(
-				item.token_category,
-				inMapItem + Number(item.fungible_token_amount),
-			);
-		} else {
-			tokens.set(item.token_category, Number(item.fungible_token_amount));
-		}
-	}
-
-	const items = Array.from(tokens, ([categoryBytea, amount]) => {
-		const category = categoryBytea?.substring(2) || "";
+const scope = computed(() => ({
+	network: stateStore.network,
+	filter: { locking_bytecode: { _eq: `\\x${props.lockingBytecode}` as const } },
+}));
+const { state, refresh } = useConfirmedTokenBalances(scope);
+const offset = ref(0);
+watch(
+	state,
+	() => {
+		offset.value = 0;
+	},
+	{ flush: "sync" },
+);
+const balances = computed(() =>
+	state.value.status === "ready"
+		? groupTokenBalances(state.value.outputs, "token_category")
+		: [],
+);
+const page = computed(() =>
+	balances.value.slice(offset.value, offset.value + 8),
+);
+const transactions = computed<tableColumn[][]>(() =>
+	page.value.map(({ key, amount }) => {
+		const category = key.substring(2);
 		const metadata = registryStore.getToken(category);
-		const decimals = metadata.token?.decimals;
-		const name = metadata?.loading ? false : metadata?.token?.name || "N/A";
 		return [
 			{
-				text: name || "Loading...",
-				token: {
-					category: category,
-				},
+				text: metadata.loading
+					? "Loading…"
+					: metadata.token?.name || "Unknown token",
+				token: { category },
 				url: `/token/${category}`,
 			},
+			{ text: category, short: true, copy: true, url: `/token/${category}` },
 			{
-				text: category,
-				short: true,
-				copy: true,
-				url: `/token/${category}`,
-			},
-			{
-				text: calculateDecimal(amount, decimals || 0).toString() || "N/A",
+				text: calculateDecimal(amount, metadata.token?.decimals || 0).toFixed(),
 			},
 		];
-	});
-
-	return items;
-});
-
+	}),
+);
 useAuthChains(
-	toRef(
-		() =>
-			transaction.value?.search_output
-				.map((token) => token.token_category)
-				.filter(Boolean) || [],
+	computed(() =>
+		state.value.status === "ready"
+			? [
+					...new Set(
+						state.value.outputs
+							.map((output) => output.token_category)
+							.filter(Boolean),
+					),
+				]
+			: [],
 	),
 );
 </script>

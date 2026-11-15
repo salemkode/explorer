@@ -20,12 +20,12 @@
     </p>
 
     <!-- Error State -->
-    <div v-if="blockList.type == 'error'" class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500">
+    <div v-if="blockList.type === 'error'" class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500">
       Unable to load blocks
     </div>
 
     <!-- Blocks Content -->
-    <div v-else ref="element">
+    <div v-else>
       <Transition name="fade" mode="out-in">
         <!-- Skeleton Loading State -->
         <div
@@ -101,7 +101,6 @@ import { GetBlocks } from "~/module/chaingraph";
 import { bytesToMB, formatDateString, numberWithCommas } from "~/module/utils";
 import { useStateStore } from "~/store";
 
-const element = ref<HTMLDivElement | null>(null);
 const stateStore = useStateStore();
 const variables = computed(() => ({
 	limit: 7,

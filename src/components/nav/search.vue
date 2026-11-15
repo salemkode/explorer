@@ -37,6 +37,7 @@
 
 <script setup lang="ts">
 import { useSearch } from "~/hooks/search";
+
 const route = useRoute();
 
 const isHomePage = computed(() => route.fullPath === "/");

@@ -3,6 +3,7 @@ import { calculateDecimal } from "~/module/bitcoin";
 import { shortTx } from "~/module/utils";
 import { useRegistryStore } from "~/store";
 import type { Capability } from "~/types";
+
 type Maybe<T> = T | undefined | null;
 
 const registryStore = useRegistryStore();
