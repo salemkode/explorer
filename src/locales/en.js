@@ -72,17 +72,18 @@ export default {
 	settings: "Settings",
 	converter_page_header: "Address Converter",
 	converter_page_subtext:
-		"Convert between CashToken, CashAddr, and Legacy Bitcoin Cash address formats.",
-	converter_input_placeholder: "Enter BCH address",
-	converter_invalid_address: "Invalid BCH address",
+		"Convert a Bitcoin Cash address into regular, token-aware, and legacy formats.",
+	converter_input_placeholder: "Paste a Bitcoin Cash address",
+	converter_invalid_address:
+		"Invalid or unsupported BCH address. Check the full address and checksum. Supported prefixes: bitcoincash: and bchtest:.",
 	converter_detected_type: "Detected Type",
 	converter_alpha_badge: "Alpha",
 	converter_alpha_warning_title: "Alpha feature",
 	converter_alpha_warning_body:
-		"This converter is new and not fully tested yet. Please verify results with another tool before using it.",
+		"Check the destination network and wallet support before sending BCH or CashTokens. Converting an address does not make a wallet token-compatible.",
 	converter_verify_header: "Verify with other tools",
 	converter_verify_subtext:
-		"Cross-check the same input address using another converter:",
+		"For an independent check, compare with another tool that supports your address type and network:",
 	address_display_format: "Address display format",
 	token_address: "Token address",
 	regular_address: "Regular address",
