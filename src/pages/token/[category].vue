@@ -1,6 +1,13 @@
 <template>
   <div class="w-full">
-    <LoadingView v-if="authchainLoading" />
+    <p v-if="queryError" role="alert" class="max-w-7xl mx-auto px-4 py-16 text-center text-sm text-rose-600 dark:text-rose-400">
+      Token details could not be loaded. Check your connection and reload the page.
+    </p>
+    <LoadingView v-else-if="authchainLoading" />
+    <div v-else-if="!authchainElement" class="max-w-7xl mx-auto px-4 py-16 text-center">
+      <h1 class="text-xl font-bold text-slate-900 dark:text-white mb-2">{{ authchain?.transaction.length ? "Token details unavailable" : "Token not found" }}</h1>
+      <p class="text-sm text-slate-500 dark:text-zinc-400">No token genesis was found for this ID on the selected network.</p>
+    </div>
     <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Mobile Header -->
       <TokenId
@@ -32,6 +39,12 @@
             :loading="metadata.loading"
             :identity-snapshot="metadata.identitySnapshot"
           />
+          <p v-if="metadata.loading" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
+            Loading token metadata…
+          </p>
+          <p v-else-if="!metadata.identitySnapshot" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
+            {{ metadata.failed ? 'Auth-chain metadata could not be loaded. You can choose another registry below.' : 'No token metadata is available from the selected registry.' }}
+          </p>
           <TokenProvider
             :select="metadata.name"
             :category="category"
@@ -62,13 +75,15 @@
           <template v-if="effectiveTokenViewMode === 'table'">
             <TokenAddress
               v-if="hasNftCapability"
+              :key="`${stateStore.network}:${category}:addresses`"
               :decimals="decimals"
               :category="category"
             />
-            <TokenTransaction :category="category" />
+            <TokenTransaction :key="`${stateStore.network}:${category}:transactions`" :category="category" />
           </template>
 
           <TokenChild
+            :key="`${stateStore.network}:${category}:children`"
             :identity-snapshot="metadata.identitySnapshot"
             :category="category"
             :view-mode="effectiveTokenViewMode"
@@ -88,29 +103,37 @@ import { useNonBurnTokens } from "~/hooks/nonSpentToken";
 import { useStorage } from "~/hooks/storage";
 import { decodeAuthChain } from "~/module/bcmr";
 import { getTokenInfoType } from "~/module/bitcoin";
-import { useRegistryStore } from "~/store";
+import { useRegistryStore, useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
-const category = computed(() => route.params.category as string);
+const category = computed(() => String(route.params.category || ""));
 
+const stateStore = useStateStore();
 const registryStore = useRegistryStore();
+const tokenCategory = computed(() => `\\x${category.value}` as const);
 const navItem = ref(0);
 const {
 	result: authchain,
 	loading: authchainQueryLoading,
-	onError,
-} = useAuthChains(toRef(() => [`\\x${category.value}` as const]));
+	error: authchainError,
+} = useAuthChains(toRef(() => [tokenCategory.value]));
 
-const { supplyNFTs, loading: supplyNFTsLoading } = useNftSupply(
-	`\\x${category.value}`,
-);
-const { isActiveMinting, loading: activeMintingLoading } = useIsActiveMinting(
-	`\\x${category.value}`,
-);
-const { nonBurnTokens, loading: nonBurnTokensLoading } = useNonBurnTokens(
-	`\\x${category.value}`,
-);
+const {
+	supplyNFTs,
+	error: supplyNFTsError,
+	loading: supplyNFTsLoading,
+} = useNftSupply(tokenCategory);
+const {
+	isActiveMinting,
+	error: activeMintingError,
+	loading: activeMintingLoading,
+} = useIsActiveMinting(tokenCategory);
+const {
+	nonBurnTokens,
+	error: nonBurnTokensError,
+	loading: nonBurnTokensLoading,
+} = useNonBurnTokens(tokenCategory);
 const authchainElement = computed(
 	() => authchain.value && decodeAuthChain(authchain.value, category.value),
 );
@@ -121,14 +144,20 @@ const reservedSupply = computed(
 			?.authchains.at(0)
 			?.authhead?.identity_output?.at(0)?.fungible_token_amount,
 );
-onError(() => {
-	throw showError({
-		statusCode: 404,
-		message: "This transaction is not found",
-	});
-});
+const queryError = computed(
+	() => authchainError.value || supplyNFTsError.value ||
+		activeMintingError.value || nonBurnTokensError.value,
+);
 
 const selectedRegistryName = ref("");
+watch(
+	() => [category.value, stateStore.network],
+	() => {
+		selectedRegistryName.value = "";
+		navItem.value = 0;
+	},
+	{ flush: "sync" },
+);
 const tokenViewMode = useStorage<"table" | "grid">(
 	"token_page_view_mode",
 	"table",
@@ -154,6 +183,7 @@ const metadata = computed(() => {
 
 	return {
 		loading: registryStore.loadingProviders || isAuthchainLoading,
+		failed: registryStore.authchains.get(category.value) === false,
 		name: registryState?.name || "",
 		identitySnapshot: registryState?.identity,
 	};
@@ -161,7 +191,6 @@ const metadata = computed(() => {
 const authchainLoading = computed(
 	() =>
 		authchainQueryLoading.value ||
-		metadata.value.loading ||
 		supplyNFTsLoading.value ||
 		activeMintingLoading.value ||
 		nonBurnTokensLoading.value,
@@ -188,7 +217,9 @@ const tokenInfo = computed(() => {
 			? null
 			: Number(reservedSupply.value);
 	const ownerAddress =
-		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode);
+		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode, {
+			tokenCategory: `\\x${category.value}`,
+		});
 
 	const items: contentWarpItem[] = [
 		{

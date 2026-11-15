@@ -25,29 +25,24 @@
 </template>
 
 <script setup lang="ts">
-import type { history as History } from "electrum-cash";
+import type { InferOutput } from "valibot";
 import { GetTransactions } from "~/module/chaingraph";
+import type { addressHistorySchema } from "~/module/electrum";
 import { useStateStore } from "~/store";
 
 const limit = ref(8);
 const offset = ref(0);
 const stateStore = useStateStore();
 const props = defineProps<{
-	history: History;
+	history: InferOutput<typeof addressHistorySchema>;
 }>();
 const hasPrevPage = computed(() => offset.value > 0);
-const hasNextPage = computed(() => {
-	if (Array.isArray(props.history)) {
-		return props.history.length > limit.value + offset.value;
-	}
-	return false;
-});
-const sortedHistory = computed(() => {
-	if (!Array.isArray(props.history)) {
-		return [];
-	}
-	return props.history.slice().sort((tx1, tx2) => tx2.height - tx1.height);
-});
+const hasNextPage = computed(
+	() => props.history.length > limit.value + offset.value,
+);
+const sortedHistory = computed(() =>
+	props.history.slice().sort((tx1, tx2) => tx2.height - tx1.height),
+);
 
 const transactionsHash = computed(() => {
 	return sortedHistory.value
