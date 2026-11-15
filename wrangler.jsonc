@@ -3,7 +3,7 @@
 	"compatibility_date": "2024-12-01",
 	"account_id": "1d3930570e889d7ef9339cba4ff202b5",
 	"routes": [{ "pattern": "explorer.salemkode.com", "custom_domain": true }],
-	"build": { "command": "npm run generate" },
+	"build": { "command": "bun run build" },
 	"assets": {
 		"directory": "./.output/public",
 		"not_found_handling": "single-page-application"
