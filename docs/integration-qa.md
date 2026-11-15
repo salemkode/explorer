@@ -19,10 +19,10 @@ All GitHub bases remain `main`. Merge manually in prerequisite order. Feature do
 | [#35](https://github.com/salemkode/explorer/pull/35) | `fix/11-auto-cashaddr`            | `fb6644ac6ec65c35ac1a003c3c420c3afef316ca` | `7e3acecb08b534ab8013af2e4ec4cb6c3f19db3a` | 136                     |
 | [#37](https://github.com/salemkode/explorer/pull/37) | `fix/13-compact-token-badges`     | `15f7b2af717f77e1f75a6d71fd84e6e33996e5d7` | `f8b7e58bf2de1585becd664f92e4cdf4c63b41a2` | 87                      |
 | [#38](https://github.com/salemkode/explorer/pull/38) | `t3/nft-gallery-completion`       | `3f3474eb806e94faa68543dd654ab88d6359dba2` | `a9bb934b996b8f7fe508f12013f9d0ffe51b7fc2` | 137                     |
-| [#39](https://github.com/salemkode/explorer/pull/39) | `t3/auth-chain-selection`         | `c8dc1bf6c14f13672619284b282ec7fdd5ee9b92` | `362b8c9131ee0b2965346fa53e0dcda1876a909d` | 151                     |
-| [#40](https://github.com/salemkode/explorer/pull/40) | `fix/token-transaction-context`   | `96a909684f56254ca7cd0a61bb56119c8bfc663b` | `548c5dfaf57cfaad927d92c73c75750e75cc3f63` | 139                     |
-| [#41](https://github.com/salemkode/explorer/pull/41) | `fix/20-burned-supply`            | `5be5eb657c6b293ae194b5ea938de07379453d4d` | `ec7dd04ae2c0d1e85b715e0c5ced9c59ba40a36b` | 193                     |
-| [#42](https://github.com/salemkode/explorer/pull/42) | `t3/exact-token-balances-metrics` | `f7d30b77ffe4cdd99fcbf8f29b52c0d9ff78bf14` | `118aa2ae44788cd38dac1a1a9c8c9959f90973e0` | 170                     |
+| [#39](https://github.com/salemkode/explorer/pull/39) | `t3/auth-chain-selection`         | `c8dc1bf6c14f13672619284b282ec7fdd5ee9b92` | `d7814006275c41324be568c13cc0c459b01915f3` | 151                     |
+| [#40](https://github.com/salemkode/explorer/pull/40) | `fix/token-transaction-context`   | `96a909684f56254ca7cd0a61bb56119c8bfc663b` | `d97cc004a7e06c4cee5803ce20968ddb4b1e14b9` | 139                     |
+| [#41](https://github.com/salemkode/explorer/pull/41) | `fix/20-burned-supply`            | `5be5eb657c6b293ae194b5ea938de07379453d4d` | `a0e73f5fe592d83c8e7d93247157ccf6b1c0f0c6` | 193                     |
+| [#42](https://github.com/salemkode/explorer/pull/42) | `t3/exact-token-balances-metrics` | `f7d30b77ffe4cdd99fcbf8f29b52c0d9ff78bf14` | `e261e56237b95976204ad50bfec7129b5c148540` | 170                     |
 | [#43](https://github.com/salemkode/explorer/pull/43) | `feat/12-network-status`          | `e3a68af203ef4d1b65d3ac0d8b8343a14f1b493e` | `6116d8402d9f74269936427e068430ca402e8236` | 84                      |
 
 Unchanged: [#32](https://github.com/salemkode/explorer/pull/32) `4cd0fb6c2fe09a60dfbf6889fa7b67d72c23a949`; [#33](https://github.com/salemkode/explorer/pull/33) `73b5f17341cd99a962fa12db0bef043103755b84`; [#36](https://github.com/salemkode/explorer/pull/36) `a9eab06f83ebc25d4fd6ad688dad58ac45480b80`.
@@ -56,7 +56,7 @@ The CashTokens source was read at https://github.com/bitjson/cashtokens#token-ca
 
 ## Limits and handback
 
-No independent re-review of these rewritten heads has run. No interactive browser, native focus trapping/layout, OS clipboard, real-wallet, or live-indexer proof was obtained in this integration pass. Fixture coverage is deterministic; it does not establish current provider availability. Remote CI is checked separately in the handback and may still be pending. No merges, issue closures, watches, schema updates, dependency churn, device operations, or other-worktree edits were performed.
+Two focused independent re-reviews completed. Their final query-boundary and shared-icon readiness findings were corrected with regressions that fail before the fixes. No interactive browser, native focus trapping/layout, OS clipboard, real-wallet, or live-indexer proof was obtained in this integration pass. Fixture coverage is deterministic; it does not establish current provider availability. Remote CI is checked separately in the handback and may still be pending. No merges, issue closures, watches, schema updates, dependency churn, device operations, or other-worktree edits were performed.
 
 ## Remote CI observed at handback
 
@@ -78,4 +78,17 @@ query execution fixture applies actual GraphQL filtering and limit arguments; it
 fails with the original cap and passes after correction for string/numeric indices.
 PR42 passes 170 tests and PR41 passes 193 tests, plus typecheck and static build.
 Root final logs: `/tmp/explorer-{42,41,aggregate}-final-{tests,types,build}.log`.
-The final UI/selection re-review is still pending at this documentation update.
+The final UI/selection re-review completed. Its shared-icon provider-switch finding is fixed at PR40 and inherited by PR39, PR42, and PR41; their full suites, typechecks and static builds pass.
+
+## Manual merge instructions
+
+Merge cleanup #32 first, then follow each dependency path above. Every PR targets
+`main`. Use merge commits for prerequisites so dependent PRs retain their ancestry
+and focused diffs. A squash/rebase merge requires updating dependent branches
+before proceeding. No protected branch was advanced by an agent.
+
+The final shared-icon regression runs the actual compiled component setup with
+real Vue reactivity. Readiness follows the effective thumbnail URL; changing the
+selected identity closes the old preview without disabling an unchanged loaded
+thumbnail. A changed icon still requires its own successful load.
+Root final artwork logs: `/tmp/explorer-{40,39,42,41}-ui-{tests,types,build}.log`.
