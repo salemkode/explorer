@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { GetTokenChild } from "@/module/chaingraph";
 import type { GetTokenChildQuery } from "@/module/chaingraph";
+import { GetTokenChild } from "@/module/chaingraph";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useStateStore } from "~/store";
 import type { IdentitySnapshot, tableColumn } from "~/types/index.js";

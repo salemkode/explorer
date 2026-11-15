@@ -98,38 +98,6 @@ export const GetTx = gql(`
   }
 `);
 
-export const LastTransaction = gql(`
-  query LastTransaction($network: String) {
-    block(
-      limit: 1
-      order_by: { height: desc }
-      where: { accepted_by: { node: { name: { _regex: $network } } } }
-    ) {
-      height
-      transactions(limit: 10) {
-        transaction {
-          hash
-          input_count
-          output_count
-          output_value_satoshis
-          input_value_satoshis
-          inputs {
-            outpoint {
-              token_category
-              fungible_token_amount
-            }
-          }
-          outputs {
-            token_category
-            fungible_token_amount
-          }
-          size_bytes
-        }
-      }
-    }
-  }
-`);
-
 export const GetLastBlock = gql(`
   subscription GetLastBlock($network: String) {
     node_block(
@@ -225,40 +193,54 @@ export const GetBlocks = gql(`
   }
 `);
 
-export const MonitorMempools = gql(`
-  subscription MonitorMempools($limit: Int, $offset: Int, $network: String) {
-    node(where: { name: { _regex: $network } }) {
-      name
-      user_agent
-      unconfirmed_transaction_count
-      unconfirmed_transactions(
-        limit: $limit
-        offset: $offset
-        order_by: { validated_at: desc }
+export const MonitorHomeNetwork = gql(`
+  subscription MonitorHomeNetwork($limit: Int, $offset: Int, $network: String) {
+    block(
+      where: { accepted_by: { node: { name: { _regex: $network } } } }
+      order_by: { height: desc }
+      limit: 1
+    ) {
+      height
+      timestamp
+      accepted_by(
+        where: { node: { name: { _regex: $network } } }
+        order_by: { node_internal_id: asc }
+        limit: 1
       ) {
-        validated_at
-        transaction {
-          hash
-          input_value_satoshis
-          output_value_satoshis
-          is_coinbase
-          inputs {
-            outpoint {
-              token_category
-              fungible_token_amount
-              nonfungible_token_capability
-              nonfungible_token_commitment
-              locking_bytecode
-              value_satoshis
+        node {
+          name
+          user_agent
+          unconfirmed_transaction_count
+          unconfirmed_transactions(
+            limit: $limit
+            offset: $offset
+            order_by: { validated_at: desc }
+          ) {
+            validated_at
+            transaction {
+              hash
+              input_value_satoshis
+              output_value_satoshis
+              is_coinbase
+              inputs {
+                outpoint {
+                  token_category
+                  fungible_token_amount
+                  nonfungible_token_capability
+                  nonfungible_token_commitment
+                  locking_bytecode
+                  value_satoshis
+                }
+              }
+              outputs {
+                token_category
+                fungible_token_amount
+                nonfungible_token_capability
+                nonfungible_token_commitment
+                locking_bytecode
+                value_satoshis
+              }
             }
-          }
-          outputs {
-            token_category
-            fungible_token_amount
-            nonfungible_token_capability
-            nonfungible_token_commitment
-            locking_bytecode
-            value_satoshis
           }
         }
       }
@@ -423,30 +405,6 @@ export const GetAuthChains = gql(`
             }
           }
         }
-      }
-    }
-  }
-`);
-
-export const GetOpreturn = gql(`
-  query GetOpreturn($network: String, $tokenCategory: bytea) {
-    transaction(
-      where: {
-        block_inclusions: {
-          block: { accepted_by: { node: { name: { _regex: $network } } } }
-        }
-        inputs: {
-          outpoint_transaction_hash: { _eq: $tokenCategory }
-          outpoint_index: { _eq: 0 }
-        }
-      }
-    ) {
-      hash
-      outputs {
-        fungible_token_amount
-        nonfungible_token_capability
-        nonfungible_token_commitment
-        locking_bytecode
       }
     }
   }

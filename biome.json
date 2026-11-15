@@ -1,14 +1,34 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"files": {
-		"ignore": [
-			"src/graphql",
-			"src/public",
-			".*",
-			"node_modules",
-			"dist",
-			".output",
-			".nuxt"
+		"includes": [
+			"**",
+			"!!**/node_modules",
+			"!!**/.nuxt",
+			"!!**/.output",
+			"!!**/.build",
+			"!!src/graphql",
+			"!!src/public",
+			"!!src/assets/icons",
+			"!!src/assets/images",
+			"!src/assets/bcmr-v2.schema.json",
+			"!schema/chaingraph.graphql"
 		]
+	},
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
+	"html": {
+		"experimentalFullSupportEnabled": true,
+		"formatter": {
+			"enabled": false
+		}
 	}
 }

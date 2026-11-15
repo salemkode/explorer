@@ -4,18 +4,20 @@
       BCMR Registry Source
     </h3>
     <div class="space-y-1">
-      <div
+      <button
+        type="button"
         v-for="{ name, registry, loading, isValidHash } in providers"
         :key="name"
-        class="w-full flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer select-none"
+        class="w-full text-left flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer select-none"
         :class="
           name === props.select
             ? 'bg-emerald-500/10 border border-emerald-500/20'
             : 'hover:bg-slate-50 dark:hover:bg-zinc-800/60 border border-transparent'
         "
+        :aria-pressed="name === props.select"
         @click="selectRegistry(name, registry)"
       >
-        <div class="flex items-center gap-2.5 min-w-0">
+        <span class="flex items-center gap-2.5 min-w-0">
           <LoadingSpinner v-if="loading" small />
           <PopOver
             v-else-if="!registry || !isValidHash"
@@ -25,9 +27,9 @@
           </PopOver>
           <i v-else class="uicon-verified text-emerald-500 text-base" />
           <span class="text-xs sm:text-sm font-medium text-slate-800 dark:text-zinc-200 truncate" v-text="name" />
-        </div>
+        </span>
 
-        <div
+        <span
           class="w-2.5 h-2.5 rounded-full transition-all shrink-0 ml-2"
           :class="
             name === props.select
@@ -35,7 +37,7 @@
               : 'border border-slate-300 dark:border-zinc-600'
           "
         />
-      </div>
+      </button>
     </div>
   </div>
 </template>
@@ -43,6 +45,7 @@
 <script setup lang="ts">
 import { useRegistryStore } from "~/store";
 import type { Registry } from "~/types";
+
 const registryStore = useRegistryStore();
 
 const props = defineProps<{
@@ -68,7 +71,7 @@ const hasCategory = (registry: Registry, category: string) => {
 	const identities = registry.identities;
 	const identity = identities?.[category];
 	if (identity) {
-		return !!Object.values(identities[category])?.find(
+		return !!Object.values(identity)?.find(
 			(identity) => identity.token?.category,
 		);
 	}
