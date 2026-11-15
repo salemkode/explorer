@@ -69,13 +69,7 @@ const state = reactive({
 	open: false,
 	success: false,
 });
-const resetState = () => {
-	state.open = false;
-	state.success = false;
-};
 const tokenInfo = computed(() => {
-	resetState();
-
 	if (props.identitySnapshot !== undefined) {
 		if (!props.identitySnapshot) return;
 		const identity = getChildToken(props.identitySnapshot, props.capability, props.commitment) || props.identitySnapshot;
@@ -94,6 +88,14 @@ const iconURL = computed(() =>
 const imageURL = computed(() =>
 	tokenInfo.value?.image ? getHttpsUrl(tokenInfo.value?.image) : "",
 );
+
+watch(iconURL, () => {
+	state.success = false;
+});
+watch(tokenInfo, () => {
+	state.open = false;
+});
+
 const imageSize = computed(() => props.size || (props.small ? 24 : 80));
 const IdentIcon = computed(() =>
 	svgToBase64(createIdenticon(props.tokenCategory)),

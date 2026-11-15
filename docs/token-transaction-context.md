@@ -50,3 +50,10 @@ old cards disappear immediately, the new page stays usable after an old request
 fails, and only the current successful empty lookup shows “not found.” Repeat
 after switching networks and check both light/dark themes and narrow/wide layouts.
 The in-memory renderer checks behavior, not browser layout or live indexer data.
+
+Artwork selection closes an existing preview when the selected identity changes.
+Thumbnail readiness resets only when the effective icon URL changes: providers
+sharing an icon can still open their own selected full-size artwork without
+waiting for a load event that will never fire. The compiled setup regression in
+`tests/fixtures/selected-metadata.ts` exercises both same-icon and changed-icon
+provider switches using real Vue reactivity.

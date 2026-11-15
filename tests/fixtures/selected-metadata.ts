@@ -3,9 +3,19 @@ import { readFileSync } from "node:fs";
 import { compileScript, parse } from "@vue/compiler-sfc";
 import { renderToString } from "@vue/server-renderer";
 import { plugin } from "bun";
-import { computed, createSSRApp, defineComponent, h, reactive, ref } from "vue";
+import {
+	computed,
+	createSSRApp,
+	defineComponent,
+	effectScope,
+	h,
+	nextTick,
+	reactive,
+	ref,
+	watch,
+} from "vue";
 
-Object.assign(globalThis, { computed, ref, reactive });
+Object.assign(globalThis, { computed, ref, reactive, watch });
 mock.module("../../src/store/index.ts", () => ({
 	useRegistryStore: () => ({
 		getToken: () => ({
@@ -21,6 +31,15 @@ mock.module("../../src/module/utils.ts", () => ({
 plugin({
 	name: "selected-metadata-sfc",
 	setup(build) {
+		// The readiness regression exercises the real compiled setup without DOM
+		// animation or Teleport behavior. Normal rendering tests keep the template.
+		build.onLoad({ filter: /.*/, namespace: "icon-setup" }, ({ path }) => ({
+			contents: compileScript(
+				parse(readFileSync(path, "utf8"), { filename: path }).descriptor,
+				{ id: path, inlineTemplate: false },
+			).content,
+			loader: "ts",
+		}));
 		build.onLoad({ filter: /\.vue$/ }, ({ path }) => ({
 			contents: compileScript(
 				parse(readFileSync(path, "utf8"), { filename: path }).descriptor,
@@ -81,4 +100,46 @@ test("icon selection distinguishes an explicit missing revision from an omitted 
 	expect(missing).not.toContain("https://selected/icon.png");
 	const omitted = await render(Icon, { tokenCategory: "ab".repeat(32) });
 	expect(omitted).toContain("https://wrong/icon.png");
+});
+
+test("a same-icon provider switch preserves readiness and opens the newly selected artwork", async () => {
+	const setupModule = `icon-setup:${new URL("../../src/components/bcmr/Icon.vue", import.meta.url).pathname}`;
+	const { default: SetupIcon } = await import(setupModule);
+	const props = reactive({
+		tokenCategory: "ab".repeat(32),
+		identitySnapshot: identity,
+	});
+	const scope = effectScope();
+	try {
+		const api = scope.run(() => SetupIcon.setup(props, { expose() {} }));
+		expect(api.iconURL.value).toBe("https://selected/icon.png");
+		// The actual thumbnail emits success after its first successful load.
+		api.state.success = true;
+		api.openPopUp();
+		expect(api.state.open).toBe(true);
+		props.identitySnapshot = {
+			name: "Second provider",
+			uris: { icon: identity.uris.icon, image: "https://second/image.png" },
+		};
+		await nextTick();
+		expect(api.iconURL.value).toBe(identity.uris.icon);
+		expect(api.state.open).toBe(false);
+		expect(api.state.success).toBe(true);
+		api.openPopUp();
+		expect(api.state.open).toBe(true);
+		expect(api.imageURL.value).toBe("https://second/image.png");
+		props.identitySnapshot = {
+			name: "Different icon",
+			uris: {
+				icon: "https://third/icon.png",
+				image: "https://third/image.png",
+			},
+		};
+		await nextTick();
+		expect(api.state.success).toBe(false);
+		api.openPopUp();
+		expect(api.state.open).toBe(false);
+	} finally {
+		scope.stop();
+	}
 });
