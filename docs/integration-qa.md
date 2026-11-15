@@ -92,3 +92,10 @@ real Vue reactivity. Readiness follows the effective thumbnail URL; changing the
 selected identity closes the old preview without disabling an unchanged loaded
 thumbnail. A changed icon still requires its own successful load.
 Root final artwork logs: `/tmp/explorer-{40,39,42,41}-ui-{tests,types,build}.log`.
+
+Final remote snapshot: all twelve PRs (#32–#43) are open, target `main`, and pass
+GitHub validation and Cloudflare Workers Builds. Netlify preview checks fail on
+all twelve; available public diagnostics expose no detailed cause. Every expected
+prerequisite edge was verified with Git ancestry. The final combined project
+passes 426 top-level tests, lint, typecheck, and static generation. No merges or
+issue closures were performed. The local verification branch is unpublished.
