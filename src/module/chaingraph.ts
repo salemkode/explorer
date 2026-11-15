@@ -98,38 +98,6 @@ export const GetTx = gql(`
   }
 `);
 
-export const LastTransaction = gql(`
-  query LastTransaction($network: String) {
-    block(
-      limit: 1
-      order_by: { height: desc }
-      where: { accepted_by: { node: { name: { _regex: $network } } } }
-    ) {
-      height
-      transactions(limit: 10) {
-        transaction {
-          hash
-          input_count
-          output_count
-          output_value_satoshis
-          input_value_satoshis
-          inputs {
-            outpoint {
-              token_category
-              fungible_token_amount
-            }
-          }
-          outputs {
-            token_category
-            fungible_token_amount
-          }
-          size_bytes
-        }
-      }
-    }
-  }
-`);
-
 export const GetLastBlock = gql(`
   subscription GetLastBlock($network: String) {
     node_block(
@@ -423,30 +391,6 @@ export const GetAuthChains = gql(`
             }
           }
         }
-      }
-    }
-  }
-`);
-
-export const GetOpreturn = gql(`
-  query GetOpreturn($network: String, $tokenCategory: bytea) {
-    transaction(
-      where: {
-        block_inclusions: {
-          block: { accepted_by: { node: { name: { _regex: $network } } } }
-        }
-        inputs: {
-          outpoint_transaction_hash: { _eq: $tokenCategory }
-          outpoint_index: { _eq: 0 }
-        }
-      }
-    ) {
-      hash
-      outputs {
-        fungible_token_amount
-        nonfungible_token_capability
-        nonfungible_token_commitment
-        locking_bytecode
       }
     }
   }

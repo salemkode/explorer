@@ -2,69 +2,64 @@
 	"type": "module",
 	"scripts": {
 		"build": "nuxt generate",
-		"dev": "VITE_CJS_IGNORE_WARNING=true nuxt dev",
-		"lint": "biome check --write",
-		"lint:type": "nuxi typecheck",
+		"dev": "nuxt dev",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"lint:type": "bun run codegen && nuxt typecheck",
+		"codegen": "graphql-codegen --config codegen.ts",
+		"icons": "node script/iconGenerate.mjs",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
-		"postinstall": "nuxt prepare"
+		"postinstall": "bun run codegen && nuxt prepare",
+		"test": "bun test",
+		"schema:pull": "node script/pullSchema.mjs && bun run codegen"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.0",
-		"@graphql-codegen/cli": "^5.0.7",
-		"@graphql-codegen/client-preset": "^4.8.3",
-		"@tailwindcss/postcss": "^4.3.3",
-		"@tailwindcss/vite": "^4.3.3",
-		"@total-typescript/ts-reset": "^0.4.2",
-		"nuxt": "^3.21.11",
-		"prettier": "^2.8.8",
-		"tailwindcss": "^4.3.3",
-		"typescript": "^5.9.3",
-		"vite-plugin-graphql-codegen": "^3.9.1",
-		"vite-plugin-watch": "^0.2.0",
-		"vue-tsc": "^3.3.11"
+		"@biomejs/biome": "^2.6.7",
+		"@graphql-codegen/add": "^8.0.0",
+		"@graphql-codegen/cli": "^8.0.0",
+		"@graphql-codegen/client-preset": "^7.0.0",
+		"@tailwindcss/vite": "^4.3.5",
+		"@total-typescript/ts-reset": "^0.6.1",
+		"@types/node": "^26.6.6",
+		"@types/sortablejs": "^1.15.9",
+		"nuxt": "^4.6.4",
+		"svgtofont": "^6.5.3",
+		"tailwindcss": "^4.3.5",
+		"typescript": "~6.0.3",
+		"vite-plugin-graphql-codegen": "^4.0.1",
+		"vite-plugin-watch": "^0.3.1",
+		"vue-tsc": "^3.3.14",
+		"wrangler": "^4.162.0",
+		"@types/bun": "^1.4.4"
 	},
 	"dependencies": {
-		"@bitauth/libauth": "2.0.0",
+		"@bitauth/libauth": "^3.0.0",
 		"@bitjson/qr-code": "^1.0.2",
-		"@floating-ui/vue": "^1.1.11",
+		"@electrum-cash/network": "^4.4.8",
+		"@floating-ui/vue": "^2.0.1",
 		"@graphql-typed-document-node/core": "^3.2.0",
-		"@nuxtjs/apollo": "5.0.0-alpha.15",
+		"@nuxtjs/apollo": "5.0.0-alpha.16",
 		"@nuxtjs/i18n": "^10.6.0",
-		"@pinia/nuxt": "^0.4.11",
-		"@types/sortablejs": "^1.15.9",
+		"@pinia/nuxt": "^1.0.3",
 		"ajv": "^8.20.0",
-		"bignumber.js": "^9.3.1",
-		"electrum-cash": "^2.0.10",
-		"events": "^3.3.0",
-		"graphql": "^16.14.2",
+		"bignumber.js": "^11.1.5",
+		"graphql": "^16.15.0",
 		"jdenticon": "^3.3.0",
-		"pinia": "^2.3.1",
+		"pinia": "^4.1.0",
 		"sortablejs": "^1.15.7",
-		"svgtofont": "^6.5.3",
-		"valibot": "^1.4.2",
-		"vue": "^3.5.42",
-		"vue-router": "^4.6.4",
+		"valibot": "^1.5.0",
+		"vue": "^3.5.45",
+		"vue-router": "^5.5.1",
 		"vue3-popper": "^1.5.0"
 	},
-	"overrides": {
-		"consola": "^3.0.1",
-		"lodash": "4.18.1",
-		"immutable@3": "3.8.4",
-		"immutable@4": "4.3.9"
+	"name": "bitcoin-cash-explorer",
+	"private": true,
+	"packageManager": "bun@1.4.4",
+	"engines": {
+		"node": "^22.22.3 || ^24.15.0 || >=26.0.0"
 	},
-	"pnpm": {
-		"onlyBuiltDependencies": [
-			"@biomejs/biome",
-			"@parcel/watcher",
-			"esbuild",
-			"ttf2woff2",
-			"vue-demi"
-		],
-		"overrides": {
-			"lodash": "4.18.1",
-			"immutable@3": "3.8.4",
-			"immutable@4": "4.3.9"
-		}
+	"overrides": {
+		"undici@6": "^6.29.1"
 	}
 }

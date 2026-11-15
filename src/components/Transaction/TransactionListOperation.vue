@@ -25,12 +25,16 @@
             <div class="min-w-0 break-all">
               <BaseCopy
                 :text="utxo.address"
-                :url="`/address/${utxo.address}`"
+                :url="utxo.url"
                 warp
                 copy
               />
             </div>
           </template>
+
+          <div v-else-if="utxo.type === 'script'" class="font-mono text-xs text-slate-500 dark:text-zinc-400 break-all">
+            <span class="font-semibold">Nonstandard script:</span> {{ utxo.bytecode }}
+          </div>
 
           <div v-else-if="utxo.type === 'op_return'" class="font-mono text-xs text-slate-700 dark:text-zinc-300 break-all bg-slate-100 dark:bg-zinc-800/80 p-1.5 rounded-lg">
             <span class="text-amber-600 dark:text-amber-400 font-bold">OP_RETURN</span> {{ utxo.data }}
@@ -60,10 +64,9 @@
 
 <script setup lang="ts">
 import { binToUtf8, hexToBin } from "@bitauth/libauth";
-import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
+import { formatUtxoAddress } from "~/hooks/addressDisplay";
 import { useAuthChains } from "~/hooks/authchains";
 import { useUsdPrice } from "~/hooks/usdPrice";
-import { getAddressType } from "~/module/bitcoin";
 import { useRegistryStore } from "~/store";
 import type { Utxo } from "~/types";
 
@@ -103,13 +106,22 @@ const utxos = computed(() => {
 
 		const category = utxo.token_category?.substring(2);
 
-		const fullAddress = getAddress(utxo?.locking_bytecode || "", false);
-		const displayAddress = getAddress(utxo?.locking_bytecode || "");
+		const address = formatUtxoAddress(utxo);
+		if (!address) {
+			return {
+				type: "script" as const,
+				bytecode: utxo.locking_bytecode,
+				valueSatoshis: utxo.value_satoshis,
+				category,
+				tokenAmount: utxo.fungible_token_amount,
+				tokenCommitment: utxo.nonfungible_token_commitment?.substring(2),
+				tokenCapability: utxo.nonfungible_token_capability,
+			};
+		}
 		return {
 			type: "address" as const,
-			addressType: fullAddress ? getAddressType(fullAddress) : undefined,
+			...address,
 			category,
-			address: displayAddress,
 			valueSatoshis: utxo.value_satoshis,
 			value: formatPrice(utxo.value_satoshis || 0),
 			tokenRegister:
@@ -121,11 +133,4 @@ const utxos = computed(() => {
 		};
 	});
 });
-const getAddress = (lockingBytecode: string, removePrefix = true) => {
-	return (
-		formatLockingBytecodeAddress(lockingBytecode.substring(2), {
-			removePrefix,
-		}) || ""
-	);
-};
 </script>

@@ -188,7 +188,9 @@ const tokenInfo = computed(() => {
 			? null
 			: Number(reservedSupply.value);
 	const ownerAddress =
-		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode);
+		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode, {
+			tokenCategory: `\\x${category.value}`,
+		});
 
 	const items: contentWarpItem[] = [
 		{

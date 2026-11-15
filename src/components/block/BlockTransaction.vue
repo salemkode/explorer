@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import type { Transactions } from "~/components/Transaction/TransactionList.vue";
+
 const props = defineProps<{
 	transactions?: Transactions;
 	loading: boolean;
