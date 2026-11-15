@@ -8,6 +8,7 @@ import {
 } from "~/module/bitcoin";
 import { validateBcmrSchema } from "~/module/utils";
 import type { Registry, RegistryProvider, tokenCapability } from "~/types";
+import { useStateStore } from "./state";
 
 // TODO: move to customize json at root of project
 export const defaultProviders = [
@@ -18,6 +19,19 @@ export const useRegistryStore = defineStore("registry", () => {
 	const authchains = shallowReactive(new Map<string, Registry | boolean>());
 	const authchainsVerified = shallowReactive(new Map<string, boolean>());
 	const registryProviders = shallowReactive(new Map<string, Registry>());
+
+	// Auth-chain publications are network-specific; provider registries are shared.
+	const stateStore = useStateStore();
+	const authchainContext = shallowRef(Symbol());
+	watch(
+		() => stateStore.network,
+		() => {
+			authchainContext.value = Symbol();
+			authchains.clear();
+			authchainsVerified.clear();
+		},
+		{ flush: "sync" },
+	);
 
 	const loadingProviders = ref(true);
 	const registryList = useStorage("registryList", [] as RegistryProvider[]);
@@ -115,7 +129,7 @@ export const useRegistryStore = defineStore("registry", () => {
 		const tokenIdentities = registry?.identities?.[tokenCategory];
 		if (tokenIdentities) {
 			const timestamp = Object.keys(tokenIdentities)
-				.filter((revision) => +new Date(revision) < +new Date())
+				.filter((revision) => +new Date(revision) < Date.now())
 				.reduce(
 					(timestamp1, timestamp2) =>
 						new Date(timestamp1) > new Date(timestamp2)
@@ -134,8 +148,7 @@ export const useRegistryStore = defineStore("registry", () => {
 	const getRegistryHasCategory = (category: string) => {
 		const opreturnResult = authchains.get(category);
 		// for in array
-		for (let i = 0; i < registryList.value.length; i++) {
-			const { url } = registryList.value[i];
+		for (const { url } of registryList.value) {
 			const isAuthChain = url === "auth_chain";
 			const registry = isAuthChain
 				? opreturnResult
@@ -263,9 +276,11 @@ export const useRegistryStore = defineStore("registry", () => {
 			return;
 		}
 
+		const context = authchainContext.value;
 		authchains.set(tokenCategory, true);
 		decodeOpreturn(tokenCategory, opReturnHex)
 			.then((result) => {
+				if (context !== authchainContext.value) return;
 				if (result) {
 					authchains.set(tokenCategory, result.registry);
 					authchainsVerified.set(tokenCategory, result.verified);
@@ -273,7 +288,10 @@ export const useRegistryStore = defineStore("registry", () => {
 					authchains.set(tokenCategory, false);
 				}
 			})
-			.catch(() => authchains.set(tokenCategory, false));
+			.catch(() => {
+				if (context === authchainContext.value)
+					authchains.set(tokenCategory, false);
+			});
 	};
 
 	const getTokenOpreturn = (tokenCategory: string, opReturnHex: string) => {

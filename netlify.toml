@@ -1,0 +1,12 @@
+[build]
+  command = "bun run build"
+  publish = ".output/public"
+
+[build.environment]
+  NODE_VERSION = "24.15.0"
+  BUN_VERSION = "1.4.4"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

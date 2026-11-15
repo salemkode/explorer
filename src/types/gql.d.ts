@@ -1,4 +1,5 @@
-import { gql as gqlType } from "@/graphql/gql";
+import type { gql as gqlType } from "@/graphql/gql";
+
 declare global {
-	const gql = gqlType;
+	const gql: typeof gqlType;
 }

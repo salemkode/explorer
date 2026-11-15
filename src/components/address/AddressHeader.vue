@@ -68,7 +68,7 @@ onBeforeUnmount(() => {
 const qrAddress = computed(() =>
 	normalizeDisplayAddress(props.address, {
 		removePrefix: false,
-	}),
+	}) || "",
 );
 const displayAddress = computed(() => normalizeDisplayAddress(props.address));
 const addressType = computed(() => getAddressType(qrAddress.value));
