@@ -46,9 +46,14 @@
 </template>
 
 <script setup lang="ts">
+import { parse } from "valibot";
 import { useUsdPrice } from "~/hooks/usdPrice";
 import { addressToLockingBytecodeHex } from "~/module/bitcoin";
-import { electrum } from "~/module/electrum";
+import {
+	addressBalanceSchema,
+	addressHistorySchema,
+	electrum,
+} from "~/module/electrum";
 import { useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
@@ -73,11 +78,23 @@ const tokenAddress = computed(() =>
 	stateStore.lockingBytecodeHexToCashAddress(lockingBytecode.value || "", true),
 );
 
-const { data: history } = useAsyncData(() =>
-	electrum.request("blockchain.address.get_history", routeAddress.value),
+const { data: history } = useAsyncData(async () =>
+	parse(
+		addressHistorySchema,
+		await electrum.request(
+			"blockchain.address.get_history",
+			routeAddress.value,
+		),
+	),
 );
-const { data: balance } = useAsyncData(() =>
-	electrum.request("blockchain.address.get_balance", routeAddress.value),
+const { data: balance } = useAsyncData(async () =>
+	parse(
+		addressBalanceSchema,
+		await electrum.request(
+			"blockchain.address.get_balance",
+			routeAddress.value,
+		),
+	),
 );
 
 const addressResponse = computed(() => {
@@ -85,12 +102,9 @@ const addressResponse = computed(() => {
 		confirmed: 0,
 		unconfirmed: 0,
 	};
-	const _balance = !(balance.value instanceof Error) && balance.value;
-	const _history = !(history.value instanceof Error) && history.value;
-
 	return {
-		history: _history || [],
-		balance: _balance || emptyBalance,
+		history: history.value || [],
+		balance: balance.value || emptyBalance,
 	};
 });
 

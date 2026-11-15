@@ -10,7 +10,9 @@ const swapList = ({
 	newIndex: number;
 	oldIndex: number;
 }) => {
-	const [removed] = registryStore.registryList.splice(oldIndex, 1);
+	const removed = registryStore.registryList[oldIndex];
+	if (!removed) return;
+	registryStore.registryList.splice(oldIndex, 1);
 	registryStore.registryList.splice(newIndex, 0, removed);
 	change.value++;
 };

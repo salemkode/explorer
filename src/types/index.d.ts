@@ -1,3 +1,4 @@
+import type BigNumber from "bignumber.js";
 import type { Scalars } from "~/graphql/graphql";
 export type bigNum = number | string | BigNumber;
 export type bytea = `\\x${string}`;

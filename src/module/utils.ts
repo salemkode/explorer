@@ -1,6 +1,6 @@
 import type { ValidateFunction } from "ajv";
 import BigNumber from "bignumber.js";
-import type { Registry, bigNum } from "~/types";
+import type { bigNum, Registry } from "~/types";
 import { satToBch } from "./bitcoin";
 import { selectedIpfsGateway } from "./ipfs";
 
@@ -13,9 +13,6 @@ export const bytesToMB = (bytes: number) => {
 	return mb;
 };
 
-export const toObject = (value: unknown) => {
-	return typeof value === "object" && value !== null && value;
-};
 export const calculatePrice = (sat: bigNum, price: bigNum) => {
 	const bchNum = satToBch(sat);
 	const bigNum = BigNumber(bchNum).multipliedBy(price);
@@ -43,8 +40,6 @@ export const formatDateString = (date: Date) => {
 
 export const shortTx = (text: string) =>
 	`${text.slice(0, 8)}...${text.slice(-5)}`;
-
-export const isServer = !!process.server;
 
 export const isIpfs = (url: string): boolean => {
 	return url.startsWith("ipfs://");
@@ -103,10 +98,9 @@ const DIVISIONS = [
 ] as const;
 
 export const formatTimeAgo = (date: string) => {
-	let duration = (+new Date(date) - +new Date()) / 1000;
+	let duration = (+new Date(date) - Date.now()) / 1000;
 
-	for (let i = 0; i < DIVISIONS.length; i++) {
-		const division = DIVISIONS[i];
+	for (const division of DIVISIONS) {
 		if (Math.abs(duration) < division.amount) {
 			return formatter.format(Math.round(duration), division.name);
 		}

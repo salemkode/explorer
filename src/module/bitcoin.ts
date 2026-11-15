@@ -1,22 +1,28 @@
 import {
+	authenticationInstructionsAreMalformed,
+	authenticationInstructionsArePushInstructions,
 	base58AddressToLockingBytecode,
 	binToHex,
-	binToNumberUint16LE,
 	binToUtf8,
 	cashAddressToLockingBytecode,
+	decodeAuthenticationInstructions,
 	decodeBase58Address,
 	decodeCashAddress,
 	decodeCashAddressFormatWithoutPrefix,
 	hexToBin,
+	isHex,
 } from "@bitauth/libauth";
 import BigNumber from "bignumber.js";
 import type { bigNum } from "~/types";
 import { getHttpsUrl } from "./utils";
 
+// Keep invalid amount inputs on the existing NaN-to-zero path in BigNumber 11.
+const Decimal = BigNumber.clone({ STRICT: false });
+
 export const calculateDecimal = (num: bigNum, decimal: number) => {
-	const bigNum = BigNumber(num);
+	const bigNum = Decimal(num);
 	if (bigNum.isNaN()) return BigNumber("0");
-	return bigNum.div(10 ** decimal);
+	return bigNum.shiftedBy(-decimal);
 };
 
 export const satToBch = (num: bigNum, decimalPlaces = 6) => {
@@ -28,20 +34,21 @@ export const removeAddressPrefix = (address: string) => {
 	const regex = /(bitcoincash|bchtest):?([a-z0-9]{1,})/i;
 	const simplifiedAddress = address.match(regex);
 
-	if (simplifiedAddress) {
+	if (simplifiedAddress?.[2]) {
 		return simplifiedAddress[2];
 	}
 	return address;
 };
 
-export const getCashPrefix = (Address: string) => {
-	if (Address.split(":").length === 1) {
-		const decodeCashAddress = decodeCashAddressFormatWithoutPrefix(Address);
+export const getCashPrefix = (address: string) => {
+	const separator = address.indexOf(":");
+	if (separator === -1) {
+		const decodeCashAddress = decodeCashAddressFormatWithoutPrefix(address);
 		if (typeof decodeCashAddress !== "object")
 			throw new Error("This Address not valid");
 		return decodeCashAddress.prefix;
 	}
-	return Address.split(":")[0];
+	return address.slice(0, separator);
 };
 
 export const addPrefixToAddress = (address: string) => {
@@ -104,38 +111,12 @@ export const isValidAddress = (address: string) => {
 	return false;
 };
 
-// This function is from mainnet-js
-export const parseBinary = (opReturn: Uint8Array): Uint8Array[] => {
-	const chunks: Uint8Array[] = [];
-	let position = 1;
-
-	// handle direct push, OP_PUSHDATA1, OP_PUSHDATA2;
-	// OP_PUSHDATA4 is not supported in OP_RETURNs by consensus
-	while (opReturn[position]) {
-		let length = 0;
-		if (opReturn[position] === 0x4c) {
-			length = opReturn[position + 1];
-			position += 2;
-		} else if (opReturn[position] === 0x4d) {
-			length = binToNumberUint16LE(opReturn.slice(position + 1, position + 3));
-			position += 3;
-		} else {
-			length = opReturn[position];
-			position += 1;
-		}
-
-		chunks.push(opReturn.slice(position, position + length));
-		position += length;
-	}
-
-	return chunks;
-};
-
-const validateBCMR = (chunks: Uint8Array[]) => {
-	if (binToUtf8(chunks[0]) === "BCMR") {
-		return;
-	}
-	return "Invalid BCMR OP_RETURN";
+export const parseBinary = (opReturn: Uint8Array) => {
+	if (opReturn[0] !== 0x6a) return [];
+	const instructions = decodeAuthenticationInstructions(opReturn.slice(1));
+	if (authenticationInstructionsAreMalformed(instructions)) return [];
+	if (!authenticationInstructionsArePushInstructions(instructions)) return [];
+	return instructions.map(({ data }) => data);
 };
 
 export const normalizeMetadataUrl = (urlContent: string) => {
@@ -149,30 +130,34 @@ export const normalizeMetadataUrl = (urlContent: string) => {
 	return urlObj.toString();
 };
 export const opreturnToAuthChainElement = (opReturnHex: string) => {
+	if (!isHex(opReturnHex)) return "Invalid BCMR OP_RETURN";
 	const chunks = parseBinary(hexToBin(opReturnHex));
-	const result = {
-		contentHash: "",
-		url: "",
-	};
+	const [protocol, content, location] = chunks;
 
-	if (validateBCMR(chunks)) {
+	if (!protocol || binToUtf8(protocol) !== "BCMR" || !content?.length) {
 		return "Invalid BCMR OP_RETURN";
 	}
 
 	if (chunks.length === 2) {
 		// IPFS Publication Output
-		result.contentHash = binToHex(chunks[1]);
-		const ipfsCid = binToUtf8(chunks[1]);
-		result.url = `https://dweb.link/ipfs/${ipfsCid}`;
-	} else {
-		// HTTPS Publication Output
-		// content hash is in OP_SHA256 byte order per spec
-		const urlContent = binToUtf8(chunks[2]);
-		result.contentHash = binToHex(chunks[1].slice());
-		result.url = normalizeMetadataUrl(urlContent);
+		return {
+			contentHash: binToHex(content),
+			url: `https://dweb.link/ipfs/${binToUtf8(content)}`,
+		};
 	}
 
-	return result;
+	if (!location?.length || content.length !== 32) {
+		return "Invalid BCMR OP_RETURN";
+	}
+	try {
+		return {
+			// Content hash is in OP_SHA256 byte order per spec.
+			contentHash: binToHex(content),
+			url: normalizeMetadataUrl(binToUtf8(location)),
+		};
+	} catch {
+		return "Invalid BCMR OP_RETURN";
+	}
 };
 
 export const getTokenInfoType = (
