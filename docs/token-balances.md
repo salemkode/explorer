@@ -91,3 +91,9 @@ spends and another node’s competing branch cannot remove or duplicate outputs.
 Genesis authorization checks every input spending the category’s output zero,
 consistent with the CashTokens specification’s Token Categories section:
 https://github.com/bitjson/cashtokens#token-categories
+
+The auth-chain query fetches all inputs spending output zero, without a first-input
+row limit. `tests/genesis-query.test.ts` executes the generated query against the
+schema and applies its actual input filters and limits before decoding the
+fixture. It covers an authorizing input after unrelated inputs, including numeric
+and string indices; restoring the first-input cap makes the regression fail.

@@ -343,8 +343,7 @@ export const GetAuthChains = gql(`
                 timestamp
               }
             }
-            inputs(limit: 1, order_by: { input_index: asc }) {
-              outpoint_index
+            inputs(where: { outpoint_index: { _eq: 0 } }) {
               outpoint_transaction_hash
               outpoint_index
             }
