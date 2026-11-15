@@ -50,6 +50,10 @@ export default defineNuxtConfig({
 
 	css: ["~/assets/css/main.css"],
 	srcDir: "src",
+	buildDir: ".nuxt",
+	dir: {
+		public: "src/public",
+	},
 	pages: true,
 	components: true,
 	modules: ["@nuxtjs/apollo", "@nuxtjs/i18n", "@pinia/nuxt"],
@@ -87,13 +91,6 @@ export default defineNuxtConfig({
 	vite: {
 		build: {
 			target: "esnext",
-		},
-		optimizeDeps: {
-			esbuildOptions: {
-				define: { global: "globalThis" },
-				target: "esnext",
-				plugins: [],
-			},
 		},
 		plugins: [
 			tailwindcss(),

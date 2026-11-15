@@ -36,8 +36,9 @@
               :href="item.href"
               target="_blank"
               rel="noopener noreferrer"
-              v-text="item.name"
-            />
+            >
+              {{ item.name }}
+            </a>
           </li>
         </ul>
       </Transition>
