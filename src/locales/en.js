@@ -10,6 +10,13 @@ export default {
 	footer_resources: "Resources",
 	footer_connect: "Connect",
 
+	blaze_promo_label: "BCH BLAZE 2026 announcement",
+	blaze_promo_text:
+		"From this explorer’s developer: Gam’eya, a Bitcoin Cash wallet for payments and family finance, is my BCH BLAZE 2026 entry.",
+	blaze_promo_cta_project: "See my app in BLAZE",
+	blaze_promo_cta_event: "Discover BCH BLAZE 2026",
+	blaze_promo_dismiss: "Dismiss announcement",
+
 	error_modal_header: "Oops... an error occurred!",
 	mainmenu_explorer: "Explorer",
 	mainmenu_all_tokens: "All Tokens",
