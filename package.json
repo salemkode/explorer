@@ -5,6 +5,7 @@
 		"dev": "VITE_CJS_IGNORE_WARNING=true nuxt dev",
 		"lint": "biome check --write",
 		"lint:type": "nuxi typecheck",
+		"test": "bun test tests",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare"
@@ -16,6 +17,7 @@
 		"@tailwindcss/postcss": "^4.3.3",
 		"@tailwindcss/vite": "^4.3.3",
 		"@total-typescript/ts-reset": "^0.4.2",
+		"@types/bun": "^1.4.4",
 		"nuxt": "^3.21.11",
 		"prettier": "^2.8.8",
 		"tailwindcss": "^4.3.3",

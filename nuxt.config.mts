@@ -1,6 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 import codegen from "vite-plugin-graphql-codegen";
 import { watch } from "vite-plugin-watch";
+import { parseFlag } from "./src/module/blazePromo";
 
 export default defineNuxtConfig({
 	ssr: false,
@@ -13,6 +14,18 @@ export default defineNuxtConfig({
 				"https://ipfs.filebase.io",
 			features: {
 				converterAlpha: true,
+				// Announcement banner promoting the author's BCH BLAZE 2026 project.
+				// Build-time settings; see README "BCH BLAZE announcement banner".
+				blazePromo: {
+					enabled: parseFlag(process.env.NUXT_PUBLIC_BLAZE_PROMO_ENABLED, true),
+					id: process.env.NUXT_PUBLIC_BLAZE_PROMO_ID || "bchblaze-2026",
+					url:
+						process.env.NUXT_PUBLIC_BLAZE_PROMO_URL ||
+						"https://dorahacks.io/hackathon/bchblaze2026/detail",
+					until:
+						process.env.NUXT_PUBLIC_BLAZE_PROMO_UNTIL ?? "2026-11-29T00:00:00Z",
+					projectPage: Boolean(process.env.NUXT_PUBLIC_BLAZE_PROMO_URL),
+				},
 			},
 		},
 	},
