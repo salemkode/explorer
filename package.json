@@ -28,7 +28,6 @@
 	},
 	"dependencies": {
 		"@bitauth/libauth": "2.0.0",
-		"@bitjson/qr-code": "^1.0.2",
 		"@floating-ui/vue": "^1.1.11",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"@nuxtjs/apollo": "5.0.0-alpha.15",
@@ -42,6 +41,7 @@
 		"graphql": "^16.14.2",
 		"jdenticon": "^3.3.0",
 		"pinia": "^2.3.1",
+		"qrcode-generator": "^2.0.4",
 		"sortablejs": "^1.15.7",
 		"svgtofont": "^6.5.3",
 		"valibot": "^1.4.2",
