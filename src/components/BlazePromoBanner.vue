@@ -45,7 +45,7 @@ const dismiss = () => {
           rel="noopener noreferrer"
           class="ml-1 inline-flex items-center gap-1 rounded-sm font-semibold text-orange-700 dark:text-orange-400 underline underline-offset-2 hover:text-orange-800 dark:hover:text-orange-300 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
         >
-          {{ $t(promo?.projectPage ? "blaze_promo_cta_project" : "blaze_promo_cta_event") }}
+          {{ $t(promo?.projectPage ? "blaze_promo_cta_project" : "blaze_promo_cta_app") }}
           <span aria-hidden="true">↗</span>
         </a>
       </p>

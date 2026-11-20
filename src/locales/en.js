@@ -12,9 +12,9 @@ export default {
 
 	blaze_promo_label: "BCH BLAZE 2026 announcement",
 	blaze_promo_text:
-		"From this explorer’s developer: Gam’eya, a Bitcoin Cash wallet for payments and family finance, is my BCH BLAZE 2026 entry.",
+		"From this explorer’s developer: Focus Garden, a focus timer that grows a tree you own on Bitcoin Cash, is my BCH BLAZE 2026 entry.",
 	blaze_promo_cta_project: "See my app in BLAZE",
-	blaze_promo_cta_event: "Discover BCH BLAZE 2026",
+	blaze_promo_cta_app: "Try Focus Garden",
 	blaze_promo_dismiss: "Dismiss announcement",
 
 	error_modal_header: "Oops... an error occurred!",
