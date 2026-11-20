@@ -40,7 +40,7 @@ A dismissible banner above the header promotes the author's BCH BLAZE 2026 entry
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `NUXT_PUBLIC_BLAZE_PROMO_ENABLED` | `true` | Feature flag. `false`, `0`, `no`, `off` or `disabled` removes the banner. |
-| `NUXT_PUBLIC_BLAZE_PROMO_URL` | `https://focus.salemkode.com` | Link target. By default the call to action is "Try Focus Garden"; when set (for example to the project's DoraHacks BUIDL page) it becomes "See my app in BLAZE". |
+| `NUXT_PUBLIC_BLAZE_PROMO_URL` | `https://focus.salemkode.com` | Link target. By default the call to action is "Try it"; when set (for example to the project's DoraHacks BUIDL page) it becomes "See it in BLAZE". |
 | `NUXT_PUBLIC_BLAZE_PROMO_UNTIL` | `2026-11-29T00:00:00Z` | ISO time after which the banner hides. Empty means no expiry; an invalid value hides the banner. |
 | `NUXT_PUBLIC_BLAZE_PROMO_ID` | `bchblaze-2026-focus-garden` | Campaign id. Visitors who dismissed a campaign see a new id again. |
 

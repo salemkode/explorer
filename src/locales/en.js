@@ -11,10 +11,9 @@ export default {
 	footer_connect: "Connect",
 
 	blaze_promo_label: "BCH BLAZE 2026 announcement",
-	blaze_promo_text:
-		"From this explorer’s developer: Focus Garden, a focus timer that grows a tree you own on Bitcoin Cash, is my BCH BLAZE 2026 entry.",
-	blaze_promo_cta_project: "See my app in BLAZE",
-	blaze_promo_cta_app: "Try Focus Garden",
+	blaze_promo_text: "My BCH BLAZE app: Focus Garden",
+	blaze_promo_cta_project: "See it in BLAZE",
+	blaze_promo_cta_app: "Try it",
 	blaze_promo_dismiss: "Dismiss announcement",
 
 	error_modal_header: "Oops... an error occurred!",
