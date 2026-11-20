@@ -7,8 +7,8 @@ import {
 
 const base = {
 	enabled: true,
-	id: "bchblaze-2026",
-	url: "https://dorahacks.io/hackathon/bchblaze2026/detail",
+	id: "bchblaze-2026-focus-garden",
+	url: "https://focus.salemkode.com",
 	until: "2026-11-29T00:00:00Z",
 	projectPage: false,
 };

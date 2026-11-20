@@ -7,7 +7,7 @@ export type BlazePromoConfig = {
 	url: string;
 	/** ISO timestamp after which the banner hides itself. Empty means no expiry; an invalid value hides it. */
 	until: string;
-	/** True when `url` points at the project's own page rather than the generic event page. */
+	/** True when `url` is overridden to the project's BLAZE (DoraHacks) page instead of the app itself. */
 	projectPage: boolean;
 };
 

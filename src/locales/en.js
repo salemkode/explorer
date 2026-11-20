@@ -11,10 +11,9 @@ export default {
 	footer_connect: "Connect",
 
 	blaze_promo_label: "BCH BLAZE 2026 announcement",
-	blaze_promo_text:
-		"From this explorer’s developer: Gam’eya, a Bitcoin Cash wallet for payments and family finance, is my BCH BLAZE 2026 entry.",
-	blaze_promo_cta_project: "See my app in BLAZE",
-	blaze_promo_cta_event: "Discover BCH BLAZE 2026",
+	blaze_promo_text: "My BCH BLAZE app: Focus Garden",
+	blaze_promo_cta_project: "See it in BLAZE",
+	blaze_promo_cta_app: "Try it",
 	blaze_promo_dismiss: "Dismiss announcement",
 
 	error_modal_header: "Oops... an error occurred!",

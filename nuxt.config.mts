@@ -18,10 +18,12 @@ export default defineNuxtConfig({
 				// Build-time settings; see README "BCH BLAZE announcement banner".
 				blazePromo: {
 					enabled: parseFlag(process.env.NUXT_PUBLIC_BLAZE_PROMO_ENABLED, true),
-					id: process.env.NUXT_PUBLIC_BLAZE_PROMO_ID || "bchblaze-2026",
+					id:
+						process.env.NUXT_PUBLIC_BLAZE_PROMO_ID ||
+						"bchblaze-2026-focus-garden",
 					url:
 						process.env.NUXT_PUBLIC_BLAZE_PROMO_URL ||
-						"https://dorahacks.io/hackathon/bchblaze2026/detail",
+						"https://focus.salemkode.com",
 					until:
 						process.env.NUXT_PUBLIC_BLAZE_PROMO_UNTIL ?? "2026-11-29T00:00:00Z",
 					projectPage: Boolean(process.env.NUXT_PUBLIC_BLAZE_PROMO_URL),
