@@ -4,6 +4,7 @@
       <bcmr-icon
         v-if="column.token"
         :token-category="column.token.category"
+        :identity-snapshot="column.token.identitySnapshot"
         :commitment="column.token.commitment"
         :capability="column.token.capability"
         small

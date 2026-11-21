@@ -1,62 +1,107 @@
+import {
+	Base58AddressFormatVersion,
+	base58AddressToLockingBytecode,
+	cashAddressToLockingBytecode,
+	lockingBytecodeToCashAddress,
+} from "@bitauth/libauth";
+import { type InferOutput, picklist, safeParse } from "valibot";
 import { useStorage } from "~/hooks/storage";
 import {
 	addPrefixToAddress,
-	addressToLockingBytecodeHex,
+	getAddressType,
 	removeAddressPrefix,
 } from "~/module/bitcoin";
-import { useStateStore } from "~/store";
+import { useStateStore } from "~/store/state";
+import type { Utxo } from "~/types";
 
-export type AddressDisplayMode = "token" | "regular";
+const addressDisplayModeSchema = picklist(["auto", "token", "regular"]);
+export type AddressDisplayMode = InferOutput<typeof addressDisplayModeSchema>;
 
-export const addressDisplayMode = useStorage<AddressDisplayMode>(
-	"addressDisplayMode",
-	"token",
-);
+export function useAddressDisplayPreference() {
+	const mode = useStorage<AddressDisplayMode>("addressDisplayMode", "auto");
+	// Older versions also stored raw strings. useStorage reads both forms;
+	// validate here before a persisted value can control address encoding.
+	const saved = safeParse(addressDisplayModeSchema, mode.value);
+	mode.value = saved.success ? saved.output : "auto";
+	return mode;
+}
+
+export const addressDisplayMode = useAddressDisplayPreference();
 
 type AddressFormatOptions = {
 	removePrefix?: boolean;
+	tokenCategory?: Utxo["token_category"];
 };
 
-const withDefaultOptions = (opts?: AddressFormatOptions) => ({
-	removePrefix: opts?.removePrefix ?? true,
-});
-
-export const formatLockingBytecodeAddress = (
+export function formatLockingBytecodeAddress(
 	lockingBytecodeHex: string,
 	opts?: AddressFormatOptions,
-) => {
-	const stateStore = useStateStore();
-	const tokenSupport = addressDisplayMode.value === "token";
-	const address = stateStore.lockingBytecodeHexToCashAddress(
+) {
+	const tokenSupport = {
+		auto: Boolean(opts?.tokenCategory),
+		token: true,
+		regular: false,
+	}[addressDisplayMode.value];
+	const address = useStateStore().lockingBytecodeHexToCashAddress(
 		lockingBytecodeHex,
 		tokenSupport,
 	);
 
-	if (typeof address !== "string") return;
-	const options = withDefaultOptions(opts);
-	return options.removePrefix ? removeAddressPrefix(address) : address;
-};
+	if (!address) return;
+	return opts?.removePrefix === false ? address : removeAddressPrefix(address);
+}
 
-export const normalizeDisplayAddress = (
+// The input is a previous output (outpoint) for "from", or a new output for
+// "to". Never infer token presence from the FT amount or address history.
+export function formatUtxoAddress(
+	utxo: Pick<Utxo, "locking_bytecode" | "token_category">,
+) {
+	const bytecode = utxo.locking_bytecode.startsWith("\\x")
+		? utxo.locking_bytecode.substring(2)
+		: utxo.locking_bytecode;
+	const fullAddress = formatLockingBytecodeAddress(bytecode, {
+		removePrefix: false,
+		tokenCategory: utxo.token_category,
+	});
+	if (!fullAddress) return;
+	const address = removeAddressPrefix(fullAddress);
+	return {
+		fullAddress,
+		address,
+		addressType: getAddressType(fullAddress),
+		url: `/address/${address}`,
+	};
+}
+
+export function normalizeDisplayAddress(
 	address: string,
-	opts?: AddressFormatOptions,
-) => {
-	const options = withDefaultOptions(opts);
-	const lockingBytecodeHex = addressToLockingBytecodeHex(address);
+	opts?: Pick<AddressFormatOptions, "removePrefix">,
+) {
+	const legacy = base58AddressToLockingBytecode(address);
+	const decoded =
+		typeof legacy === "string"
+			? cashAddressToLockingBytecode(addPrefixToAddress(address))
+			: {
+					bytecode: legacy.bytecode,
+					prefix:
+						legacy.version === Base58AddressFormatVersion.p2pkhTestnet ||
+						legacy.version === Base58AddressFormatVersion.p2sh20Testnet
+							? ("bchtest" as const)
+							: ("bitcoincash" as const),
+					tokenSupport: false,
+				};
+	if (typeof decoded === "string") return address;
 
-	if (lockingBytecodeHex) {
-		const convertedAddress = formatLockingBytecodeAddress(
-			lockingBytecodeHex,
-			options,
-		);
-		if (typeof convertedAddress === "string") {
-			return convertedAddress;
-		}
-	}
-
-	if (options.removePrefix) {
-		return removeAddressPrefix(address);
-	}
-
-	return addPrefixToAddress(address);
-};
+	// An address page has no single UTXO. In auto mode preserve the incoming
+	// encoding (including its network) so following a link retains QR semantics.
+	const tokenSupport = {
+		auto: decoded.tokenSupport,
+		token: true,
+		regular: false,
+	}[addressDisplayMode.value];
+	const encoded = lockingBytecodeToCashAddress({ ...decoded, tokenSupport });
+	if (typeof encoded === "string") return address;
+	return opts?.removePrefix === false
+		? encoded.address
+		: removeAddressPrefix(encoded.address);
+}

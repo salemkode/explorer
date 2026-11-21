@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import {
-	TOKENBURNER_LOCKING_BYTECODE,
-	type TokenOutputRow,
 	aggregateBurns,
 	computeHolderStats,
 	computeSupplyFigures,
 	getTokenType,
 	isProvableBurn,
 	summarizeGenesis,
+	TOKENBURNER_LOCKING_BYTECODE,
+	type TokenOutputRow,
 } from "../src/module/tokenStats";
 
 const P2PKH_A = "\\x76a914aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88ac";

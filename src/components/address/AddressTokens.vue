@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { useAuthChains } from "~/hooks/authchains";
-import { type LoadState, fetchAllPages } from "~/hooks/tokenStats";
+import { fetchAllPages, type LoadState } from "~/hooks/tokenStats";
 import { formatTokenAmount, toBaseUnits } from "~/module/tokenAmount";
 import { hexOf } from "~/module/tokenStats";
 import { GetAddressTokenOutputs } from "~/module/tokenStatsQueries";

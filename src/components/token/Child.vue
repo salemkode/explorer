@@ -7,49 +7,78 @@
     :has-prev-page="!!offset"
     :has-next-page="!!hasNextPage"
     :loading="loading"
-    :error="error?.message"
-    @next="offset += pageSize"
-    @previous="offset -= pageSize"
+    :error="error"
+    @next="next(loading, hasNextPage && !error)"
+    @previous="previous(loading)"
   />
   <NFTGallery
     v-else
     :items="childNfts"
+    :identity-snapshot="identitySnapshot"
     :loading="loading"
-    :error="error?.message"
+    :error="error"
     :has-prev-page="!!offset"
     :has-next-page="!!hasNextPage"
-    @next="offset += pageSize"
-    @previous="offset -= pageSize"
+    @next="next(loading, hasNextPage && !error)"
+    @previous="previous(loading)"
+    @retry="emit('retry')"
   />
 </template>
 
 <script setup lang="ts">
-import { GetTokenChild } from "@/module/chaingraph";
-import type { GetTokenChildQuery } from "@/module/chaingraph";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
+import { nftPage, useNftPagination } from "~/hooks/nftPagination";
+import type { LoadState } from "~/hooks/tokenStats";
+import { hexOf, isProvableBurn, type TokenOutputRow } from "~/module/tokenStats";
 import { useStateStore } from "~/store";
 import type { IdentitySnapshot, tableColumn } from "~/types/index.js";
 import NFTGallery, { type ChildNftItem } from "./NFTGallery.vue";
 
 const stateStore = useStateStore();
-const offset = ref(0);
 const props = defineProps<{
 	category: string;
-	identitySnapshot?: IdentitySnapshot;
+	identitySnapshot?: IdentitySnapshot | null;
 	viewMode?: "table" | "grid";
+	/** The token page's complete unspent-output snapshot. */
+	outputs: LoadState<TokenOutputRow[]>;
 }>();
+const emit = defineEmits<{ retry: [] }>();
 const effectiveViewMode = computed(() =>
 	props.viewMode === "grid" ? "grid" : "table",
 );
-const pageSize = computed(() => (effectiveViewMode.value === "grid" ? 24 : 8));
-const limit = computed(() => pageSize.value + 1);
-const variable = computed(() => ({
-	network: stateStore.network,
-	tokenCategory: `\\x${props.category}` as const,
-	offset: offset.value,
-	limit: limit.value,
+const { offset, pageSize, limit, next, previous } = useNftPagination(
+	() => `${stateStore.network}:${props.category}`,
+	() => effectiveViewMode.value,
+);
+const loading = computed(() => props.outputs.status === "loading");
+const error = computed(() =>
+	props.outputs.status === "error" ? props.outputs.message : "",
+);
+/**
+ * Unspent non-minting NFTs in outpoint order, paged in the browser: a paged
+ * `ORDER BY` query times out on large categories (ParyonUSD).
+ */
+const nftOutputs = computed(() => {
+	if (props.outputs.status !== "ready") return [];
+	const byOutpoint = new Map<string, TokenOutputRow>();
+	for (const output of props.outputs.value) {
+		const capability = output.nonfungible_token_capability;
+		if (!capability || capability === "minting") continue;
+		if (isProvableBurn(output.locking_bytecode)) continue;
+		byOutpoint.set(
+			`${hexOf(output.transaction_hash)}:${Number(output.output_index)}`,
+			output,
+		);
+	}
+	return [...byOutpoint.values()].sort(
+		(a, b) =>
+			hexOf(a.transaction_hash).localeCompare(hexOf(b.transaction_hash)) ||
+			Number(a.output_index) - Number(b.output_index),
+	);
+});
+const result = computed(() => ({
+	output: nftOutputs.value.slice(offset.value, offset.value + limit.value),
 }));
-const { result, loading, error } = useQuery(GetTokenChild, variable);
 const types = computed(() => props.identitySnapshot?.token?.nfts?.parse.types);
 
 const showTokenColumn = computed(() => {
@@ -64,54 +93,41 @@ const column = computed(() => {
 	}
 	return result;
 });
-const hasNextPage = computed(() => {
-	if (result.value) {
-		return result.value.output.length === limit.value;
-	}
-	return false;
-});
-type ChildOutput = GetTokenChildQuery["output"][number];
+const page = computed(() => nftPage(result.value?.output || [], pageSize.value));
+const hasNextPage = computed(() => page.value.hasNextPage);
+type ChildOutput = TokenOutputRow;
 
-const childNfts = computed<ChildNftItem[]>(() => {
-	if (!result.value) {
-		return [];
-	}
+const childNfts = computed<ChildNftItem[]>(() =>
+	page.value.items.flatMap((output) => {
+		if (!output.nonfungible_token_capability) return [];
 
-	let items = result.value.output.map((output: ChildOutput) => {
 		const commitment = output.nonfungible_token_commitment?.substring(2) || "";
 		const address = formatLockingBytecodeAddress(
 			output.locking_bytecode.substring(2),
+			{ tokenCategory: `\\x${props.category}` },
 		);
 
-		return {
+
+		return [{
+			id: `${output.transaction_hash.substring(2)}:${output.output_index}`,
 			category: props.category,
 			capability: output.nonfungible_token_capability,
 			commitment,
-			address: typeof address === "string" ? address : undefined,
-			name: types.value?.[commitment]?.name || "N/A",
-		};
-	});
-
-	if (items.length === limit.value) {
-		items = items.slice(0, -1);
-	}
-
-	return items;
-});
-
-watch(effectiveViewMode, () => {
-	offset.value = 0;
-});
+			address,
+		}];
+	}),
+);
 
 const outputs = computed<tableColumn[][]>(() => {
 	if (!result.value) {
 		return [];
 	}
 
-	let items = result.value?.output.map((output: ChildOutput) => {
+	const items = page.value.items.map((output: ChildOutput) => {
 		// Convert locking bytecode to cash address
 		const address = formatLockingBytecodeAddress(
 			output.locking_bytecode.substring(2),
+			{ tokenCategory: `\\x${props.category}` },
 		);
 		// Get nonfungible token commitment
 		const commitment = output.nonfungible_token_commitment?.substring(2);
@@ -144,6 +160,7 @@ const outputs = computed<tableColumn[][]>(() => {
 				text: types.value?.[commitment]?.name || "N/A",
 				token: {
 					category: props.category,
+					identitySnapshot: props.identitySnapshot || null,
 					commitment,
 					capability: output.nonfungible_token_capability || undefined,
 				},
@@ -153,10 +170,6 @@ const outputs = computed<tableColumn[][]>(() => {
 		return item;
 	});
 
-	// Remove last item if it reaches the limit
-	if (items.length === limit.value) {
-		items = items.slice(0, -1);
-	}
 	return items;
 });
 </script>

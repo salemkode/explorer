@@ -1,4 +1,6 @@
+import type BigNumber from "bignumber.js";
 import type { Scalars } from "~/graphql/graphql";
+import type { IdentitySnapshot } from "./bcmr-v2.schema";
 export type bigNum = number | string | BigNumber;
 export type bytea = `\\x${string}`;
 
@@ -17,6 +19,7 @@ export interface tableColumn {
 	url?: string;
 	token?: {
 		category: string;
+		identitySnapshot?: IdentitySnapshot | null;
 		capability?: capability;
 		commitment?: string;
 	};

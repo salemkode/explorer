@@ -24,6 +24,7 @@ export interface TokenOutputRow {
 	locking_bytecode: string;
 	fungible_token_amount?: string | null;
 	nonfungible_token_capability?: Capability | null;
+	nonfungible_token_commitment?: string | null;
 }
 
 export interface BurnOutputRow {

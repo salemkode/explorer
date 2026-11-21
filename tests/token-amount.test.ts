@@ -16,7 +16,10 @@ describe("toBaseUnits", () => {
 		expect(toBaseUnits("")).toBe(0n);
 	});
 	test("rejects unsafe numbers and non-integers", () => {
-		expect(() => toBaseUnits(9223372036854775807)).toThrow(RangeError);
+		// A JavaScript number this large has already lost precision.
+		expect(() => toBaseUnits(Number("9223372036854775807"))).toThrow(
+			RangeError,
+		);
 		expect(() => toBaseUnits("1.5")).toThrow(RangeError);
 		expect(() => toBaseUnits("1e3")).toThrow(RangeError);
 	});

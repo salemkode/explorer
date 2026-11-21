@@ -1,10 +1,10 @@
 import type { DocumentNode } from "graphql";
 import {
+	aggregateBurns,
 	type BurnOutputRow,
 	type KnownBurns,
 	TOKENBURNER_LOCKING_BYTECODE,
 	type TokenOutputRow,
-	aggregateBurns,
 } from "~/module/tokenStats";
 import {
 	GetTokenBurnerOutputs,
@@ -71,9 +71,10 @@ export const useTokenOutputs = (category: Ref<string>) => {
 	const issuing = ref<LoadState<TokenOutputRow[]>>({ status: "loading" });
 	const unspent = ref<LoadState<TokenOutputRow[]>>({ status: "loading" });
 	const burns = ref<LoadState<KnownBurns>>({ status: "loading" });
+	const attempt = ref(0);
 
 	watch(
-		() => [category.value, stateStore.network] as const,
+		() => [category.value, stateStore.network, attempt.value] as const,
 		([target], _previous, onCleanup) => {
 			const controller = new AbortController();
 			onCleanup(() => controller.abort());
@@ -170,5 +171,10 @@ export const useTokenOutputs = (category: Ref<string>) => {
 		{ immediate: true },
 	);
 
-	return { issuing, unspent, burns };
+	/** Reload everything, e.g. after a timeout. */
+	const retry = () => {
+		attempt.value++;
+	};
+
+	return { issuing, unspent, burns, retry };
 };

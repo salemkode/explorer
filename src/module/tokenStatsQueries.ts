@@ -50,6 +50,7 @@ export const GetTokenUnspentOutputs = gql(`
       locking_bytecode
       fungible_token_amount
       nonfungible_token_capability
+      nonfungible_token_commitment
     }
   }
 `);
