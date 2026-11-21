@@ -102,7 +102,10 @@ const { decodeAuthChain } = await import("../../src/module/bcmr");
 
 const balanceRows = new Map<
 	string,
-	import("../../src/graphql/graphql").GetTokenUnspentOutputsQuery["output"]
+	Omit<
+		import("../../src/graphql/graphql").GetTokenUnspentOutputsQuery["output"][number],
+		"transaction"
+	>[]
 >();
 const apolloClients = new Map<
 	string,
@@ -139,6 +142,10 @@ function mountPages(initial = "token") {
 			(operation) =>
 				new Observable((observer) => {
 					requests.set(operation, observer);
+					if (operation.operationName === "GetNetworkNodes") {
+						observer.next({ data: { node: [{ internal_id: 1 }] } });
+						observer.complete();
+					}
 					if (
 						operation.operationName === "GetTokenIssuingOutputs" ||
 						operation.operationName === "GetTokenOpReturnOutputs" ||
@@ -160,8 +167,19 @@ function mountPages(initial = "token") {
 							},
 						];
 						const offset = operation.variables.offset ?? 0;
+						// Created in a block the network's node accepts.
+						const acceptance = {
+							node_validations: [],
+							block_inclusions: [
+								{ block: { accepted_by: [{ node_internal_id: 1 }] } },
+							],
+						};
 						observer.next({
-							data: { output: rows.slice(offset, offset + 5000) },
+							data: {
+								output: rows
+									.slice(offset, offset + 5000)
+									.map((row) => ({ ...row, transaction: acceptance })),
+							},
 						});
 						observer.complete();
 					}

@@ -18,6 +18,30 @@ import { toBaseUnits } from "./tokenAmount";
 
 type Capability = "none" | "mutable" | "minting";
 
+/**
+ * Where a transaction stands with the selected network's nodes. Queries only
+ * select validations and block acceptances by those nodes, so any entry here
+ * means the network currently has the transaction.
+ */
+export interface TransactionAcceptance {
+	node_validations: unknown[];
+	block_inclusions: { block: { accepted_by: unknown[] } }[];
+}
+
+/**
+ * In a network node's mempool, or in a block a network node currently
+ * accepts. A reorganization keeps the block inclusion of an orphaned block but
+ * deletes its acceptance, so inclusion alone is not enough.
+ */
+export const isAcceptedTransaction = (
+	transaction: TransactionAcceptance | null | undefined,
+) =>
+	!!transaction &&
+	(transaction.node_validations.length > 0 ||
+		transaction.block_inclusions.some(
+			({ block }) => block.accepted_by.length > 0,
+		));
+
 export interface TokenOutputRow {
 	transaction_hash: string;
 	output_index: string | number;
@@ -25,6 +49,8 @@ export interface TokenOutputRow {
 	fungible_token_amount?: string | null;
 	nonfungible_token_capability?: Capability | null;
 	nonfungible_token_commitment?: string | null;
+	/** the creating transaction, when the query selected its acceptance */
+	transaction?: TransactionAcceptance | null;
 }
 
 export interface BurnOutputRow {
@@ -33,10 +59,7 @@ export interface BurnOutputRow {
 	locking_bytecode?: string;
 	fungible_token_amount?: string | null;
 	nonfungible_token_capability?: Capability | null;
-	transaction?: {
-		node_validations: unknown[];
-		block_inclusions: unknown[];
-	} | null;
+	transaction?: TransactionAcceptance | null;
 }
 
 export interface IdentityOutput {
@@ -251,18 +274,13 @@ export interface KnownBurns {
 
 /**
  * Sum provable burns. Chaingraph keeps transactions it once saw in a mempool
- * even after they were dropped, so a row only counts while its transaction is
- * in a mempool or a block.
+ * even after they were dropped, and block inclusions of orphaned blocks, so a
+ * row only counts while the network has its transaction.
  */
 export const aggregateBurns = (rows: BurnOutputRow[]): KnownBurns => {
 	const byOutpoint = new Map<string, BurnOutputRow>();
 	for (const row of rows) {
-		const tx = row.transaction;
-		if (
-			!tx ||
-			(tx.node_validations.length === 0 && tx.block_inclusions.length === 0)
-		)
-			continue;
+		if (!isAcceptedTransaction(row.transaction)) continue;
 		byOutpoint.set(outpointOf(row), row);
 	}
 	let burnedFT = 0n;
