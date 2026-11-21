@@ -138,6 +138,9 @@ const reserveState = computed<LoadState<ReserveStats>>(() => {
 			status: "ready",
 			value: computeReserve(issuing.value.value, identityOutput.value),
 		};
+	// The quick query failed or could be incomplete: wait for the full scan.
+	if (issuing.value.status === "error" && holderState.value.status === "loading")
+		return { status: "loading" };
 	return issuing.value;
 });
 onError(() => {

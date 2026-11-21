@@ -6,6 +6,7 @@ import {
 	computeHolderStats,
 	computeSupplyFigures,
 	getTokenType,
+	isAcceptedTransaction,
 	isProvableBurn,
 	summarizeGenesis,
 } from "../src/module/tokenStats";
@@ -151,31 +152,69 @@ describe("computeHolderStats", () => {
 	});
 });
 
+// Acceptance as selected by the queries: only the selected network's nodes.
+const accepted = {
+	node_validations: [],
+	block_inclusions: [{ block: { accepted_by: [{ node_internal_id: 1 }] } }],
+};
+const inMempool = {
+	node_validations: [{ validated_at: 1 }],
+	block_inclusions: [],
+};
+const orphaned = {
+	node_validations: [],
+	block_inclusions: [{ block: { accepted_by: [] } }],
+};
+const dropped = { node_validations: [], block_inclusions: [] };
+
+describe("transaction acceptance", () => {
+	test("mempool and currently accepted blocks count", () => {
+		expect(isAcceptedTransaction(accepted)).toBe(true);
+		expect(isAcceptedTransaction(inMempool)).toBe(true);
+	});
+	test("a block inclusion whose block lost acceptance in a reorg does not", () => {
+		expect(isAcceptedTransaction(orphaned)).toBe(false);
+		expect(
+			isAcceptedTransaction({
+				node_validations: [],
+				block_inclusions: [
+					orphaned.block_inclusions[0]!,
+					accepted.block_inclusions[0]!,
+				],
+			}),
+		).toBe(true);
+	});
+	test("dropped or unknown transactions do not", () => {
+		expect(isAcceptedTransaction(dropped)).toBe(false);
+		expect(isAcceptedTransaction(undefined)).toBe(false);
+	});
+});
+
 describe("burns", () => {
 	const burnRow = (
 		n: number,
 		amount: string,
-		valid: boolean,
+		transaction: typeof accepted,
 		capability: "none" | null = null,
 	) => ({
 		transaction_hash: tx(n),
 		output_index: "1",
 		fungible_token_amount: amount,
 		nonfungible_token_capability: capability,
-		transaction: valid
-			? { node_validations: [], block_inclusions: [{}] }
-			: { node_validations: [], block_inclusions: [] },
+		transaction,
 	});
-	test("dropped transactions are ignored and outpoints deduplicated", () => {
+	test("dropped and orphaned transactions are ignored and outpoints deduplicated", () => {
 		const burns = aggregateBurns([
-			burnRow(1, "100", true),
-			burnRow(1, "100", true),
-			burnRow(2, "50", false),
-			burnRow(3, "0", true, "none"),
+			burnRow(1, "100", accepted),
+			burnRow(1, "100", accepted),
+			burnRow(2, "50", dropped),
+			burnRow(4, "70", orphaned),
+			burnRow(5, "3", inMempool),
+			burnRow(3, "0", accepted, "none"),
 		]);
-		expect(burns.burnedFT).toBe(100n);
+		expect(burns.burnedFT).toBe(103n);
 		expect(burns.burnedNFTs).toBe(1);
-		expect(burns.burnTransactions).toBe(2);
+		expect(burns.burnTransactions).toBe(3);
 	});
 	test("removed supply splits into burned and not passed on", () => {
 		const figures = computeSupplyFigures(

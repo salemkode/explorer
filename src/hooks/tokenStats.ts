@@ -5,8 +5,10 @@ import {
 	TOKENBURNER_LOCKING_BYTECODE,
 	type TokenOutputRow,
 	aggregateBurns,
+	isAcceptedTransaction,
 } from "~/module/tokenStats";
 import {
+	GetNetworkNodes,
 	GetTokenBurnerOutputs,
 	GetTokenIssuingOutputs,
 	GetTokenOpReturnOutputs,
@@ -59,6 +61,30 @@ export const fetchAllPages = async <Row>(
 const describeError = (error: unknown) =>
 	error instanceof Error ? error.message : String(error);
 
+/** Chaingraph node ids of the selected network; acceptance is checked against them. */
+const loadNetworkNodes = async (
+	client: ApolloLike,
+	network: string,
+	signal: AbortSignal,
+) => {
+	const response = await client.query({
+		query: GetNetworkNodes,
+		variables: { network },
+		fetchPolicy: "no-cache",
+		context: { fetchOptions: { signal } },
+	});
+	const nodes = (response.data?.node as { internal_id: number }[] | undefined)
+		?.map(({ internal_id }) => internal_id)
+		.filter(Number.isInteger);
+	if (!nodes?.length)
+		throw new Error(`Chaingraph has no node for the ${network} network.`);
+	return nodes;
+};
+
+/** Keep outputs whose creating transaction the selected network has. */
+const acceptedOutputs = (rows: TokenOutputRow[]) =>
+	rows.filter((row) => isAcceptedTransaction(row.transaction));
+
 /**
  * Loads, for a category: the unspent minting/mutable outputs (fast, for the
  * reserve), the complete set of unspent token outputs (holders), and the
@@ -74,7 +100,7 @@ export const useTokenOutputs = (category: Ref<string>) => {
 
 	watch(
 		() => [category.value, stateStore.network] as const,
-		([target], _previous, onCleanup) => {
+		([target, network], _previous, onCleanup) => {
 			const controller = new AbortController();
 			onCleanup(() => controller.abort());
 			issuing.value = { status: "loading" };
@@ -92,80 +118,82 @@ export const useTokenOutputs = (category: Ref<string>) => {
 				return;
 			}
 			const tokenCategory = `\\x${target.toLowerCase()}`;
-			const context = { fetchOptions: { signal: controller.signal } };
+			const { signal } = controller;
+			const nodes = loadNetworkNodes(client, network, signal);
+			const fail = (state: Ref<LoadState<unknown>>) => (error: unknown) => {
+				if (!signal.aborted)
+					state.value = { status: "error", message: describeError(error) };
+			};
 
-			client
-				.query({
-					query: GetTokenIssuingOutputs,
-					variables: { tokenCategory },
-					fetchPolicy: "no-cache",
-					context,
+			nodes
+				.then((nodes) =>
+					client.query({
+						query: GetTokenIssuingOutputs,
+						variables: { tokenCategory, nodes },
+						fetchPolicy: "no-cache",
+						context: { fetchOptions: { signal } },
+					}),
+				)
+				.then((response) => {
+					if (signal.aborted) return;
+					const rows = response.data?.output as TokenOutputRow[] | undefined;
+					if (!rows) throw new Error("Chaingraph returned no data.");
+					// A full page may be truncated: never present a partial reserve.
+					if (rows.length >= TOKEN_STATS_PAGE_SIZE)
+						throw new Error(
+							"Too many minting and mutable outputs for the quick reserve query.",
+						);
+					issuing.value = { status: "ready", value: acceptedOutputs(rows) };
 				})
-				.then(
-					(response) => {
-						if (controller.signal.aborted) return;
-						const rows = response.data?.output as TokenOutputRow[] | undefined;
-						issuing.value = rows
-							? { status: "ready", value: rows }
-							: { status: "error", message: "Chaingraph returned no data." };
-					},
-					(error) => {
-						if (!controller.signal.aborted)
-							issuing.value = {
-								status: "error",
-								message: describeError(error),
-							};
-					},
-				);
+				.catch(fail(issuing));
 
-			fetchAllPages<TokenOutputRow>(
-				client,
-				GetTokenUnspentOutputs,
-				"output",
-				{ tokenCategory },
-				controller.signal,
-			).then(
-				(rows) => {
-					if (!controller.signal.aborted)
-						unspent.value = { status: "ready", value: rows };
-				},
-				(error) => {
-					if (!controller.signal.aborted)
-						unspent.value = { status: "error", message: describeError(error) };
-				},
-			);
+			nodes
+				.then((nodes) =>
+					fetchAllPages<TokenOutputRow>(
+						client,
+						GetTokenUnspentOutputs,
+						"output",
+						{ tokenCategory, nodes },
+						signal,
+					),
+				)
+				.then((rows) => {
+					if (!signal.aborted)
+						unspent.value = { status: "ready", value: acceptedOutputs(rows) };
+				})
+				.catch(fail(unspent));
 
-			Promise.all([
-				fetchAllPages<BurnOutputRow>(
-					client,
-					GetTokenOpReturnOutputs,
-					"output",
-					{ tokenCategory },
-					controller.signal,
-				),
-				fetchAllPages<BurnOutputRow>(
-					client,
-					GetTokenBurnerOutputs,
-					"output",
-					{
-						tokenCategory,
-						lockingBytecode: `\\x${TOKENBURNER_LOCKING_BYTECODE}`,
-					},
-					controller.signal,
-				),
-			]).then(
-				([opReturn, burner]) => {
-					if (!controller.signal.aborted)
+			nodes
+				.then((nodes) =>
+					Promise.all([
+						fetchAllPages<BurnOutputRow>(
+							client,
+							GetTokenOpReturnOutputs,
+							"output",
+							{ tokenCategory, nodes },
+							signal,
+						),
+						fetchAllPages<BurnOutputRow>(
+							client,
+							GetTokenBurnerOutputs,
+							"output",
+							{
+								tokenCategory,
+								nodes,
+								lockingBytecode: `\\x${TOKENBURNER_LOCKING_BYTECODE}`,
+							},
+							signal,
+						),
+					]),
+				)
+				.then(([opReturn, burner]) => {
+					if (!signal.aborted)
 						burns.value = {
 							status: "ready",
 							value: aggregateBurns([...opReturn, ...burner]),
 						};
-				},
-				(error) => {
-					if (!controller.signal.aborted)
-						burns.value = { status: "error", message: describeError(error) };
-				},
-			);
+				})
+				.catch(fail(burns));
 		},
 		{ immediate: true },
 	);
