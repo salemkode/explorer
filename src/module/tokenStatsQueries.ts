@@ -1,23 +1,37 @@
 /**
  * Chaingraph queries behind the token supply and holder statistics.
  *
- * An output only counts when the transaction that created it is valid (in a
- * mempool or included in a block), and it is only spent when a valid
- * transaction spends it. Chaingraph keeps transactions it once saw in a mempool
- * even after they were dropped, so without these checks dropped double-spends
- * add phantom outputs (ParyonUSD: ~3,900) or hide real ones.
+ * An output only counts while the selected network has the transaction that
+ * created it: in a network node's mempool, or in a block a network node
+ * currently accepts. It is spent only by such a transaction. Chaingraph keeps
+ * transactions it once saw in a mempool even after they were dropped (about
+ * 3,900 phantom ParyonUSD outputs), and a reorganization removes a block's
+ * acceptance but keeps its transactions' block inclusions, so neither mempool
+ * history nor block inclusion alone is enough.
  *
- * Validity uses block inclusion rather than `accepted_by`: joining the
- * accepting node makes these queries time out on busy categories (Moria USD),
- * and a category only exists on one network. Chaingraph returns at most 5000
- * rows per `output` query, so callers page with a stable ordering.
+ * Spends are filtered server side by acceptance. Filtering the creating
+ * transaction the same way times out on busy categories (Moria USD), so those
+ * queries only prefilter it cheaply and select its acceptance by `$nodes` for
+ * `isAcceptedTransaction`. `$nodes` are the selected network's node ids
+ * (`GetNetworkNodes`). Chaingraph returns at most 5000 rows per `output`
+ * query, so callers page with a stable ordering.
  */
+
+/** Chaingraph's node ids for the selected network ("mainnet", "chipnet"). */
+export const GetNetworkNodes = gql(`
+  query GetNetworkNodes($network: String) {
+    node(where: { name: { _regex: $network } }) {
+      internal_id
+    }
+  }
+`);
 
 export const TOKEN_STATS_PAGE_SIZE = 5000;
 
 export const GetTokenUnspentOutputs = gql(`
   query GetTokenUnspentOutputs(
     $tokenCategory: bytea
+    $nodes: [Int!]
     $offset: Int
   ) {
     output(
@@ -27,18 +41,21 @@ export const GetTokenUnspentOutputs = gql(`
       where: {
         token_category: { _eq: $tokenCategory }
         locking_bytecode_pattern: { _neq: "6a" }
+        # Cheap prefilter; acceptance of the creating transaction is checked
+        # client side from the selected fields (isAcceptedTransaction).
         transaction: {
-          _or: [
-            { node_validations: {} }
-            { block_inclusions: {} }
-          ]
+          _or: [{ node_validations: {} }, { block_inclusions: {} }]
         }
         _not: {
           spent_by: {
             transaction: {
               _or: [
-                { node_validations: {} }
-                { block_inclusions: {} }
+                { node_validations: { node_internal_id: { _in: $nodes } } }
+                {
+                  block_inclusions: {
+                    block: { accepted_by: { node_internal_id: { _in: $nodes } } }
+                  }
+                }
               ]
             }
           }
@@ -50,29 +67,52 @@ export const GetTokenUnspentOutputs = gql(`
       locking_bytecode
       fungible_token_amount
       nonfungible_token_capability
+      transaction {
+        node_validations(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
+          validated_at
+        }
+        block_inclusions {
+          block {
+            accepted_by(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
+              node_internal_id
+            }
+          }
+        }
+      }
     }
   }
 `);
 
 /**
  * Unspent minting/mutable NFT outputs (they hold the reserved supply). Small
- * and fast, so reserve figures show before the full holder scan finishes, or
- * when it times out.
+ * and fast, so reserve figures show before the full holder scan finishes. One
+ * unordered page: a full page means the set may be incomplete, and the reserve
+ * then waits for the holder scan.
  */
 export const GetTokenIssuingOutputs = gql(`
-  query GetTokenIssuingOutputs($tokenCategory: bytea) {
+  query GetTokenIssuingOutputs($tokenCategory: bytea, $nodes: [Int!]) {
     output(
+      limit: 5000
       where: {
         token_category: { _eq: $tokenCategory }
         nonfungible_token_capability: { _in: ["minting", "mutable"] }
         locking_bytecode_pattern: { _neq: "6a" }
+        # Cheap prefilter; acceptance of the creating transaction is checked
+        # client side from the selected fields (isAcceptedTransaction).
         transaction: {
           _or: [{ node_validations: {} }, { block_inclusions: {} }]
         }
         _not: {
           spent_by: {
             transaction: {
-              _or: [{ node_validations: {} }, { block_inclusions: {} }]
+              _or: [
+                { node_validations: { node_internal_id: { _in: $nodes } } }
+                {
+                  block_inclusions: {
+                    block: { accepted_by: { node_internal_id: { _in: $nodes } } }
+                  }
+                }
+              ]
             }
           }
         }
@@ -83,16 +123,32 @@ export const GetTokenIssuingOutputs = gql(`
       locking_bytecode
       fungible_token_amount
       nonfungible_token_capability
+      transaction {
+        node_validations(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
+          validated_at
+        }
+        block_inclusions {
+          block {
+            accepted_by(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
+              node_internal_id
+            }
+          }
+        }
+      }
     }
   }
 `);
 
 /**
- * Token outputs locked by OP_RETURN (unspendable). Validity is checked client
- * side: filtering on accepted_by makes this query time out on large categories.
+ * Token outputs locked by OP_RETURN (unspendable). Acceptance is checked client
+ * side: filtering on it makes this query time out on large categories.
  */
 export const GetTokenOpReturnOutputs = gql(`
-  query GetTokenOpReturnOutputs($tokenCategory: bytea, $offset: Int) {
+  query GetTokenOpReturnOutputs(
+    $tokenCategory: bytea
+    $nodes: [Int!]
+    $offset: Int
+  ) {
     output(
       offset: $offset
       limit: 5000
@@ -108,12 +164,14 @@ export const GetTokenOpReturnOutputs = gql(`
       fungible_token_amount
       nonfungible_token_capability
       transaction {
-        node_validations(limit: 1) {
+        node_validations(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
           validated_at
         }
         block_inclusions {
           block {
-            timestamp
+            accepted_by(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
+              node_internal_id
+            }
           }
         }
       }
@@ -126,6 +184,7 @@ export const GetTokenBurnerOutputs = gql(`
   query GetTokenBurnerOutputs(
     $tokenCategory: bytea
     $lockingBytecode: bytea
+    $nodes: [Int!]
     $offset: Int
   ) {
     output(
@@ -143,12 +202,14 @@ export const GetTokenBurnerOutputs = gql(`
       fungible_token_amount
       nonfungible_token_capability
       transaction {
-        node_validations(limit: 1) {
+        node_validations(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
           validated_at
         }
         block_inclusions {
           block {
-            timestamp
+            accepted_by(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
+              node_internal_id
+            }
           }
         }
       }
