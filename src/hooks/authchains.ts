@@ -14,10 +14,11 @@ export const useAuthChains = (tokenCategories: Ref<bytea[]>) => {
 	const registryStore = useRegistryStore();
 
 	// Fetch auth chains for the specified token categories
-	const query = useQuery(GetAuthChains, {
+	// Variables are a getter so categories that appear later are fetched too.
+	const query = useQuery(GetAuthChains, () => ({
 		network: stateStore.network,
 		tokenCategory: Array.from(new Set(tokenCategories.value)),
-	});
+	}));
 
 	// Add decoded auth chains to the registry store
 	query.onResult((authChain) => {

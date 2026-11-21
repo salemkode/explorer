@@ -1,6 +1,7 @@
 import type { GetAuthChainsQuery } from "~/graphql/graphql";
 import type { Capability, IdentitySnapshot, tokenCapability } from "~/types";
 import { opreturnToAuthChainElement } from "./bitcoin";
+import { summarizeGenesis } from "./tokenStats";
 
 /**
  * Retrieves the genesis transaction and opreturn for a given category from an authchain.
@@ -13,7 +14,9 @@ export const decodeAuthChain = (
 ) => {
 	const genesesTx = {
 		hash: undefined as string | undefined,
-		genesisSupply: 0,
+		/** exact FT supply minted to this category at genesis */
+		genesisSupply: 0n,
+		hasGenesisNFTs: false,
 		lockingBytecode: undefined as string | undefined,
 		nftCapability: undefined as Capability | null | undefined,
 	};
@@ -38,13 +41,9 @@ export const decodeAuthChain = (
 
 		if (isGenesesTx) {
 			genesesTx.hash = transaction?.hash.substring(2) || "";
-			genesesTx.genesisSupply = transaction.outputs.reduce(
-				(total: number, { fungible_token_amount }) =>
-					fungible_token_amount
-						? total + Number.parseInt(fungible_token_amount)
-						: total,
-				0,
-			);
+			const genesis = summarizeGenesis(transaction.outputs, category);
+			genesesTx.genesisSupply = genesis.genesisSupplyFT;
+			genesesTx.hasGenesisNFTs = genesis.hasGenesisNFTs;
 			const output = transaction.outputs?.find(
 				(tokenCategory) =>
 					tokenCategory.token_category?.substring(2) === category,
@@ -72,7 +71,7 @@ export const decodeAuthChain = (
 		}
 	}
 
-	if (genesesTx.genesisSupply === 0 && !genesesTx.nftCapability) {
+	if (genesesTx.genesisSupply === 0n && !genesesTx.hasGenesisNFTs) {
 		return undefined;
 	}
 
