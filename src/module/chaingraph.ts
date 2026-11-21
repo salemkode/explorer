@@ -302,41 +302,6 @@ export const GetTransactions = gql(`
   }
 `);
 
-export const GetTokenAddress = gql(`
-  query GetTokenAddress(
-    $limit: Int
-    $offset: Int
-    $network: String
-    $tokenCategory: bytea
-  ) {
-    output(
-      limit: $limit
-      offset: $offset
-      order_by: { fungible_token_amount: desc_nulls_last }
-      where: {
-        token_category: { _eq: $tokenCategory }
-        transaction: {
-          block_inclusions: {
-            block: { accepted_by: { node: { name: { _regex: $network } } } }
-          }
-        }
-        _not: { spent_by: { transaction: { hash: { _gt: "" } } } }
-      }
-    ) {
-      value_satoshis
-      locking_bytecode
-      transaction_hash
-      output_index
-      fungible_token_amount
-      spent_by {
-        transaction {
-          hash
-        }
-      }
-    }
-  }
-`);
-
 export const GetTokenTxs = gql(`
   query GetTokenTxs(
     $limit: Int
@@ -382,7 +347,10 @@ export const GetAuthChains = gql(`
         authhead {
           hash
           identity_output {
+            output_index
+            locking_bytecode
             fungible_token_amount
+            nonfungible_token_capability
           }
         }
         migrations(
@@ -505,34 +473,6 @@ export const GetAddressNFTs = gql(`
       token_category
       nonfungible_token_capability
       nonfungible_token_commitment
-    }
-  }
-`);
-
-export const GetAddressTokens = gql(`
-  query GetAddressTokens(
-    $limit: Int
-    $offset: Int
-    $network: String
-    $lockingBytecode: _text
-  ) {
-    search_output(
-      limit: $limit
-      offset: $offset
-      args: { locking_bytecode_hex: $lockingBytecode }
-      where: {
-        token_category: { _is_null: false }
-        transaction: {
-          block_inclusions: {
-            block: { accepted_by: { node: { name: { _regex: $network } } } }
-          }
-        }
-        nonfungible_token_capability: { _is_null: true }
-        _not: { spent_by: { transaction: { hash: { _gt: "" } } } }
-      }
-    ) {
-      token_category
-      fungible_token_amount
     }
   }
 `);

@@ -61,9 +61,8 @@
 
           <template v-if="effectiveTokenViewMode === 'table'">
             <TokenAddress
-              v-if="hasNftCapability"
               :decimals="decimals"
-              :category="category"
+              :holders="holderState"
             />
             <TokenTransaction :category="category" />
           </template>
@@ -80,14 +79,21 @@
 </template>
 
 <script setup lang="ts">
-import { useIsActiveMinting } from "~/hooks/activeMinting";
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
 import { useAuthChains } from "~/hooks/authchains";
-import { useNftSupply } from "~/hooks/nftSupply";
-import { useNonBurnTokens } from "~/hooks/nonSpentToken";
 import { useStorage } from "~/hooks/storage";
+import { type LoadState, useTokenOutputs } from "~/hooks/tokenStats";
 import { decodeAuthChain } from "~/module/bcmr";
-import { getTokenInfoType } from "~/module/bitcoin";
+import { formatTokenAmount } from "~/module/tokenAmount";
+import {
+	type IdentityOutput,
+	type ReserveStats,
+	type TokenHolderStats,
+	computeHolderStats,
+	computeReserve,
+	computeSupplyFigures,
+	getTokenType,
+} from "~/module/tokenStats";
 import { useRegistryStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
@@ -102,25 +108,38 @@ const {
 	onError,
 } = useAuthChains(toRef(() => [`\\x${category.value}` as const]));
 
-const { supplyNFTs, loading: supplyNFTsLoading } = useNftSupply(
-	`\\x${category.value}`,
-);
-const { isActiveMinting, loading: activeMintingLoading } = useIsActiveMinting(
-	`\\x${category.value}`,
-);
-const { nonBurnTokens, loading: nonBurnTokensLoading } = useNonBurnTokens(
-	`\\x${category.value}`,
-);
+const { issuing, unspent, burns } = useTokenOutputs(category);
 const authchainElement = computed(
 	() => authchain.value && decodeAuthChain(authchain.value, category.value),
 );
-const reservedSupply = computed(
-	() =>
-		authchain.value?.transaction
-			.at(0)
-			?.authchains.at(0)
-			?.authhead?.identity_output?.at(0)?.fungible_token_amount,
+/** Output 0 of the authhead; its FT counts as reserved supply. */
+const identityOutput = computed<IdentityOutput | null>(() => {
+	const authhead = authchain.value?.transaction
+		.find(({ hash }) => hash.substring(2) === category.value)
+		?.authchains.at(0)?.authhead;
+	const output = authhead?.identity_output?.at(0);
+	if (!authhead || !output) return null;
+	return { authheadHash: authhead.hash, ...output };
+});
+const holderState = computed<LoadState<TokenHolderStats>>(() =>
+	unspent.value.status === "ready"
+		? {
+				status: "ready",
+				value: computeHolderStats(unspent.value.value, identityOutput.value),
+			}
+		: unspent.value,
 );
+/** From the full holder scan when complete, otherwise from the issuing outputs. */
+const reserveState = computed<LoadState<ReserveStats>>(() => {
+	if (holderState.value.status === "ready")
+		return { status: "ready", value: holderState.value.value };
+	if (issuing.value.status === "ready")
+		return {
+			status: "ready",
+			value: computeReserve(issuing.value.value, identityOutput.value),
+		};
+	return issuing.value;
+});
 onError(() => {
 	throw showError({
 		statusCode: 404,
@@ -161,10 +180,7 @@ const metadata = computed(() => {
 const authchainLoading = computed(
 	() =>
 		authchainQueryLoading.value ||
-		metadata.value.loading ||
-		supplyNFTsLoading.value ||
-		activeMintingLoading.value ||
-		nonBurnTokensLoading.value,
+		metadata.value.loading,
 );
 const decimals = computed(
 	() => metadata.value.identitySnapshot?.token?.decimals || 0,
@@ -175,20 +191,42 @@ const hasNftCapability = computed(
 const effectiveTokenViewMode = computed(() =>
 	hasNftCapability.value ? tokenViewMode.value : "table",
 );
+const symbol = computed(
+	() => metadata.value.identitySnapshot?.token?.symbol || "",
+);
+const amountText = (amount: bigint) =>
+	`${formatTokenAmount(amount, decimals.value)}${symbol.value ? ` ${symbol.value}` : ""}`;
+const countText = (count: number) => count.toLocaleString("en-US");
+const pendingText = (state: LoadState<unknown>) =>
+	state.status === "loading" ? "Loading…" : "Unavailable";
+
 const tokenInfo = computed(() => {
 	if (!authchainElement.value) return;
 	const {
 		hash: genesisTx,
 		genesisSupply,
+		hasGenesisNFTs,
 		lockingBytecode,
 	} = authchainElement.value.genesesTx;
 	const opreturn = authchainElement.value.opreturn;
-	const reservedSupplyNumber =
-		reservedSupply.value === null || reservedSupply.value === undefined
-			? null
-			: Number(reservedSupply.value);
 	const ownerAddress =
 		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode);
+	const hasFT = genesisSupply > 0n;
+	const holders = holderState.value;
+	const burnState = burns.value;
+	const supply =
+		holders.status === "ready"
+			? computeSupplyFigures(
+					genesisSupply,
+					holders.value,
+					burnState.status === "ready" ? burnState.value : undefined,
+				)
+			: undefined;
+	const holderText = (pick: (stats: TokenHolderStats) => string) =>
+		holders.status === "ready" ? pick(holders.value) : pendingText(holders);
+	const reserve = reserveState.value;
+	const reserveText = (pick: (stats: ReserveStats) => string) =>
+		reserve.status === "ready" ? pick(reserve.value) : pendingText(reserve);
 
 	const items: contentWarpItem[] = [
 		{
@@ -205,36 +243,105 @@ const tokenInfo = computed(() => {
 		},
 		{
 			title: "Token Type",
-			text: getTokenInfoType(genesisSupply, supplyNFTs.value),
-		},
-		{
-			title: "Genesis Supply",
-			text: genesisSupply || null,
-		},
-		{
-			title: "Total Amount NFTs",
-			text: supplyNFTs.value || null,
-		},
-		{
-			title: "Reserve Supply",
-			text: reservedSupplyNumber,
-		},
-		{
-			title: "Circulating Supply",
-			text:
-				reservedSupplyNumber === null
-					? null
-					: genesisSupply - reservedSupplyNumber,
-		},
-		{
-			title: "Is Active Minting",
-			text: isActiveMinting.value ? "Yes" : "No",
-		},
-		{
-			title: "Supply Excluding Burns",
-			text: nonBurnTokens.value,
+			text: getTokenType(genesisSupply, hasGenesisNFTs),
 		},
 	];
+
+	if (hasFT) {
+		items.push(
+			{ title: "Genesis Supply", text: amountText(genesisSupply) },
+			{
+				title: "Reserved Supply",
+				text: reserveText((stats) => amountText(stats.reservedFT)),
+			},
+			{
+				title: "Circulating Supply",
+				text: reserveText((stats) =>
+					amountText(genesisSupply - stats.reservedFT),
+				),
+			},
+			{
+				title: "Circulating Supply (Excluding Burns)",
+				text: supply
+					? amountText(supply.circulatingExclBurnsFT)
+					: pendingText(holders),
+			},
+		);
+		if (supply?.inconsistent) {
+			items.push({
+				title: "Removed From Supply",
+				text: "Chaingraph data is inconsistent; unspent supply exceeds genesis supply minus burns",
+			});
+		} else if (supply) {
+			if (burnState.status !== "ready") {
+				if (supply.removedFT > 0n)
+					items.push({
+						title: "Removed From Supply",
+						text: amountText(supply.removedFT),
+					});
+			} else {
+				if (supply.burnedFT && supply.burnedFT > 0n)
+					items.push({
+						title: "Burned (Sent To A Burn Output)",
+						text: amountText(supply.burnedFT),
+					});
+				if (
+					supply.removedWithoutBurnOutputFT &&
+					supply.removedWithoutBurnOutputFT > 0n
+				)
+					items.push({
+						title: "Removed Without A Burn Output",
+						text: amountText(supply.removedWithoutBurnOutputFT),
+					});
+			}
+		}
+	}
+
+	const nftCount =
+		holders.status === "ready" ? holders.value.totalNFTs : undefined;
+	if (hasGenesisNFTs || (nftCount !== undefined && nftCount > 0)) {
+		items.push({
+			title: "Total NFTs",
+			text: nftCount === undefined ? pendingText(holders) : countText(nftCount),
+		});
+	}
+	if (burnState.status === "ready" && burnState.value.burnedNFTs > 0) {
+		items.push({
+			title: "Burned NFTs",
+			text: countText(burnState.value.burnedNFTs),
+		});
+	}
+
+	items.push(
+		{
+			title: "Is Active Minting",
+			text: reserveText((stats) => (stats.hasActiveMinting ? "Yes" : "No")),
+		},
+		{
+			title: "User Addresses Holding",
+			text: holderText((stats) => countText(stats.userAddresses)),
+		},
+		{
+			title: "Smart Contract Addresses Holding",
+			text: holderText((stats) => countText(stats.contractAddresses)),
+		},
+		{
+			title: "Total Holding Addresses",
+			text: holderText((stats) => countText(stats.totalAddresses)),
+		},
+	);
+	if (hasFT) {
+		items.push(
+			{
+				title: "Held On User Addresses",
+				text: holderText((stats) => amountText(stats.userFT)),
+			},
+			{
+				title: "Held In Smart Contracts",
+				text: holderText((stats) => amountText(stats.contractFT)),
+			},
+		);
+	}
 
 	if (ownerAddress) {
 		items.push({

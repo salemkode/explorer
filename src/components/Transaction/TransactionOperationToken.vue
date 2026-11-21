@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { calculateDecimal } from "~/module/bitcoin";
+import { formatTokenAmount, toBaseUnits } from "~/module/tokenAmount";
 import { shortTx } from "~/module/utils";
 import { useRegistryStore } from "~/store";
 import type { Capability } from "~/types";
@@ -12,13 +12,18 @@ const props = defineProps<{
 	tokenCommitment: Maybe<string>;
 	category: Maybe<string>;
 }>();
+const registryEntry = computed(() =>
+	props.category ? registryStore.getToken(props.category) : undefined,
+);
+const metadata = computed(() => registryEntry.value?.token);
+// Exact amount in token units. While metadata loads the decimals are unknown,
+// so no figure is shown; without metadata a token has 0 decimals (BCMR).
+// Empty for NFT-only outputs, which still show the category badge.
 const amount = computed(() => {
 	if (!props.tokenAmount) return;
-	return calculateDecimal(+props.tokenAmount, 0).toString();
-});
-const metadata = computed(() => {
-	if (!props.category) return;
-	return registryStore.getToken(props.category).token;
+	if (toBaseUnits(props.tokenAmount) === 0n) return "";
+	if (registryEntry.value?.loading) return "…";
+	return formatTokenAmount(props.tokenAmount, metadata.value?.decimals);
 });
 </script>
 
@@ -26,15 +31,15 @@ const metadata = computed(() => {
   <div class="flex flex-wrap items-center gap-1.5 mt-2">
     <!-- Fungible Token Badge -->
     <div
-      v-if="category && amount"
+      v-if="category && amount !== undefined"
       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200/80 dark:border-zinc-700/80"
     >
       <NuxtLink class="font-mono text-emerald-600 dark:text-emerald-400 hover:underline" :to="`/token/${category}`">
         {{ shortTx(category) }}
       </NuxtLink>
       <span class="text-slate-300 dark:text-zinc-600">•</span>
-      <span class="font-mono">{{ amount !== "0" ? amount : "" }}</span>
-      <span v-if="metadata?.symbol" class="font-bold text-slate-900 dark:text-white">
+      <span class="font-mono">{{ amount }}</span>
+      <span v-if="amount && metadata?.symbol" class="font-bold text-slate-900 dark:text-white">
         {{ metadata.symbol }}
       </span>
     </div>

@@ -19,9 +19,10 @@ export const calculateDecimal = (num: bigNum, decimal: number) => {
 	return bigNum.div(10 ** decimal);
 };
 
-export const satToBch = (num: bigNum, decimalPlaces = 6) => {
+/** Satoshis → BCH in plain notation (never exponential, e.g. 1 sat → "0.00000001"). */
+export const satToBch = (num: bigNum, decimalPlaces = 8) => {
 	const sat = calculateDecimal(num, 8);
-	return sat.decimalPlaces(decimalPlaces).toString();
+	return sat.decimalPlaces(decimalPlaces, BigNumber.ROUND_DOWN).toFixed();
 };
 
 export const removeAddressPrefix = (address: string) => {
@@ -175,20 +176,3 @@ export const opreturnToAuthChainElement = (opReturnHex: string) => {
 	return result;
 };
 
-export const getTokenInfoType = (
-	genesisSupply: number,
-	totalSupplyNFTs: number,
-) => {
-	const isFungible = genesisSupply > 0;
-	const isNFT = totalSupplyNFTs > 0;
-	switch (true) {
-		case isFungible && !isNFT:
-			return "Fungible Tokens only";
-		case !isFungible && isNFT:
-			return "NFTs only";
-		case isFungible && isNFT:
-			return "Both Fungible & Non-Fungible tokens";
-		default:
-			return "Unknown type";
-	}
-};

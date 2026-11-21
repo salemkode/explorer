@@ -20,7 +20,7 @@ export const calculatePrice = (sat: bigNum, price: bigNum) => {
 	const bchNum = satToBch(sat);
 	const bigNum = BigNumber(bchNum).multipliedBy(price);
 	const decimal = bigNum.isLessThanOrEqualTo(1) ? 3 : 2;
-	return bigNum.decimalPlaces(decimal).toString();
+	return bigNum.decimalPlaces(decimal).toFixed();
 };
 
 export const numberWithCommas = (num: bigNum) => {
