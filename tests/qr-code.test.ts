@@ -32,6 +32,9 @@ test("renders the address QR graphic on the first render at either size", async 
 
 	expect(preview).toContain("<svg");
 	expect(preview).toContain('width="112"');
+	expect(preview).toContain('fill="#1c7d43"');
+	expect(preview.match(/stroke="#13532d"/g)).toHaveLength(3);
+	expect(preview.match(/fill="#70c559"/g)).toHaveLength(3);
 	expect(enlarged).toContain('width="272"');
 	const path = preview.match(/<path[^>]+d="[^"]+"/)?.[0];
 	expect(path).toBeDefined();
