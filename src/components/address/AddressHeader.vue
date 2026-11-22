@@ -27,6 +27,7 @@
       :aria-labelledby="`${dialogId}-title`"
       class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-sm overflow-y-auto rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-950/60 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
       @click.self="qrDialog?.close()"
+      @keydown.esc="qrDialog?.close()"
     >
       <div class="space-y-4 p-4 sm:p-5">
         <div class="flex items-center justify-between gap-4">
@@ -65,7 +66,7 @@ const qrDialog = ref<HTMLDialogElement | null>(null);
 const qrAddress = computed(() =>
 	normalizeDisplayAddress(props.address, {
 		removePrefix: false,
-	}),
+	}) || "",
 );
 const displayAddress = computed(() => normalizeDisplayAddress(props.address));
 const addressType = computed(() => getAddressType(qrAddress.value));

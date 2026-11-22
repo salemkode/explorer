@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { formatTokenAmount, toBaseUnits } from "~/module/tokenAmount";
+import { computed } from "vue";
+import {
+	compactTokenBadgeCommitment,
+	formatTokenBadgeAmount,
+} from "~/module/tokenBadgeDisplay";
 import { shortTx } from "~/module/utils";
 import { useRegistryStore } from "~/store";
 import type { Capability } from "~/types";
+
 type Maybe<T> = T | undefined | null;
 
 const registryStore = useRegistryStore();
@@ -16,41 +21,51 @@ const registryEntry = computed(() =>
 	props.category ? registryStore.getToken(props.category) : undefined,
 );
 const metadata = computed(() => registryEntry.value?.token);
-// Exact amount in token units. While metadata loads the decimals are unknown,
-// so no figure is shown; without metadata a token has 0 decimals (BCMR).
-// Empty for NFT-only outputs, which still show the category badge.
+// The decimals are unknown while metadata loads, so no figure is shown yet.
+const metadataLoading = computed(() => !!registryEntry.value?.loading);
 const amount = computed(() => {
-	if (!props.tokenAmount) return;
-	if (toBaseUnits(props.tokenAmount) === 0n) return "";
-	if (registryEntry.value?.loading) return "…";
-	return formatTokenAmount(props.tokenAmount, metadata.value?.decimals);
+	if (props.tokenAmount === null || props.tokenAmount === undefined) return;
+	return formatTokenBadgeAmount(props.tokenAmount, metadata.value?.decimals ?? 0);
 });
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-1.5 mt-2">
+  <div class="flex flex-wrap items-start gap-1.5 mt-2">
     <!-- Fungible Token Badge -->
     <div
-      v-if="category && amount !== undefined"
-      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200/80 dark:border-zinc-700/80"
+      v-if="category && tokenAmount !== null && tokenAmount !== undefined"
+      class="inline-flex max-w-full min-w-0 items-start gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border border-slate-200/80 dark:border-zinc-700/80"
     >
       <NuxtLink class="font-mono text-emerald-600 dark:text-emerald-400 hover:underline" :to="`/token/${category}`">
         {{ shortTx(category) }}
       </NuxtLink>
       <span class="text-slate-300 dark:text-zinc-600">•</span>
-      <span class="font-mono">{{ amount }}</span>
-      <span v-if="amount && metadata?.symbol" class="font-bold text-slate-900 dark:text-white">
-        {{ metadata.symbol }}
-      </span>
+      <span v-if="metadataLoading" title="Loading token amount">…<span class="sr-only">Loading token amount</span></span>
+      <TransactionTokenBadgeValue
+        v-else-if="amount"
+        :display="amount.display"
+        :exact="amount.exact"
+        :raw="tokenAmount"
+        :label="metadata ? 'Exact token amount' : 'Exact token amount (base units; metadata unavailable)'"
+      >
+        <span v-if="metadata?.symbol" class="font-bold text-slate-900 dark:text-white">
+          {{ metadata.symbol }}
+        </span>
+      </TransactionTokenBadgeValue>
+      <span v-else>Amount unavailable</span>
     </div>
 
     <!-- NFT Commitment Badge -->
     <div
       v-if="tokenCommitment"
-      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-mono bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20"
+      class="inline-flex max-w-full min-w-0 items-start gap-1 px-2.5 py-1 rounded-lg text-[11px] font-mono bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/20"
     >
       <span class="text-[10px] uppercase font-bold tracking-wider opacity-70">NFT:</span>
-      <span>{{ tokenCommitment }}</span>
+      <TransactionTokenBadgeValue
+        :display="compactTokenBadgeCommitment(tokenCommitment)"
+        :exact="tokenCommitment"
+        label="Exact NFT commitment"
+      />
     </div>
 
     <!-- NFT Capability Badge -->

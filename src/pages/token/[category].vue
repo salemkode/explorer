@@ -1,11 +1,30 @@
 <template>
   <div class="w-full">
-    <LoadingView v-if="authchainLoading" />
+      <TokenAuthChains
+        :chains="chains"
+        :selection="selection"
+        :metadata="selectedMetadata"
+        :loading="authchainQueryLoading"
+        :error="Boolean(authchainError)"
+        @chain="selectChain"
+        @revision="selectRevision"
+        @reset="resetSelection"
+        @retry="refetch()"
+      />
+    <p v-if="queryError" role="alert" class="max-w-7xl mx-auto px-4 py-16 text-center text-sm text-rose-600 dark:text-rose-400">
+      Token details could not be loaded. Check your connection and reload the page.
+    </p>
+    <LoadingView v-else-if="authchainLoading" />
+    <div v-else-if="!authchainElement" class="max-w-7xl mx-auto px-4 py-16 text-center">
+      <h1 class="text-xl font-bold text-slate-900 dark:text-white mb-2">{{ authchain?.transaction.length ? "Token details unavailable" : "Token not found" }}</h1>
+      <p class="text-sm text-slate-500 dark:text-zinc-400">No token genesis was found for this ID on the selected network.</p>
+    </div>
     <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
       <!-- Mobile Header -->
       <TokenId
         :loading="metadata.loading"
-        :identity-snapshot="metadata.identitySnapshot"
+        :identity-snapshot="metadata.identitySnapshot || null"
         :category="category"
         class="lg:hidden mb-4"
       />
@@ -29,11 +48,19 @@
             :loading="authchainLoading"
           />
           <bcmr-info
+            :token-category="category"
             :loading="metadata.loading"
             :identity-snapshot="metadata.identitySnapshot"
           />
+          <p v-if="metadata.loading" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
+            Loading token metadata…
+          </p>
+          <p v-else-if="!metadata.identitySnapshot" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
+            {{ metadata.failed ? 'Auth-chain metadata could not be loaded. You can choose another registry below.' : 'No token metadata is available from the selected registry.' }}
+          </p>
           <TokenProvider
-            :select="metadata.name"
+            :select="selectedRegistryName"
+            :auth-metadata="selectedMetadata"
             :category="category"
             @select="(url) => (selectedRegistryName = url)"
           />
@@ -48,7 +75,7 @@
         >
           <TokenId
             :loading="metadata.loading"
-            :identity-snapshot="metadata.identitySnapshot"
+            :identity-snapshot="metadata.identitySnapshot || null"
             :category="category"
             class="hidden lg:flex"
           />
@@ -61,14 +88,18 @@
 
           <template v-if="effectiveTokenViewMode === 'table'">
             <TokenAddress
-              :decimals="decimals"
+              :key="`${stateStore.network}:${category}:addresses`"
               :holders="holderState"
+              :decimals="decimals"
             />
-            <TokenTransaction :category="category" />
+            <TokenTransaction :key="`${stateStore.network}:${category}:transactions`" :category="category" />
           </template>
 
           <TokenChild
-            :identity-snapshot="metadata.identitySnapshot"
+            :outputs="unspent"
+            @retry="retryTokenOutputs"
+            :key="`${stateStore.network}:${category}:children`"
+            :identity-snapshot="metadata.identitySnapshot || null"
             :category="category"
             :view-mode="effectiveTokenViewMode"
           />
@@ -80,43 +111,91 @@
 
 <script setup lang="ts">
 import { formatLockingBytecodeAddress } from "~/hooks/addressDisplay";
+import { useAuthChainSelection } from "~/hooks/authChainSelection";
 import { useAuthChains } from "~/hooks/authchains";
 import { useStorage } from "~/hooks/storage";
 import { type LoadState, useTokenOutputs } from "~/hooks/tokenStats";
 import { decodeAuthChain } from "~/module/bcmr";
 import { formatTokenAmount } from "~/module/tokenAmount";
 import {
-	type IdentityOutput,
-	type ReserveStats,
-	type TokenHolderStats,
 	computeHolderStats,
 	computeReserve,
 	computeSupplyFigures,
 	getTokenType,
+	type IdentityOutput,
+	type ReserveStats,
+	type TokenHolderStats,
 } from "~/module/tokenStats";
-import { useRegistryStore } from "~/store";
+import { useRegistryStore, useStateStore } from "~/store";
 import type { contentWarpItem } from "~/types";
 
 const route = useRoute();
-const category = computed(() => route.params.category as string);
+const category = computed(() =>
+	typeof route.params.category === "string" ? route.params.category : "",
+);
+const router = useRouter();
 
+const stateStore = useStateStore();
 const registryStore = useRegistryStore();
 const navItem = ref(0);
 const {
 	result: authchain,
 	loading: authchainQueryLoading,
-	onError,
-} = useAuthChains(toRef(() => [`\\x${category.value}` as const]));
+	error: authchainError,
+	refetch,
+} = useAuthChains(toRef(() => [`\\x${category.value}` as const]), false);
 
-const { issuing, unspent, burns } = useTokenOutputs(category);
-const authchainElement = computed(
-	() => authchain.value && decodeAuthChain(authchain.value, category.value),
+const { chains, selection, metadata: selectedMetadata } = useAuthChainSelection(
+	authchain,
+	category,
+	toRef(() => typeof route.query.chain === "string" ? route.query.chain : undefined),
+	toRef(() => typeof route.query.revision === "string" ? route.query.revision : undefined),
 );
-/** Output 0 of the authhead; its FT counts as reserved supply. */
+function selectChain(id: string) {
+	return router.push({ query: { ...route.query, chain: id, revision: undefined } });
+}
+function selectRevision(id: string) {
+	return router.push({ query: { ...route.query, chain: selection.value.chain?.id, revision: id } });
+}
+function resetSelection() {
+	return router.push({ query: { ...route.query, chain: undefined, revision: undefined } });
+}
+
+const authchainElement = computed(
+	() => authchain.value && selection.value.chain && selection.value.revision &&
+		decodeAuthChain(authchain.value, category.value, selection.value.chain.id, selection.value.revision.id),
+);
+const queryError = authchainError;
+const selectedRegistryName = ref("auth_chain");
+watch(
+	() => [category.value, stateStore.network],
+	() => {
+		selectedRegistryName.value = "auth_chain";
+		navItem.value = 0;
+	},
+	{ flush: "sync" },
+);
+const {
+	issuing,
+	unspent,
+	burns,
+	retry: retryTokenOutputs,
+} = useTokenOutputs(category);
+/** Output 0 of the selected chain's authhead; its FT counts as reserved supply. */
 const identityOutput = computed<IdentityOutput | null>(() => {
-	const authhead = authchain.value?.transaction
-		.find(({ hash }) => hash.substring(2) === category.value)
-		?.authchains.at(0)?.authhead;
+	const chains =
+		authchain.value?.transaction.find(
+			({ hash }) => hash.substring(2) === category.value,
+		)?.authchains ?? [];
+	const selectedId = selection.value.chain?.id;
+	const chain =
+		chains.find(
+			(chain) =>
+				(chain.authhead_transaction_hash || chain.authhead?.hash)?.substring(
+					2,
+				) === selectedId,
+		) ?? chains.at(0);
+	const authhead = chain?.authhead;
 	const output = authhead?.identity_output?.at(0);
 	if (!authhead || !output) return null;
 	return { authheadHash: authhead.hash, ...output };
@@ -143,14 +222,7 @@ const reserveState = computed<LoadState<ReserveStats>>(() => {
 		return { status: "loading" };
 	return issuing.value;
 });
-onError(() => {
-	throw showError({
-		statusCode: 404,
-		message: "This transaction is not found",
-	});
-});
 
-const selectedRegistryName = ref("");
 const tokenViewMode = useStorage<"table" | "grid">(
 	"token_page_view_mode",
 	"table",
@@ -167,24 +239,20 @@ const tokenViewIndex = computed({
 	},
 });
 const metadata = computed(() => {
-	const isAuthchainLoading =
-		registryStore.authchains.get(category.value) === true;
-	const registryState = registryStore.getTokenIdentity(
-		category.value,
-		selectedRegistryName.value,
-	);
-
+	if (selectedRegistryName.value === "auth_chain") {
+		return {
+			loading: selectedMetadata.value.status === "loading",
+			failed: selectedMetadata.value.status === "unavailable",
+			identitySnapshot: selectedMetadata.value.status === "ready" ? selectedMetadata.value.identity : undefined,
+		};
+	}
+	const registryState = registryStore.getTokenIdentity(category.value, selectedRegistryName.value);
 	return {
-		loading: registryStore.loadingProviders || isAuthchainLoading,
-		name: registryState?.name || "",
+		loading: registryStore.loadingProviders,
 		identitySnapshot: registryState?.identity,
 	};
 });
-const authchainLoading = computed(
-	() =>
-		authchainQueryLoading.value ||
-		metadata.value.loading,
-);
+const authchainLoading = authchainQueryLoading;
 const decimals = computed(
 	() => metadata.value.identitySnapshot?.token?.decimals || 0,
 );
@@ -207,13 +275,17 @@ const tokenInfo = computed(() => {
 	if (!authchainElement.value) return;
 	const {
 		hash: genesisTx,
-		genesisSupply,
-		hasGenesisNFTs,
 		lockingBytecode,
+		nftCapability,
 	} = authchainElement.value.genesesTx;
+	const genesisSupply = BigInt(authchainElement.value.genesesTx.genesisSupply);
+	const hasGenesisNFTs = !!nftCapability;
 	const opreturn = authchainElement.value.opreturn;
-	const ownerAddress =
-		lockingBytecode && formatLockingBytecodeAddress(lockingBytecode);
+	const genesisAddress =
+		lockingBytecode &&
+		formatLockingBytecodeAddress(lockingBytecode, {
+			tokenCategory: `\\x${category.value}`,
+		});
 	const hasFT = genesisSupply > 0n;
 	const holders = holderState.value;
 	const burnState = burns.value;
@@ -240,7 +312,7 @@ const tokenInfo = computed(() => {
 			warp: true,
 		},
 		{
-			title: "BCMR OP_RETURN",
+			title: "Selected BCMR OP_RETURN",
 			text: opreturn || null,
 			copy: true,
 		},
@@ -346,11 +418,11 @@ const tokenInfo = computed(() => {
 		);
 	}
 
-	if (ownerAddress) {
+	if (genesisAddress) {
 		items.push({
-			title: "Owner Address",
-			text: ownerAddress,
-			url: `/address/${ownerAddress}`,
+			title: "First Genesis Recipient",
+			text: genesisAddress,
+			url: `/address/${genesisAddress}`,
 			copy: true,
 		});
 	}

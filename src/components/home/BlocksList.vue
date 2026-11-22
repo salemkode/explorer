@@ -9,8 +9,7 @@
         </h3>
       </div>
       <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        Live
+        Recent
       </span>
     </div>
 
@@ -20,12 +19,12 @@
     </p>
 
     <!-- Error State -->
-    <div v-if="blockList.type == 'error'" class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500">
+    <div v-if="blockList.type === 'error'" class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500">
       Unable to load blocks
     </div>
 
     <!-- Blocks Content -->
-    <div v-else ref="element">
+    <div v-else>
       <Transition name="fade" mode="out-in">
         <!-- Skeleton Loading State -->
         <div
@@ -101,7 +100,6 @@ import { GetBlocks } from "~/module/chaingraph";
 import { bytesToMB, formatDateString, numberWithCommas } from "~/module/utils";
 import { useStateStore } from "~/store";
 
-const element = ref<HTMLDivElement | null>(null);
 const stateStore = useStateStore();
 const variables = computed(() => ({
 	limit: 7,

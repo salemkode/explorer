@@ -67,6 +67,7 @@ export const GetTokenUnspentOutputs = gql(`
       locking_bytecode
       fungible_token_amount
       nonfungible_token_capability
+      nonfungible_token_commitment
       transaction {
         node_validations(limit: 1, where: { node_internal_id: { _in: $nodes } }) {
           validated_at

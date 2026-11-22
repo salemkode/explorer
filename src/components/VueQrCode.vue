@@ -8,6 +8,7 @@
     role="img"
     :aria-label="`QR code for ${content}`"
   >
+    <title>{{ `QR code for ${content}` }}</title>
     <rect width="100%" height="100%" fill="white" />
     <path :d="graphic.path" fill="#1c7d43" />
     <g

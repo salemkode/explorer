@@ -9,6 +9,7 @@
         The page you are looking for does not exist or has been moved. Check the URL or return to home.
       </p>
       <button
+        type="button"
         class="inline-flex items-center justify-center rounded-xl bg-bch-green px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all cursor-pointer"
         @click="goHome()"
       >
@@ -44,8 +45,7 @@ const goHome = () => clearError({ redirect: "/" });
   transition: background-image 0.3s ease-in-out;
 }
 
-:root.dark .error-image,
-[data-bs-theme="dark"] .error-image {
+:global(.dark) .error-image {
   background-image: url("~/assets/images/error-dark.svg");
 }
 </style>

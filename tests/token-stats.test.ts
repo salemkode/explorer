@@ -1,7 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import {
-	TOKENBURNER_LOCKING_BYTECODE,
-	type TokenOutputRow,
 	aggregateBurns,
 	computeHolderStats,
 	computeSupplyFigures,
@@ -9,6 +7,9 @@ import {
 	isAcceptedTransaction,
 	isProvableBurn,
 	summarizeGenesis,
+	TOKENBURNER_LOCKING_BYTECODE,
+	type TokenOutputRow,
+	type TransactionAcceptance,
 } from "../src/module/tokenStats";
 
 const P2PKH_A = "\\x76a914aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88ac";
@@ -194,7 +195,7 @@ describe("burns", () => {
 	const burnRow = (
 		n: number,
 		amount: string,
-		transaction: typeof accepted,
+		transaction: TransactionAcceptance,
 		capability: "none" | null = null,
 	) => ({
 		transaction_hash: tx(n),

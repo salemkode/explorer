@@ -48,6 +48,7 @@ export interface TokenOutputRow {
 	locking_bytecode: string;
 	fungible_token_amount?: string | null;
 	nonfungible_token_capability?: Capability | null;
+	nonfungible_token_commitment?: string | null;
 	/** the creating transaction, when the query selected its acceptance */
 	transaction?: TransactionAcceptance | null;
 }
