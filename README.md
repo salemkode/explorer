@@ -14,8 +14,9 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-The default data source is `gql.chaingraph.pat.mn`, matching the configured
-Cloudflare build variables. Override it using build-time environment variables:
+The code default data source is `gql.chaingraph.pat.mn`; the production
+deployment sets `chaingraph.paryonusd.com` through Cloudflare build variables.
+Override the deployment default using build-time environment variables:
 
 ```bash
 CHAINGRAPH_HTTP=https://your-chaingraph-host/v1/graphql
@@ -27,6 +28,14 @@ These URLs are included in the browser bundle; do not include private credential
 `NUXT_PUBLIC_IPFS_GATEWAY` should be the gateway origin (without `/ipfs`); it can
 be replaced with any IPFS HTTP gateway your deployment is allowed to use. The
 legacy `IPFS_GATEWAY` variable is also supported for local builds.
+
+Visitors can also pick another Chaingraph server on the Settings page. It lists
+the known public servers (ParyonUSD, pat.mn, the Chaingraph demo) with a live
+check of each one: online or offline, response time, and whether it indexes
+mainnet and chipnet. A custom `https://` URL is accepted too (plain `http://`
+only for localhost); its `wss://` subscription URL is derived from it. The
+choice is stored in the browser and applied on reload, before the GraphQL
+clients start.
 
 The Settings page includes these public gateway options:
 

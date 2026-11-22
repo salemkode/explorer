@@ -59,6 +59,8 @@ const props = defineProps<{
 	checkedAge: string;
 }>();
 defineEmits<{ retry: [] }>();
-const source = useRuntimeConfig().public.chaingraphSource;
+const source = new URL(
+	useNuxtApp().$chaingraph?.httpUrl ?? useRuntimeConfig().public.chaingraphHttp,
+).host;
 const placeholder = computed(() => props.status.type === "connecting" ? "Loading…" : "Unavailable");
 </script>

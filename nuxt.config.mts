@@ -13,7 +13,9 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		public: {
-			chaingraphSource: new URL(chaingraphWs).host,
+			// Deployment default; visitors can pick another server in Settings.
+			chaingraphHttp,
+			chaingraphWs,
 			ipfsGateway:
 				process.env.NUXT_PUBLIC_IPFS_GATEWAY ||
 				process.env.IPFS_GATEWAY ||

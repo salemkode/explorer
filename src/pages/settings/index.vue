@@ -77,6 +77,11 @@
 
       <hr class="border-slate-100 dark:border-zinc-800" />
 
+      <!-- Chaingraph Server -->
+      <ChaingraphServerSettings />
+
+      <hr class="border-slate-100 dark:border-zinc-800" />
+
       <!-- IPFS Gateway Settings -->
       <div>
         <IpfsGatewaySettings />
