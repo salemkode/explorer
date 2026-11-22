@@ -145,7 +145,7 @@ export const probeChaingraph = async (
 		timeoutMs = 10_000,
 		now = () => performance.now(),
 	}: {
-		fetch?: typeof fetch;
+		fetch?: (url: string, init: RequestInit) => Promise<Response>;
 		timeoutMs?: number;
 		now?: () => number;
 	} = {},

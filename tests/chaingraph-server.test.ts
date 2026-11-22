@@ -133,7 +133,7 @@ describe("probeChaingraph", () => {
 		const probe = await probeChaingraph("https://x/v1/graphql", {
 			fetch: respond({
 				data: { node: [{ name: "graph-mainnet" }] },
-			}) as typeof fetch,
+			}),
 			now,
 		});
 		expect(probe).toEqual({
@@ -146,21 +146,21 @@ describe("probeChaingraph", () => {
 	test("HTTP errors, GraphQL errors and network failures are offline", async () => {
 		expect(
 			await probeChaingraph("https://x", {
-				fetch: respond("error code: 520", 520) as typeof fetch,
+				fetch: respond("error code: 520", 520),
 			}),
 		).toEqual({ status: "offline", message: "HTTP 520" });
 		expect(
 			await probeChaingraph("https://x", {
 				fetch: respond({
 					errors: [{ message: "field 'node' not found" }],
-				}) as typeof fetch,
+				}),
 			}),
 		).toEqual({ status: "offline", message: "field 'node' not found" });
 		expect(
 			await probeChaingraph("https://x", {
-				fetch: (async () => {
+				fetch: async () => {
 					throw new TypeError("Failed to fetch");
-				}) as typeof fetch,
+				},
 			}),
 		).toEqual({ status: "offline", message: "Unreachable" });
 	});
