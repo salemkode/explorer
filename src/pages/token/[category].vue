@@ -10,6 +10,8 @@
         @revision="selectRevision"
         @reset="resetSelection"
         @retry="refetch()"
+        :open="authChainsOpen"
+        @close="authChainsOpen = false"
       />
     <p v-if="queryError" role="alert" class="max-w-7xl mx-auto px-4 py-16 text-center text-sm text-rose-600 dark:text-rose-400">
       Token details could not be loaded. Check your connection and reload the page.
@@ -18,6 +20,7 @@
     <div v-else-if="!authchainElement" class="max-w-7xl mx-auto px-4 py-16 text-center">
       <h1 class="text-xl font-bold text-slate-900 dark:text-white mb-2">{{ authchain?.transaction.length ? "Token details unavailable" : "Token not found" }}</h1>
       <p class="text-sm text-slate-500 dark:text-zinc-400">No token genesis was found for this ID on the selected network.</p>
+      <TokenAuthChainButton v-if="chains.length" :count="chains.length" class="mt-4" @click="authChainsOpen = true" />
     </div>
     <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -27,7 +30,9 @@
         :identity-snapshot="metadata.identitySnapshot || null"
         :category="category"
         class="lg:hidden mb-4"
-      />
+      >
+        <TokenAuthChainButton :count="chains.length" @click="authChainsOpen = true" />
+      </TokenId>
       <NavPills
         v-model:select="navItem"
         :items="['token_register', 'transaction']"
@@ -78,7 +83,9 @@
             :identity-snapshot="metadata.identitySnapshot || null"
             :category="category"
             class="hidden lg:flex"
-          />
+          >
+            <TokenAuthChainButton :count="chains.length" @click="authChainsOpen = true" />
+          </TokenId>
 
           <NavPills
             v-if="hasNftCapability"
@@ -150,6 +157,16 @@ const { chains, selection, metadata: selectedMetadata } = useAuthChainSelection(
 	category,
 	toRef(() => typeof route.query.chain === "string" ? route.query.chain : undefined),
 	toRef(() => typeof route.query.revision === "string" ? route.query.revision : undefined),
+);
+// Shared links that pin a chain or migration open the auth-chain popup straight away,
+// and an unavailable pinned chain or migration reopens it so the reset control is reachable.
+const authChainsOpen = ref(Boolean(route.query.chain || route.query.revision));
+watch(
+	() => selection.value.missing,
+	(missing) => {
+		if (missing) authChainsOpen.value = true;
+	},
+	{ immediate: true },
 );
 function selectChain(id: string) {
 	return router.push({ query: { ...route.query, chain: id, revision: undefined } });
