@@ -4,6 +4,8 @@
     v-if="lockingBytecode && tokenAddress"
     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
   >
+    <AdBanner slot-id="address-top" class="mb-6" />
+
     <!-- Mobile Address Header -->
     <AddressHeader :address="routeAddress" class="lg:hidden mb-6" />
 

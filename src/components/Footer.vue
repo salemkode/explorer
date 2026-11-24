@@ -28,7 +28,15 @@
           </h4>
           <ul class="space-y-2.5">
             <li v-for="resource in resources" :key="resource.title">
+              <router-link
+                v-if="resource.internal"
+                :to="resource.url"
+                class="text-sm text-slate-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors inline-flex items-center gap-1"
+              >
+                <span>{{ resource.title }}</span>
+              </router-link>
               <a
+                v-else
                 :href="resource.url"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -48,12 +56,12 @@
             <li v-for="connectItem in connectList" :key="connectItem.title">
               <a
                 :href="connectItem.url"
-                target="_blank"
-                rel="noopener noreferrer"
+                :target="connectItem.url.startsWith('mailto:') ? undefined : '_blank'"
+                :rel="connectItem.url.startsWith('mailto:') ? undefined : 'noopener noreferrer'"
                 class="text-sm text-slate-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors inline-flex items-center gap-1"
               >
                 <span>{{ connectItem.title }}</span>
-                <span class="text-xs opacity-60">↗</span>
+                <span v-if="!connectItem.url.startsWith('mailto:')" class="text-xs opacity-60">↗</span>
               </a>
             </li>
           </ul>
@@ -77,15 +85,19 @@
             SalemKode
           </a>
         </p>
-        <a
-          href="https://explorer-flipstarter.salemkode.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1 text-slate-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-        >
-          <span>Funded by Bitcoin Cash Community</span>
-          <span class="text-xs">↗</span>
-        </a>
+        <div class="flex items-center gap-3">
+          <router-link
+            to="/sponsor"
+            class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+          >
+            <span>Why We Need Funding</span>
+            <span class="text-xs">→</span>
+          </router-link>
+          <span class="text-slate-300 dark:text-zinc-700 hidden sm:inline">•</span>
+          <span class="text-slate-600 dark:text-zinc-400">
+            Funded by the Bitcoin Cash community · 2023 Flipstarter campaign
+          </span>
+        </div>
       </div>
     </div>
   </footer>
@@ -105,6 +117,11 @@ const sourceCodeList = [
 
 const resources = [
 	{
+		title: "Why We Need Funding",
+		url: "/sponsor",
+		internal: true,
+	},
+	{
 		title: "CashToken",
 		url: "https://github.com/bitjson/cashtokens",
 	},
@@ -120,15 +137,23 @@ const resources = [
 
 const connectList = [
 	{
-		title: "Explorer developer",
+		title: "Telegram: @salemkode",
 		url: "https://t.me/salemkode",
 	},
 	{
-		title: "Bitcoin cash",
+		title: "X.com: @salemkode",
+		url: "https://x.com/salemkode",
+	},
+	{
+		title: "Email: hello@salemkode.com",
+		url: "mailto:hello@salemkode.com",
+	},
+	{
+		title: "Bitcoin cash group",
 		url: "https://t.me/bchchannel",
 	},
 	{
-		title: "CashToken",
+		title: "CashToken devs",
 		url: "https://t.me/cashtoken_devs",
 	},
 	{

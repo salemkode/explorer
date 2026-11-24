@@ -168,3 +168,26 @@ The compact badge suite also retains issue #26's exact-value regressions, includ
 `72624976668144285` and the maximum fungible amount. Its disclosure and copy-value
 assertions replace the earlier raw-only text snapshots because compact labels
 and registry decimal scaling intentionally change the visible summary.
+
+## Sponsorship article and indexer credits
+
+The `/sponsor` article (also `/advertise` and `/why-funding`) has a copyable version
+at `docs/sponsorship-article.txt`. Its Cloudflare evidence is a dated screenshot:
+**6.71 million asset requests in the previous 30 days, captured October 2, 2026**.
+Asset requests do not establish visitor counts, page views, or ad impressions.
+The article's image URL becomes public when these changes are deployed; for an
+external publication before deployment, upload the screenshot separately.
+
+Settings shows the Chaingraph hostname in use (including a server chosen in Settings). They thank
+Pat only when that hostname is `gql.chaingraph.pat.mn`; deployments with a custom
+endpoint display their own hostname instead.
+
+Cloudflare supports programmatic analytics through its
+[GraphQL Analytics API](https://developers.cloudflare.com/analytics/graphql-api/).
+The traffic evidence in this article is currently static. An automatically
+updated display requires authenticated analytics access and a server-side job or
+Worker that publishes only the selected aggregate metrics. The Web Analytics
+beacon identifier is not an analytics API credential. Keep API credentials out
+of public runtime config and browser code. Include the metric, reporting period,
+and update timestamp in any public report, and respect the selected dataset's
+sampling and retention limits.

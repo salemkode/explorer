@@ -2,6 +2,7 @@
   <div>
     <HomeHero />
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-8 relative z-10 pb-16">
+      <AdBanner slot-id="home-top" class="mb-6" />
       <HomeNetworkActivity :key="stateStore.network" :network="stateStore.network" />
     </div>
   </div>
