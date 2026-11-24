@@ -21,8 +21,8 @@ const memoryStorage = () => {
 };
 
 const fallback = {
-	httpUrl: "https://chaingraph.paryonusd.com/v1/graphql",
-	wsUrl: "wss://chaingraph.paryonusd.com/v1/graphql",
+	httpUrl: "https://chaingraph.example.org/v1/graphql",
+	wsUrl: "wss://chaingraph.example.org/v1/graphql",
 };
 
 describe("parseChaingraphUrl", () => {
@@ -113,6 +113,17 @@ describe("stored server choice", () => {
 		expect(resolveChaingraphEndpoint(fallback.httpUrl, fallback).custom).toBe(
 			false,
 		);
+	});
+	test("a saved choice of a retired server is ignored", () => {
+		expect(
+			parseChaingraphUrl("https://chaingraph.paryonusd.com/v1/graphql"),
+		).toBeUndefined();
+		expect(
+			resolveChaingraphEndpoint(
+				"https://chaingraph.paryonusd.com/v1/graphql",
+				fallback,
+			),
+		).toEqual({ ...fallback, custom: false });
 	});
 });
 

@@ -18,12 +18,6 @@ export interface ChaingraphServer extends ChaingraphEndpoint {
 /** Known public Chaingraph servers. Their availability is checked live in Settings. */
 export const PUBLIC_CHAINGRAPH_SERVERS: ChaingraphServer[] = [
 	{
-		name: "ParyonUSD",
-		operator: "chaingraph.paryonusd.com",
-		httpUrl: "https://chaingraph.paryonusd.com/v1/graphql",
-		wsUrl: "wss://chaingraph.paryonusd.com/v1/graphql",
-	},
-	{
 		name: "pat.mn",
 		operator: "gql.chaingraph.pat.mn",
 		httpUrl: "https://gql.chaingraph.pat.mn/v1/graphql",
@@ -36,6 +30,12 @@ export const PUBLIC_CHAINGRAPH_SERVERS: ChaingraphServer[] = [
 		wsUrl: "wss://demo.chaingraph.cash/v1/graphql",
 	},
 ];
+
+/**
+ * Hosts whose operators asked not to be used. A choice saved before they were
+ * removed from the list is ignored, and they cannot be entered as custom servers.
+ */
+export const RETIRED_CHAINGRAPH_HOSTS = ["chaingraph.paryonusd.com"];
 
 /** localStorage key of the selected server's HTTP URL ("" = deployment default). */
 export const CHAINGRAPH_SERVER_STORAGE_KEY = "chaingraphServer";
@@ -68,6 +68,7 @@ export const parseChaingraphUrl = (
 	const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
 	if (insecure && !local) return undefined;
 	if (url.username || url.password) return undefined;
+	if (RETIRED_CHAINGRAPH_HOSTS.includes(url.hostname)) return undefined;
 	const path =
 		url.pathname === "/" || url.pathname === ""
 			? "/v1/graphql"
