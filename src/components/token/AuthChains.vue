@@ -1,10 +1,42 @@
 <template>
-  <section aria-labelledby="auth-chains-title" class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 sm:p-6 shadow-xs mb-6 min-w-0">
-    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-      <h2 id="auth-chains-title" class="text-lg font-semibold text-slate-900 dark:text-white">Auth chains</h2>
-      <span class="text-xs text-slate-500 dark:text-zinc-400">{{ chains.length }} available</span>
-    </div>
-    <p class="text-sm text-slate-600 dark:text-zinc-400 mb-5">Explore each possible authhead and its migration history. Selecting a migration shows the metadata published at that point.</p>
+  <Teleport to="body">
+      <div
+        v-if="open"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
+      >
+  <div
+    class="absolute inset-0 bg-slate-950/40 dark:bg-black/60 backdrop-blur-xs transition-opacity duration-200 ease-out starting:opacity-0"
+    aria-hidden="true"
+    @click="emit('close')"
+  />
+  <section
+    ref="panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="auth-chains-title"
+    tabindex="-1"
+    class="relative w-full sm:max-w-4xl max-h-[90vh] sm:max-h-[85vh] flex flex-col bg-white dark:bg-zinc-900 rounded-t-2xl sm:rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-2xl min-w-0 focus:outline-none transition-transform duration-200 ease-out starting:translate-y-4"
+  >
+    <header class="flex items-start justify-between gap-4 px-5 sm:px-6 py-4 border-b border-slate-100 dark:border-zinc-800 shrink-0">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h2 id="auth-chains-title" class="text-lg font-semibold text-slate-900 dark:text-white">Auth chains</h2>
+          <span class="text-xs text-slate-500 dark:text-zinc-400">{{ chains.length }} available</span>
+        </div>
+        <p class="mt-1 text-sm text-slate-600 dark:text-zinc-400">Explore each possible authhead and its migration history. Selecting a migration shows the metadata published at that point.</p>
+      </div>
+      <button
+        type="button"
+        class="shrink-0 p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-emerald-500"
+        aria-label="Close auth chains"
+        @click="emit('close')"
+      >
+        <svg aria-hidden="true" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </header>
+    <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-5 min-w-0">
     <p v-if="loading" role="status">Loading auth chains…</p>
     <div v-else-if="error" role="alert" class="text-sm text-amber-700 dark:text-amber-400">
       <p>Auth chains could not be loaded. Check your connection and try again.</p>
@@ -60,7 +92,10 @@
         </div>
       </div>
     </template>
+    </div>
   </section>
+      </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -73,13 +108,67 @@ const props = defineProps<{
 	metadata: ReturnType<typeof useAuthChainSelection>["metadata"]["value"];
 	loading: boolean;
 	error: boolean;
+	open: boolean;
 }>();
 const emit = defineEmits<{
 	chain: [id: string];
 	revision: [id: string];
 	reset: [];
 	retry: [];
+	close: [];
 }>();
+const panel = ref<HTMLElement>();
+let returnFocus: HTMLElement | null = null;
+const focusable =
+	'a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function onKeydown(event: KeyboardEvent) {
+	if (!props.open || !panel.value) return;
+	if (event.key === "Escape") {
+		emit("close");
+		return;
+	}
+	if (event.key !== "Tab") return;
+	// Keep keyboard focus inside the dialog; the page behind it is obscured.
+	const items = [...panel.value.querySelectorAll<HTMLElement>(focusable)];
+	const first = items[0];
+	const last = items.at(-1);
+	if (!first || !last) {
+		event.preventDefault();
+		panel.value.focus();
+		return;
+	}
+	const active = document.activeElement;
+	const outside = !panel.value.contains(active);
+	if (event.shiftKey && (active === first || active === panel.value || outside)) {
+		event.preventDefault();
+		last.focus();
+	} else if (!event.shiftKey && (active === last || outside)) {
+		event.preventDefault();
+		first.focus();
+	}
+}
+watch(
+	() => props.open,
+	async (open) => {
+		if (!import.meta.client) return;
+		document.body.style.overflow = open ? "hidden" : "";
+		if (open) {
+			returnFocus = document.activeElement as HTMLElement | null;
+			await nextTick();
+			panel.value?.focus();
+		} else {
+			// Hand focus back to whatever opened the dialog (usually the Auth chain button).
+			returnFocus?.focus();
+			returnFocus = null;
+		}
+	},
+	{ immediate: true },
+);
+onMounted(() => document.addEventListener("keydown", onKeydown));
+onBeforeUnmount(() => {
+	document.removeEventListener("keydown", onKeydown);
+	document.body.style.overflow = "";
+});
 const chainModel = computed({
 	get: () => props.selection.chain?.id || "",
 	set: (id: string) => emit("chain", id),

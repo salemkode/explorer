@@ -1,7 +1,7 @@
 <template>
   <section aria-labelledby="registry-source-title" class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs">
     <h3 id="registry-source-title" class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-3">BCMR registry source</h3>
-    <p class="text-xs text-slate-500 dark:text-zinc-400 mb-3">Choose whose metadata to display. Auth-chain history is selected separately above.</p>
+    <p class="text-xs text-slate-500 dark:text-zinc-400 mb-3">Choose whose metadata to display. Pick the auth-chain migration with the Auth chain button in the token header.</p>
     <div class="space-y-1">
       <button v-for="provider in providers" :key="provider.url" type="button" class="w-full text-left p-2.5 rounded-xl border focus-visible:outline-2 focus-visible:outline-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed" :class="provider.url === select ? 'bg-emerald-500/10 border-emerald-500/20' : 'hover:bg-slate-50 dark:hover:bg-zinc-800/60 border-transparent'" :aria-pressed="provider.url === select" :disabled="!provider.available" @click="$emit('select', provider.url)">
         <span class="block text-sm font-medium break-words">{{ provider.name }}</span>

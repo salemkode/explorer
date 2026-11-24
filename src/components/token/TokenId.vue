@@ -7,6 +7,9 @@
       <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1 truncate" v-text="tokenName" />
       <BaseCopy :text="category" copy warp />
     </div>
+    <div v-if="$slots.default" class="shrink-0 self-center">
+      <slot />
+    </div>
   </div>
 </template>
 

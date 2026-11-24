@@ -68,6 +68,8 @@ Object.assign(globalThis, {
 	watch,
 	toRef,
 	onMounted: () => undefined,
+	onBeforeUnmount: () => undefined,
+	nextTick,
 	useRoute: () => route,
 	useRouter: () => ({
 		push: ({ query }: { query: object }) => {
@@ -218,6 +220,7 @@ function mountPages(initial = "token") {
 	);
 	for (const name of [
 		"TokenId",
+		"TokenAuthChainButton",
 		"NavPills",
 		"TokenProvider",
 		"TokenAddress",

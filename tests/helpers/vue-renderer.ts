@@ -9,9 +9,13 @@ interface RenderNode {
 	props: Map<string, unknown>;
 }
 
+// Teleported content (dialogs) renders into the most recently created root, so
+// assertions on the mounted tree still see it.
+let teleportRoot: RenderNode | null = null;
+
 export function createNode(type: string, text = "") {
 	const children: RenderNode[] = [];
-	return {
+	const node = {
 		type,
 		text,
 		children,
@@ -22,6 +26,8 @@ export function createNode(type: string, text = "") {
 			return children;
 		},
 	};
+	if (type === "root") teleportRoot = node;
+	return node;
 }
 
 export const renderer = createRenderer<RenderNode, RenderNode>({
@@ -47,6 +53,7 @@ export const renderer = createRenderer<RenderNode, RenderNode>({
 		node.text = text;
 		node.children = [];
 	},
+	querySelector: () => teleportRoot,
 	parentNode: (node) => node.parent || null,
 	nextSibling: (node) =>
 		node.parent?.children[node.parent.children.indexOf(node) + 1] || null,
