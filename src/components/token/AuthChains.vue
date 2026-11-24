@@ -118,8 +118,34 @@ const emit = defineEmits<{
 	close: [];
 }>();
 const panel = ref<HTMLElement>();
+let returnFocus: HTMLElement | null = null;
+const focusable =
+	'a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 function onKeydown(event: KeyboardEvent) {
-	if (event.key === "Escape" && props.open) emit("close");
+	if (!props.open || !panel.value) return;
+	if (event.key === "Escape") {
+		emit("close");
+		return;
+	}
+	if (event.key !== "Tab") return;
+	// Keep keyboard focus inside the dialog; the page behind it is obscured.
+	const items = [...panel.value.querySelectorAll<HTMLElement>(focusable)];
+	const first = items[0];
+	const last = items.at(-1);
+	if (!first || !last) {
+		event.preventDefault();
+		panel.value.focus();
+		return;
+	}
+	const active = document.activeElement;
+	const outside = !panel.value.contains(active);
+	if (event.shiftKey && (active === first || active === panel.value || outside)) {
+		event.preventDefault();
+		last.focus();
+	} else if (!event.shiftKey && (active === last || outside)) {
+		event.preventDefault();
+		first.focus();
+	}
 }
 watch(
 	() => props.open,
@@ -127,8 +153,13 @@ watch(
 		if (!import.meta.client) return;
 		document.body.style.overflow = open ? "hidden" : "";
 		if (open) {
+			returnFocus = document.activeElement as HTMLElement | null;
 			await nextTick();
 			panel.value?.focus();
+		} else {
+			// Hand focus back to whatever opened the dialog (usually the Auth chain button).
+			returnFocus?.focus();
+			returnFocus = null;
 		}
 	},
 	{ immediate: true },

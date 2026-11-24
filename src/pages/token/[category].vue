@@ -13,9 +13,10 @@
         :open="authChainsOpen"
         @close="authChainsOpen = false"
       />
-    <p v-if="queryError" role="alert" class="max-w-7xl mx-auto px-4 py-16 text-center text-sm text-rose-600 dark:text-rose-400">
-      Token details could not be loaded. Check your connection and reload the page.
-    </p>
+    <div v-if="queryError" role="alert" class="max-w-7xl mx-auto px-4 py-16 text-center text-sm text-rose-600 dark:text-rose-400">
+      <p>Token details could not be loaded. Check your connection and try again.</p>
+      <button type="button" class="mt-3 underline rounded cursor-pointer focus-visible:outline-2 focus-visible:outline-emerald-500" @click="refetch()">Retry</button>
+    </div>
     <LoadingView v-else-if="authchainLoading" />
     <div v-else-if="!authchainElement" class="max-w-7xl mx-auto px-4 py-16 text-center">
       <h1 class="text-xl font-bold text-slate-900 dark:text-white mb-2">{{ authchain?.transaction.length ? "Token details unavailable" : "Token not found" }}</h1>
