@@ -27,7 +27,6 @@ export const isDark = computed(() => currentTheme.value === "dark");
 
 export const applyTheme = (theme: "light" | "dark") => {
 	if (typeof document === "undefined") return;
-	document.documentElement.setAttribute("data-bs-theme", theme);
 	if (theme === "dark") {
 		document.documentElement.classList.add("dark");
 	} else {
@@ -36,10 +35,12 @@ export const applyTheme = (theme: "light" | "dark") => {
 };
 
 export const toggle = () => {
-	const currentIndex = themeState.indexOf(storedTheme.value) + 1;
-	const nextIndex = currentIndex === themeState.length ? 0 : currentIndex;
-	const nextTheme = themeState[nextIndex];
-	storedTheme.value = nextTheme;
+	const nextThemes = {
+		system: "light",
+		light: "dark",
+		dark: "system",
+	} as const;
+	storedTheme.value = nextThemes[storedTheme.value];
 };
 
 watchEffect(() => {

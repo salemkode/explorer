@@ -1,22 +1,41 @@
 import tailwindcss from "@tailwindcss/vite";
 import codegen from "vite-plugin-graphql-codegen";
 import { watch } from "vite-plugin-watch";
+import { parseFlag } from "./src/module/blazePromo";
 
 const chaingraphHttp =
 	process.env.CHAINGRAPH_HTTP || "https://gql.chaingraph.pat.mn/v1/graphql";
+const chaingraphWs =
+	process.env.CHAINGRAPH_WS || "wss://gql.chaingraph.pat.mn/v1/graphql";
 
 export default defineNuxtConfig({
 	ssr: false,
 
 	runtimeConfig: {
 		public: {
+			// Deployment default; visitors can pick another server in Settings.
 			chaingraphHttp,
+			chaingraphWs,
 			ipfsGateway:
 				process.env.NUXT_PUBLIC_IPFS_GATEWAY ||
 				process.env.IPFS_GATEWAY ||
 				"https://ipfs.filebase.io",
 			features: {
 				converterAlpha: true,
+				// Announcement banner promoting the author's BCH BLAZE 2026 project.
+				// Build-time settings; see README "BCH BLAZE announcement banner".
+				blazePromo: {
+					enabled: parseFlag(process.env.NUXT_PUBLIC_BLAZE_PROMO_ENABLED, true),
+					id:
+						process.env.NUXT_PUBLIC_BLAZE_PROMO_ID ||
+						"bchblaze-2026-focus-garden",
+					url:
+						process.env.NUXT_PUBLIC_BLAZE_PROMO_URL ||
+						"https://focus.salemkode.com",
+					until:
+						process.env.NUXT_PUBLIC_BLAZE_PROMO_UNTIL ?? "2026-11-29T00:00:00Z",
+					projectPage: Boolean(process.env.NUXT_PUBLIC_BLAZE_PROMO_URL),
+				},
 			},
 		},
 	},
@@ -54,6 +73,10 @@ export default defineNuxtConfig({
 
 	css: ["~/assets/css/main.css"],
 	srcDir: "src",
+	buildDir: ".nuxt",
+	dir: {
+		public: "src/public",
+	},
 	pages: true,
 	components: true,
 	modules: ["@nuxtjs/apollo", "@nuxtjs/i18n", "@pinia/nuxt"],
@@ -70,8 +93,7 @@ export default defineNuxtConfig({
 		clients: {
 			default: {
 				httpEndpoint: chaingraphHttp,
-				wsEndpoint:
-					process.env.CHAINGRAPH_WS || "wss://gql.chaingraph.pat.mn/v1/graphql",
+				wsEndpoint: chaingraphWs,
 			},
 		},
 	},
@@ -80,34 +102,18 @@ export default defineNuxtConfig({
 		transpile: ["@nuxtjs/apollo"],
 	},
 
-	vue: {
-		compilerOptions: {
-			isCustomElement: (tag) => tag === "qr-code",
-		},
-	},
-
 	vite: {
 		build: {
 			target: "esnext",
 		},
-		optimizeDeps: {
-			esbuildOptions: {
-				define: { global: "globalThis" },
-				target: "esnext",
-				plugins: [],
-			},
-		},
 		plugins: [
-			// biome-ignore lint/suspicious/noExplicitAny: vite plugin type compatibility
-			tailwindcss() as any,
-			// biome-ignore lint/suspicious/noExplicitAny: vite plugin type compatibility
-			codegen() as any,
+			tailwindcss(),
+			codegen(),
 			watch({
 				pattern: "src/assets/icons/**/*.svg",
 				command: "node ./script/iconGenerate.mjs",
 				onInit: true,
-				// biome-ignore lint/suspicious/noExplicitAny: vite plugin type compatibility
-			}) as any,
+			}),
 		],
 	},
 

@@ -21,13 +21,14 @@ export const useUsdPrice = () => {
 	});
 
 	const calculatePrice = (sat: string | number) => {
-		return utils.calculatePrice(sat, usdPrice.value || "");
+		return utils.calculatePrice(sat, usdPrice.value);
 	};
 
 	// TODO: change name of this function to something more descriptive
 	const formatPrice = (sat: string | number) => {
 		if (!sat || sat === "0") return undefined;
-		return `${satToBch(sat, 8)} BCH • $${calculatePrice(sat)}`;
+		const bch = `${satToBch(sat, 8)} BCH`;
+		return usdPrice.value ? `${bch} • $${calculatePrice(sat)}` : bch;
 	};
 
 	return {

@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
-const indexerHost = new URL(config.public.chaingraphHttp).hostname;
+// Show the server actually in use, including one chosen in Settings.
+const nuxtApp = useNuxtApp();
+const chaingraphUrl =
+	(nuxtApp.$chaingraph as { httpUrl?: string } | undefined)?.httpUrl ??
+	config.public.chaingraphHttp;
+const indexerHost = new URL(chaingraphUrl).hostname;
 const hostedByPat = indexerHost === "gql.chaingraph.pat.mn";
 </script>
 

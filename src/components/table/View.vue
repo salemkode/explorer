@@ -1,6 +1,7 @@
 <template>
   <div
-    v-if="loading || error || rows.length"
+    v-if="loading || error || rows.length || emptyMessage"
+    :aria-busy="loading"
     :class="[
       headerLess
         ? 'w-full'
@@ -46,7 +47,7 @@
           <tbody :key="change.count" class="divide-y divide-slate-100 dark:divide-zinc-800/60">
             <tr
               v-for="(row, index) in rows"
-              :key="index"
+              :key="rowKeys?.[index] || index"
               class="hover:bg-slate-50/75 dark:hover:bg-zinc-800/40 transition-colors"
             >
               <table-cell
@@ -60,6 +61,10 @@
       </table>
     </div>
 
+    <p v-if="!loading && !error && !rows.length && emptyMessage" role="status" class="px-5 py-6 text-sm text-slate-500 dark:text-zinc-400">
+      {{ emptyMessage }}
+    </p>
+
     <LoadingSpinner
       v-if="loading"
       class="py-6"
@@ -69,6 +74,7 @@
 
 <script setup lang="ts">
 import type { tableColumn } from "~/types/index.js";
+
 type emitName = "next" | "previous";
 const emit = defineEmits<(event: emitName) => void>();
 const change = reactive({
@@ -76,38 +82,21 @@ const change = reactive({
 	navigate: false,
 });
 
-const props = defineProps({
-	title: {
-		type: String,
-		required: true,
-	},
-	columns: {
-		type: Array as PropType<string[]>,
-		required: true,
-	},
-	rows: {
-		type: Array as PropType<tableColumn[][]>,
-		required: true,
-	},
-	loading: {
-		type: Boolean,
-		default: false,
-	},
-	headerLess: {
-		type: Boolean,
-		default: false,
-	},
-	error: {
-		type: String,
-		default: "",
-	},
-	hasNextPage: {
-		type: Boolean,
-	},
-	hasPrevPage: {
-		type: Boolean,
-	},
-});
+const props = withDefaults(
+	defineProps<{
+		title: string;
+		columns: string[];
+		rows: tableColumn[][];
+		rowKeys?: string[];
+		emptyMessage?: string;
+		loading?: boolean;
+		headerLess?: boolean;
+		error?: string;
+		hasNextPage?: boolean;
+		hasPrevPage?: boolean;
+	}>(),
+	{ loading: false, headerLess: false, error: "", emptyMessage: "" },
+);
 
 const event = (emitName: emitName) => {
 	if (change.navigate) return;

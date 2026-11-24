@@ -1,24 +1,9 @@
 import { hexToBin, lockingBytecodeToCashAddress } from "@bitauth/libauth";
-import { provideApolloClient } from "@vue/apollo-composable";
 import { defineStore } from "pinia";
 import { GetLastBlock } from "~/module/chaingraph";
 
 export const useStateStore = defineStore("state", () => {
 	const network = ref("mainnet" as "mainnet" | "chipnet");
-
-	try {
-		const nuxtApp = useNuxtApp();
-		const client =
-			// biome-ignore lint/suspicious/noExplicitAny: apollo client
-			(nuxtApp as any).$apollo?.defaultClient ||
-			// biome-ignore lint/suspicious/noExplicitAny: apollo client
-			(nuxtApp as any).$apollo?.clients?.default;
-		if (client) {
-			provideApolloClient(client);
-		}
-	} catch {
-		// outside nuxt context
-	}
 
 	const { result: lastBlock } = useSubscription(GetLastBlock, () => ({
 		network: network.value,
@@ -32,15 +17,13 @@ export const useStateStore = defineStore("state", () => {
 		tokenSupport = true,
 	) => {
 		const bytecode = hexToBin(hexCode);
-		const address = lockingBytecodeToCashAddress(
+		const address = lockingBytecodeToCashAddress({
 			bytecode,
-			network.value === "mainnet" ? "bitcoincash" : "bchtest",
-			{
-				tokenSupport,
-			},
-		);
+			prefix: network.value === "mainnet" ? "bitcoincash" : "bchtest",
+			tokenSupport,
+		});
 
-		return typeof address === "string" ? address : undefined;
+		return typeof address === "string" ? undefined : address.address;
 	};
 
 	return {
