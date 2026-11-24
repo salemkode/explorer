@@ -138,8 +138,8 @@ The GitHub Actions workflow runs a frozen install, lint, regression tests,
 typechecking, and a static build on pull requests and `main`. Cloudflare owns
 deployments; the obsolete GitHub Pages deployment has been removed.
 
-The existing Netlify preview integration uses the same static build through
-`netlify.toml`, with explicit Node/Bun versions and SPA redirects.
+Hosting is Cloudflare only. The former Netlify site is disconnected from this
+repository and no longer serves the custom domain.
 
 ## Automatic GitHub deployments
 
