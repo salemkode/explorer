@@ -14,8 +14,8 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-The code default data source is `gql.chaingraph.pat.mn`; the production
-deployment sets `chaingraph.paryonusd.com` through Cloudflare build variables.
+The default data source is `gql.chaingraph.pat.mn`, in code and in the
+production deployment.
 Override the deployment default using build-time environment variables:
 
 ```bash
@@ -30,7 +30,7 @@ be replaced with any IPFS HTTP gateway your deployment is allowed to use. The
 legacy `IPFS_GATEWAY` variable is also supported for local builds.
 
 Visitors can also pick another Chaingraph server on the Settings page. It lists
-the known public servers (ParyonUSD, pat.mn, the Chaingraph demo) with a live
+the known public servers (pat.mn, the Chaingraph demo) with a live
 check of each one: online or offline, response time, and whether it indexes
 mainnet and chipnet. A custom `https://` URL is accepted too (plain `http://`
 only for localhost); its `wss://` subscription URL is derived from it. The
