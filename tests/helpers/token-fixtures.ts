@@ -5,7 +5,8 @@ export const txB = "bb".repeat(32);
 export const tokenC = "cc".repeat(32);
 export const publication = "6a0442434d52086d65746164617461";
 
-export function txResponse(hash: string, opreturn = "") {
+/** `isCategory`: output 0 was spent by the genesis of a category equal to `hash`. */
+export function txResponse(hash: string, opreturn = "", isCategory = true) {
 	return {
 		transaction: [
 			{
@@ -23,6 +24,17 @@ export function txResponse(hash: string, opreturn = "") {
 					},
 				],
 				inputs: [],
+				category_genesis: [
+					{
+						spent_by: [
+							{
+								transaction: {
+									outputs: isCategory ? [{ output_index: "0" }] : [],
+								},
+							},
+						],
+					},
+				],
 				outputs: opreturn
 					? [
 							{

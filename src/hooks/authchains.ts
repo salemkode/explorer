@@ -7,6 +7,7 @@ import { useScopedQuery } from "./scopedQuery";
 
 /**
  * Custom hook that fetches and decodes auth chains for the specified token categories.
+ * No request is sent while the list is empty.
  *
  * @param tokenCategories - The categories of tokens to fetch auth chains for.
  * @returns The result of the auth chains query.
@@ -18,13 +19,17 @@ export const useAuthChains = (
 	const stateStore = useStateStore();
 	const registryStore = useRegistryStore();
 
-	// Fetch auth chains for the specified token categories
+	const categories = computed(() =>
+		Array.from(new Set(tokenCategories.value)).sort(),
+	);
+	// GetAuthChains is expensive for Chaingraph; only send it for token categories.
 	const query = useScopedQuery(
 		GetAuthChains,
 		computed(() => ({
 			network: stateStore.network,
-			tokenCategory: Array.from(new Set(tokenCategories.value)),
+			tokenCategory: categories.value,
 		})),
+		() => categories.value.length > 0,
 	);
 
 	// Add decoded auth chains to the registry store

@@ -320,6 +320,7 @@ describe("token and transaction navigation", () => {
 		await settle();
 		expect(screen.text()).not.toContain("Token Alpha");
 		request("GetTx", txB).observer.next?.({ data: txResponse(txB) });
+		await settle();
 		request("GetAuthChains", txB).observer.next?.({ data: chainResponse(txB) });
 		await settle();
 		expect(screen.text()).toContain(txB);
@@ -368,6 +369,7 @@ describe("token and transaction navigation", () => {
 		const screen = mountPages("tx");
 		await settle();
 		request("GetTx", txB).observer.next?.({ data: txResponse(txB) });
+		await settle();
 		request("GetAuthChains", txB).observer.next?.({
 			data: { transaction: [] },
 		});
@@ -383,6 +385,7 @@ describe("token and transaction navigation", () => {
 		request("GetTx", tokenC).observer.next?.({
 			data: txResponse(tokenC, publication),
 		});
+		await settle();
 		request("GetAuthChains", tokenC).observer.next?.({
 			data: chainResponse(tokenC),
 		});
@@ -458,12 +461,27 @@ describe("token and transaction navigation", () => {
 		request("GetTx", txB).observer.next?.({
 			data: txResponse(txB, "6a0442434d52"),
 		});
+		await settle();
 		request("GetAuthChains", txB).observer.next?.({
 			data: chainResponse(txB, "6a0442434d52"),
 		});
 		await settle();
 		expect(screen.text()).toContain(txB);
 		expect(screen.text()).not.toContain("Cached token");
+	});
+	test("a transaction without CashTokens never queries auth chains", async () => {
+		const screen = mountPages("tx");
+		await settle();
+		request("GetTx", txB).observer.next?.({
+			data: txResponse(txB, "", false),
+		});
+		await settle();
+		expect(screen.text()).toContain(txB);
+		expect(
+			Array.from(requests.keys()).filter(
+				(operation) => operation.operationName === "GetAuthChains",
+			),
+		).toEqual([]);
 	});
 	test("metadata loading and failure leave token details available", async () => {
 		const screen = mountPages();
@@ -576,6 +594,7 @@ test("transaction metadata is publication-specific across A → B → A and igno
 		["6a0442434d520161", "Publication A"],
 	]) {
 		request("GetTx", txB).observer.next?.({ data: txResponse(txB, script) });
+		await settle();
 		request("GetAuthChains", txB).observer.next?.({
 			data: chainResponse(txB, script),
 		});

@@ -92,10 +92,14 @@ import { useAuthChains } from "~/hooks/authchains";
 import { useScopedQuery } from "~/hooks/scopedQuery";
 import { useTransactionMetadata } from "~/hooks/transactionMetadata";
 import { useUsdPrice } from "~/hooks/usdPrice";
-import { decodeAuthChain, getTransactionTokenPublication } from "~/module/bcmr";
+import {
+	decodeAuthChain,
+	getTransactionTokenPublication,
+	isTokenCategoryTransaction,
+} from "~/module/bcmr";
 import { GetTx } from "~/module/chaingraph";
 import { formatDateString } from "~/module/utils";
-import { useRegistryStore, useStateStore } from "~/store";
+import { useStateStore } from "~/store";
 
 const route = useRoute();
 const txid = computed(() => String(route.params.txid || ""));
@@ -106,16 +110,6 @@ const variables = computed(() => ({
 	network: stateStore.network,
 	hash: `\\x${txid.value}` as const,
 }));
-
-/* Getting token info */
-const registryStore = useRegistryStore();
-const { result: authchain } = useAuthChains(
-	toRef(() => [`\\x${txid.value}` as const]),
-);
-const authchainElement = computed(() => {
-	if (!authchain.value) return;
-	return decodeAuthChain(authchain.value, txid.value);
-});
 
 /* Getting transaction info */
 const {
@@ -146,6 +140,19 @@ const transaction = computed(() => {
 			.map(({ outpoint }) => outpoint)
 			.filter(Boolean),
 	};
+});
+
+/* Getting token info: only for transactions whose hash is a token category */
+const { result: authchain } = useAuthChains(
+	toRef(() =>
+		isTokenCategoryTransaction(transaction.value?.transaction)
+			? [`\\x${txid.value}` as const]
+			: [],
+	),
+);
+const authchainElement = computed(() => {
+	if (!authchain.value) return;
+	return decodeAuthChain(authchain.value, txid.value);
 });
 
 const tokenPublication = computed(() =>

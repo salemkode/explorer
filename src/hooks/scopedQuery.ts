@@ -14,16 +14,24 @@ import {
 	watch,
 } from "vue";
 
-/** Dispose the previous observer before exposing a new identifier or network. */
+/**
+ * Dispose the previous observer before exposing a new identifier or network.
+ * While `enabled` is false no request is sent and the query reports no result.
+ */
 export function useScopedQuery<TData, TVariables extends OperationVariables>(
 	document: TypedDocumentNode<TData, TVariables>,
 	variables: MaybeRefOrGetter<TVariables>,
+	enabled: MaybeRefOrGetter<boolean> = true,
 ) {
 	const { client } = useApolloClient();
 	const query = shallowRef<ReturnType<typeof useQuery<TData, TVariables>>>();
 	watch(
-		() => JSON.stringify(toValue(variables)),
-		(_key, _previous, onCleanup) => {
+		() => (toValue(enabled) ? JSON.stringify(toValue(variables)) : undefined),
+		(key, _previous, onCleanup) => {
+			if (key === undefined) {
+				query.value = undefined;
+				return;
+			}
 			const scope = effectScope();
 			query.value = scope.run(() =>
 				provideApolloClient(client)(() =>
@@ -37,7 +45,9 @@ export function useScopedQuery<TData, TVariables extends OperationVariables>(
 
 	return {
 		result: computed(() => query.value?.result.value),
-		loading: computed(() => query.value?.loading.value ?? true),
+		loading: computed(() =>
+			query.value ? query.value.loading.value : !!toValue(enabled),
+		),
 		error: computed(() => query.value?.error.value),
 		refetch: () => query.value?.refetch(),
 	};

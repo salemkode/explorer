@@ -30,6 +30,16 @@ export const GetTx = gql(`
           value_satoshis
         }
       }
+      # Output 0 spent by a transaction creating tokens of this hash means this transaction is a token category.
+      category_genesis: outputs(where: { output_index: { _eq: 0 } }) {
+        spent_by {
+          transaction {
+            outputs(where: { token_category: { _eq: $hash } }, limit: 1) {
+              output_index
+            }
+          }
+        }
+      }
       outputs {
         token_category
         fungible_token_amount
@@ -77,6 +87,16 @@ export const GetTx = gql(`
               nonfungible_token_capability
               locking_bytecode
               value_satoshis
+            }
+          }
+          # Output 0 spent by a transaction creating tokens of this hash means this transaction is a token category.
+          category_genesis: outputs(where: { output_index: { _eq: 0 } }) {
+            spent_by {
+              transaction {
+                outputs(where: { token_category: { _eq: $hash } }, limit: 1) {
+                  output_index
+                }
+              }
             }
           }
           outputs {

@@ -92,3 +92,21 @@ export function getTransactionTokenPublication(
 	);
 	if (publication) return { category, opreturn: chain.opreturn };
 }
+
+/**
+ * A transaction hash is a token category only when the spender of its output 0
+ * created tokens of that category (CashTokens genesis).
+ */
+export function isTokenCategoryTransaction(
+	transaction:
+		| {
+				category_genesis?: {
+					spent_by: { transaction: { outputs: unknown[] } }[];
+				}[];
+		  }
+		| undefined,
+) {
+	return !!transaction?.category_genesis?.some((output) =>
+		output.spent_by.some((input) => input.transaction.outputs.length > 0),
+	);
+}
