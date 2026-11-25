@@ -1,5 +1,5 @@
 <template>
-  <content-warp v-if="tokenInfo.length" :loading="loading" :items="tokenInfo">
+  <content-warp v-if="loading || tokenInfo.length" :loading="loading" :items="tokenInfo">
     <template #header>
       <bcmr-icon
         v-if="props.tokenCategory && props.identitySnapshot?.uris?.icon"

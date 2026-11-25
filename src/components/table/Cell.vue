@@ -11,8 +11,10 @@
         class="shrink-0"
       />
 
+      <Skeleton v-if="column.pending" class="h-4 w-28" />
       <!-- Copyable value of item -->
       <BaseCopy
+        v-else
         :short="column.short"
         :text="column.text"
         :copy="!!column.copy"

@@ -44,7 +44,20 @@
           </tr>
         </thead>
         <Transition name="fade" mode="out-in">
-          <tbody :key="change.count" class="divide-y divide-slate-100 dark:divide-zinc-800/60">
+          <tbody
+            :key="change.count"
+            class="divide-y divide-slate-100 dark:divide-zinc-800/60 transition-opacity"
+            :class="{ 'opacity-50': loading && rows.length }"
+          >
+            <tr
+              v-for="row in loading && !rows.length ? skeletonRows : 0"
+              :key="`skeleton-${row}`"
+              aria-hidden="true"
+            >
+              <td v-for="(_column, columnIndex) in props.columns" :key="columnIndex" class="px-5 py-4">
+                <Skeleton class="h-4" :class="skeletonWidths[(row + columnIndex) % skeletonWidths.length]" />
+              </td>
+            </tr>
             <tr
               v-for="(row, index) in rows"
               :key="rowKeys?.[index] || index"
@@ -65,10 +78,7 @@
       {{ emptyMessage }}
     </p>
 
-    <LoadingSpinner
-      v-if="loading"
-      class="py-6"
-    />
+    <span v-if="loading" role="status" class="sr-only">Loading</span>
   </div>
 </template>
 
@@ -77,6 +87,8 @@ import type { tableColumn } from "~/types/index.js";
 
 type emitName = "next" | "previous";
 const emit = defineEmits<(event: emitName) => void>();
+const skeletonRows = 5;
+const skeletonWidths = ["w-3/4", "w-1/2", "w-2/3", "w-5/6"];
 const change = reactive({
 	count: 0,
 	navigate: false,

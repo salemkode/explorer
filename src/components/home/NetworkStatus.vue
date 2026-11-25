@@ -19,6 +19,7 @@
         <dt class="text-xs text-slate-500 dark:text-zinc-400 mb-1">Accepted height</dt>
         <dd class="font-mono font-semibold text-lg tabular-nums">
           <NuxtLink v-if="tip" :to="`/block/${tip.height}`" class="text-emerald-700 dark:text-emerald-400 underline decoration-emerald-500/30 underline-offset-4 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-500">#{{ numberWithCommas(tip.height) }}</NuxtLink>
+          <Skeleton v-else-if="connecting" class="h-6 w-24" />
           <span v-else class="text-sm text-slate-500 dark:text-zinc-400">{{ placeholder }}</span>
         </dd>
       </div>
@@ -26,6 +27,7 @@
         <dt class="text-xs text-slate-500 dark:text-zinc-400 mb-1">Latest block age</dt>
         <dd class="text-sm font-semibold pt-1">
           <time v-if="tip" :datetime="new Date(Number(tip.timestamp) * 1000).toISOString()" :title="new Date(Number(tip.timestamp) * 1000).toUTCString()">{{ blockAge }}</time>
+          <Skeleton v-else-if="connecting" class="h-4 w-20" />
           <span v-else class="font-normal text-slate-500 dark:text-zinc-400">{{ placeholder }}</span>
         </dd>
       </div>
@@ -33,6 +35,7 @@
         <dt class="text-xs text-slate-500 dark:text-zinc-400 mb-1">Node mempool</dt>
         <dd class="font-mono font-semibold text-lg tabular-nums">
           <template v-if="node && node.unconfirmed_transaction_count != null">{{ numberWithCommas(node.unconfirmed_transaction_count) }} <span class="font-sans text-xs font-normal text-slate-500 dark:text-zinc-400">txs</span></template>
+          <Skeleton v-else-if="connecting" class="h-6 w-20" />
           <span v-else class="font-sans text-sm font-normal text-slate-500 dark:text-zinc-400">{{ placeholder }}</span>
         </dd>
       </div>
@@ -62,5 +65,6 @@ defineEmits<{ retry: [] }>();
 const source = new URL(
 	useNuxtApp().$chaingraph?.httpUrl ?? useRuntimeConfig().public.chaingraphHttp,
 ).host;
-const placeholder = computed(() => props.status.type === "connecting" ? "Loading…" : "Unavailable");
+const connecting = computed(() => props.status.type === "connecting");
+const placeholder = "Unavailable";
 </script>

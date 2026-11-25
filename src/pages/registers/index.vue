@@ -30,7 +30,11 @@ const getOrder = (url: string) => {
             }"
           />
         </div>
-        <LoadingSpinner v-if="registryStore.loadingProviders" class="py-6" />
+        <div v-if="registryStore.loadingProviders" role="status" aria-busy="true" class="mt-4 space-y-3">
+          <span class="sr-only">Loading</span>
+          <Skeleton class="h-16 w-full rounded-2xl" />
+          <Skeleton class="h-16 w-full rounded-2xl" />
+        </div>
       </div>
     </div>
   </div>

@@ -2,9 +2,11 @@
   <div class="w-full">
     <button
       type="button"
-      class="w-full rounded-lg overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-500 disabled:cursor-default"
+      class="w-full rounded-lg overflow-hidden transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-500 disabled:cursor-default"
       aria-label="View token image"
       aria-haspopup="dialog"
+      :aria-busy="pending || status === 'loading'"
+      :class="{ 'bg-slate-200 dark:bg-zinc-800 motion-safe:animate-pulse': pending || status === 'loading' }"
       :disabled="pending || status !== 'ready' || placeholder"
       @click="dialog?.showModal()"
     >
@@ -12,12 +14,13 @@
         :key="source"
         :src="source"
         :alt="placeholder ? 'Generated token placeholder' : name"
-        class="aspect-square w-full object-contain"
+        class="aspect-square w-full object-contain transition-opacity duration-200"
+        :class="pending || status === 'loading' ? 'opacity-0' : 'opacity-100'"
         @load="status = 'ready'"
         @error="imageFailed"
       />
     </button>
-    <p v-if="!pending && status === 'loading'" role="status" class="mt-2 text-xs text-slate-500 dark:text-zinc-400">Loading image…</p>
+    <p v-if="!pending && status === 'loading'" role="status" class="sr-only">Loading image…</p>
     <p v-else-if="!pending && (placeholder || status === 'unavailable')" class="mt-2 text-xs text-slate-500 dark:text-zinc-400">Image unavailable</p>
     <!-- Native dialog supplies Escape dismissal, focus trapping and focus restoration. -->
     <dialog

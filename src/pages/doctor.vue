@@ -54,7 +54,12 @@
 
 		<!-- Diagnostic Results Card -->
 		<div v-if="activeTokenId" class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-xs transition-colors">
-			<LoadingSpinner v-if="loading" class="py-12" />
+			<div v-if="loading" role="status" aria-busy="true" class="space-y-4">
+				<span class="sr-only">Loading</span>
+				<Skeleton class="h-4 w-36" />
+				<Skeleton class="h-14 w-full rounded-xl" />
+				<Skeleton class="h-14 w-full rounded-xl" />
+			</div>
 
 			<template v-else>
 				<h2 class="text-base font-bold text-slate-900 dark:text-white mb-4">

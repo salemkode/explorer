@@ -12,11 +12,16 @@
       />
     </div>
 
-    <TransactionList v-if="transactions?.length" :transactions="transactions" />
+    <SkeletonRows v-if="loading && !transactions?.length" />
+    <TransactionList
+      v-else-if="transactions?.length"
+      :transactions="transactions"
+      class="transition-opacity"
+      :class="{ 'opacity-50': loading }"
+    />
     <div v-else class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500">
       No transactions found in this block
     </div>
-    <LoadingSpinner v-if="loading" class="py-6" />
   </div>
 </template>
 

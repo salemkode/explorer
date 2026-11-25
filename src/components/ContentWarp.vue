@@ -1,6 +1,12 @@
 <template>
   <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 p-5 shadow-xs transition-colors">
-    <LoadingSpinner v-if="props.loading" class="py-8" />
+    <div v-if="props.loading" role="status" aria-busy="true" class="divide-y divide-slate-100 dark:divide-zinc-800/80">
+      <span class="sr-only">Loading</span>
+      <div v-for="i in 4" :key="i" class="py-3 first:pt-0 last:pb-0">
+        <Skeleton class="h-2.5 w-24 mb-2.5" />
+        <Skeleton class="h-4" :class="i % 2 ? 'w-full' : 'w-2/3'" />
+      </div>
+    </div>
     <template v-else-if="existItems.length">
       <slot name="header"></slot>
       <div class="divide-y divide-slate-100 dark:divide-zinc-800/80">
@@ -10,7 +16,8 @@
           class="py-3 first:pt-0 last:pb-0"
         >
           <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-1" v-text="item.title" />
-          <div class="text-sm font-medium text-slate-800 dark:text-zinc-200">
+          <Skeleton v-if="item.pending" class="h-4 w-32 mt-2" />
+          <div v-else class="text-sm font-medium text-slate-800 dark:text-zinc-200">
             <BaseCopy
               :url="item.url"
               :text="item.text"
@@ -54,6 +61,6 @@ const props = defineProps({
 });
 
 const existItems = computed(() => {
-	return props.items.filter((item) => item.text);
+	return props.items.filter((item) => item.text || item.pending);
 });
 </script>

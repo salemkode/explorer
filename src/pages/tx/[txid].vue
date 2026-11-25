@@ -19,12 +19,9 @@
           :token-category="authchainElement ? txid : undefined"
         />
         <template v-if="tokenPublication">
-          <p v-if="publicationMetadata.loading.value" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
-            Loading token metadata…
-          </p>
           <bcmr-info
-            v-else-if="tokenIdentity.identity"
-            :loading="false"
+            v-if="publicationMetadata.loading.value || tokenIdentity.identity"
+            :loading="publicationMetadata.loading.value"
             :identity-snapshot="tokenIdentity.identity"
             :token-category="txid"
           />
@@ -67,7 +64,7 @@
     </p>
 
     <!-- 404 Not Found State -->
-    <div v-else-if="!TxLoading && Tx && !transaction" class="py-16 text-center">
+    <div v-else-if="!TxLoading" class="py-16 text-center">
       <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 text-2xl">
         ✕
       </div>

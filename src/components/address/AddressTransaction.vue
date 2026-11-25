@@ -12,7 +12,7 @@
       />
     </div>
     <Transition name="fade" mode="out-in">
-      <LoadingSpinner v-if="loading" class="py-12" />
+      <SkeletonRows v-if="loading" :rows="6" />
       <div
         v-else-if="transactions.length === 0 || error"
         class="py-12 text-center text-sm text-slate-400 dark:text-zinc-500"

@@ -239,7 +239,7 @@ describe("transaction badges rendered with the registry and BaseCopy", () => {
 			"none",
 			true,
 		);
-		expect(result.text).toContain("…");
+		expect(result.text).toContain("Loading token amount");
 		expect(result.text).not.toContain("72");
 		expect(result.summaries.size).toBe(0);
 	});

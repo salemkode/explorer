@@ -16,9 +16,14 @@
       <p class="mt-2 break-words">{{ error }}</p>
       <button type="button" class="mt-4 rounded-lg border border-current px-4 py-2 focus-visible:outline-2 focus-visible:outline-offset-2" @click="emit('retry')">Try again</button>
     </div>
-    <div v-else-if="loading" role="status" class="p-8 text-center text-sm text-slate-500 dark:text-zinc-400">
-      <LoadingSpinner class="mb-3" />
-      Loading NFTs…
+    <div v-else-if="loading" role="status" aria-busy="true" class="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+      <span class="sr-only">Loading NFTs…</span>
+      <div v-for="i in 4" :key="i" class="min-w-0 bg-slate-50/50 dark:bg-zinc-800/40 rounded-xl border border-slate-200/80 dark:border-zinc-700/60 p-3.5">
+        <Skeleton class="aspect-square w-full rounded-lg mb-3" />
+        <Skeleton class="h-4 w-2/3 mb-4" />
+        <Skeleton class="h-3 w-full mb-3" />
+        <Skeleton class="h-3 w-1/2" />
+      </div>
     </div>
     <p v-else-if="!items.length" role="status" class="p-8 text-center text-sm text-slate-500 dark:text-zinc-400">No NFTs found on this page.</p>
     <div v-else class="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
@@ -27,7 +32,10 @@
           <NFTImage :category="item.category" :name="item.name" :image="item.metadata.token?.image" :icon="item.metadata.token?.icon" :pending="item.metadata.loading" />
         </div>
         <h4 class="font-bold text-sm text-slate-900 dark:text-white break-words mb-2">{{ item.name }}</h4>
-        <p v-if="item.metadata.loading" role="status" class="mb-3 text-xs text-slate-500 dark:text-zinc-400">Loading metadata…</p>
+        <div v-if="item.metadata.loading" role="status" class="mb-3">
+          <span class="sr-only">Loading metadata…</span>
+          <Skeleton class="h-3 w-1/2" />
+        </div>
         <p v-else-if="!item.metadata.token" class="mb-3 text-xs text-slate-500 dark:text-zinc-400">Metadata unavailable</p>
         <dl class="space-y-3 text-xs mt-auto pt-3 border-t border-slate-100 dark:border-zinc-700/60">
           <div>

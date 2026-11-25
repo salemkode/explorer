@@ -1,7 +1,6 @@
 export default {
 	maintenance:
 		"simpleledger.info currently undergoing maintenance; expect degraded performance.",
-	loading_dank_memes: "Loading view...",
 	homepage_btn_view_all_tokens: "View All Tokens",
 	homepage_btn_dividend_helper: "Dividend Helper",
 	footer_source_code: "Source Code",

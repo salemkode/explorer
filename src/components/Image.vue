@@ -1,65 +1,65 @@
 <template>
-  <Transition name="fade" mode="out-in">
+  <span
+    class="inline-block shrink-0 overflow-hidden"
+    :class="{ 'animate-pulse bg-slate-200 dark:bg-zinc-800': !state.loaded }"
+    :style="boxStyle"
+  >
     <img
-      alt=""
-      ref="reference"
       :key="state.href"
       :src="state.href"
-      :width="props.size"
-      :height="props.size"
-      v-bind="props"
+      :alt="alt"
+      :width="size"
+      :height="size"
+      class="block h-full w-full object-contain transition-opacity duration-200"
+      :class="state.loaded ? 'opacity-100' : 'opacity-0'"
+      decoding="async"
       @load="handleImageLoaded"
       @error="imageLoadError"
     />
-  </Transition>
+  </span>
 </template>
 
 <script setup lang="ts">
 const emit = defineEmits(["success"]);
-interface ImageComponentProps {
+const props = defineProps<{
 	size?: number;
 	href: string;
 	failureHref: string;
-}
-const props = defineProps<ImageComponentProps>();
+	alt?: string;
+}>();
 const state = reactive({
 	error: false,
-	href: props.href,
+	loaded: false,
+	href: props.href || props.failureHref,
 });
+const boxStyle = computed(() =>
+	props.size ? { width: `${props.size}px`, height: `${props.size}px` } : undefined,
+);
 
 const reset = () => {
 	state.error = false;
-	state.href = props.href;
+	state.loaded = false;
+	state.href = props.href || props.failureHref;
 };
-watch(toRef(props, "href"), (url) => {
-	if (url) {
-		reset();
-	} else {
-		imageLoadError();
-	}
-});
+watch(toRef(props, "href"), reset);
 
 function imageLoadError() {
-	if (state.error) {
-		// Stop for loop error
+	if (state.error || state.href === props.failureHref) {
+		// Stop the error loop; the fallback itself is unavailable.
+		state.loaded = true;
 		return;
 	}
 
-	// Change error state
 	state.error = true;
+	state.loaded = false;
 	state.href = props.failureHref;
 }
 
 const handleImageLoaded = () => {
-	// If image load without error, emit success
-	if (!state.error) {
+	state.loaded = true;
+	// Only the requested image counts as success, not the fallback.
+	if (!state.error && props.href) {
 		emit("success");
 	}
 };
 </script>
-
-<style scoped>
-img {
-  object-fit: contain;
-}
-</style>

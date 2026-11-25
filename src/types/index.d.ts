@@ -14,6 +14,8 @@ export type RegistryProvider = {
 export type Capability = "none" | "mutable" | "minting" | undefined;
 export interface tableColumn {
 	text: string | number;
+	/** Render a skeleton in place of the value while it loads. */
+	pending?: boolean;
 	short?: boolean;
 	copy?: boolean;
 	url?: string;
@@ -28,6 +30,8 @@ export interface tableColumn {
 export interface contentWarpItem {
 	title: string;
 	text?: string | number | null;
+	/** Render a skeleton in place of the value while it loads. */
+	pending?: boolean;
 	copy?: boolean;
 	url?: string;
 	warp?: boolean;
