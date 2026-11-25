@@ -8,7 +8,19 @@
       <button type="button" :disabled="loading" class="shrink-0 rounded-lg px-3 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:opacity-50 disabled:cursor-wait" @click="refetch()">Refresh</button>
     </div>
 
-    <div v-if="view.type === 'loading'" role="status" class="px-5 py-10 text-sm text-slate-500 dark:text-zinc-400">Loading recent CashToken activity…</div>
+    <div v-if="view.type === 'loading'" role="status" class="divide-y divide-slate-100 dark:divide-zinc-800/60">
+      <span class="sr-only">Loading recent CashToken activity</span>
+      <div class="px-5 py-4 space-y-3" aria-hidden="true">
+        <Skeleton class="h-3 w-2/3" />
+        <div class="grid grid-cols-3 gap-3">
+          <div v-for="i in 3" :key="i" class="space-y-2"><Skeleton class="h-3 w-24" /><Skeleton class="h-6 w-12" /></div>
+        </div>
+      </div>
+      <div v-for="i in 3" :key="i" class="px-5 py-4 grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-5" aria-hidden="true">
+        <div class="md:col-span-4 space-y-2"><Skeleton class="h-4 w-2/3" /><Skeleton class="h-3 w-full" /></div>
+        <div class="md:col-span-6 grid grid-cols-3 gap-3"><Skeleton class="h-4 w-10" /><Skeleton class="h-4 w-16" /><Skeleton class="h-4 w-10" /></div>
+      </div>
+    </div>
     <div v-else-if="view.type === 'error'" role="alert" class="px-5 py-10 text-sm text-slate-600 dark:text-zinc-400">Unable to load CashToken activity. Use Refresh to try again.</div>
     <div v-else-if="view.type === 'unavailable'" role="status" class="px-5 py-10 text-sm text-slate-600 dark:text-zinc-400">The data provider returned no accepted blocks for {{ stateStore.network }}. Use Refresh to try again.</div>
     <div v-else>
@@ -37,7 +49,7 @@
             </div>
             <dl class="grid grid-cols-3 gap-3 md:col-span-6 text-xs">
               <div><dt class="text-slate-500 dark:text-zinc-400">Transactions</dt><dd class="mt-1 font-mono text-slate-900 dark:text-white">{{ row.transactionCount }}</dd></div>
-              <div class="min-w-0"><dt class="text-slate-500 dark:text-zinc-400">FT in outputs</dt><dd class="mt-1 font-mono break-all text-slate-900 dark:text-white" :title="`${row.fungibleUnits} base units`">{{ fungibleText(row.category, row.fungibleUnits) }}</dd></div>
+              <div class="min-w-0"><dt class="text-slate-500 dark:text-zinc-400">FT in outputs</dt><dd class="mt-1 font-mono break-all text-slate-900 dark:text-white" :title="`${row.fungibleUnits} base units`"><Skeleton v-if="fungiblePending(row.category, row.fungibleUnits)" class="h-4 w-16" /><template v-else>{{ fungibleText(row.category, row.fungibleUnits) }}</template></dd></div>
               <div><dt class="text-slate-500 dark:text-zinc-400">NFT outputs</dt><dd class="mt-1 font-mono text-slate-900 dark:text-white">{{ row.nftOutputs }}</dd><dd v-if="row.mintingOutputs" class="mt-1 text-slate-500 dark:text-zinc-400">{{ row.mintingOutputs }} with minting capability</dd></div>
             </dl>
             <div class="md:col-span-2 md:text-right">
@@ -98,10 +110,12 @@ useAuthChains(
 	computed(() => categoryPage.value.rows.map(({ category }) => `\\x${category}` as const)),
 );
 /** Exact amount in token units once metadata is known; base units until then. */
+function fungiblePending(category: string, units: string) {
+	return units !== "0" && !!registryStore.getToken(category).loading;
+}
 function fungibleText(category: string, units: string) {
 	if (units === "0") return "0";
 	const token = registryStore.getToken(category);
-	if (token.loading) return "…";
 	if (!token.token) return `${formatTokenAmount(units)} base units`;
 	const symbol = token.token.symbol ? ` ${token.token.symbol}` : "";
 	return `${formatTokenAmount(units, token.token.decimals)}${symbol}`;

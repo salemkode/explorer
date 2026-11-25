@@ -40,7 +40,7 @@ const amount = computed(() => {
         {{ shortTx(category) }}
       </NuxtLink>
       <span class="text-slate-300 dark:text-zinc-600">•</span>
-      <span v-if="metadataLoading" title="Loading token amount">…<span class="sr-only">Loading token amount</span></span>
+      <span v-if="metadataLoading" role="status" class="inline-flex items-center self-center" title="Loading token amount"><Skeleton class="h-3 w-12" /><span class="sr-only">Loading token amount</span></span>
       <TransactionTokenBadgeValue
         v-else-if="amount"
         :display="amount.display"

@@ -37,7 +37,23 @@
       </button>
     </header>
     <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-5 min-w-0">
-    <p v-if="loading" role="status">Loading auth chains…</p>
+    <div v-if="loading" role="status" aria-busy="true" class="space-y-4">
+      <span class="sr-only">Loading auth chains</span>
+      <Skeleton class="h-4 w-64 max-w-full" />
+      <Skeleton class="h-11 w-full rounded-xl" />
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+        <div class="space-y-3">
+          <Skeleton class="h-3 w-40" />
+          <Skeleton class="h-12 w-full rounded-lg" />
+          <Skeleton class="h-12 w-full rounded-lg" />
+        </div>
+        <div class="space-y-3">
+          <Skeleton class="h-4 w-36" />
+          <Skeleton class="h-3 w-full" />
+          <Skeleton class="h-3 w-3/4" />
+        </div>
+      </div>
+    </div>
     <div v-else-if="error" role="alert" class="text-sm text-amber-700 dark:text-amber-400">
       <p>Auth chains could not be loaded. Check your connection and try again.</p>
       <button type="button" class="mt-2 underline rounded focus-visible:outline-2 focus-visible:outline-emerald-500" @click="$emit('retry')">Retry auth chains</button>
@@ -77,7 +93,11 @@
             <p class="break-all font-mono text-xs"><span class="block font-sans text-slate-500 dark:text-zinc-400">{{ publication.checkHash ? 'Published SHA-256' : 'Published CID (hex)' }}</span>{{ publication.contentHash }}</p>
           </template>
           <div role="status" aria-live="polite" class="rounded-xl bg-slate-50 dark:bg-zinc-950 p-3 space-y-2">
-            <p v-if="metadata.status === 'loading'">Loading selected metadata…</p>
+            <div v-if="metadata.status === 'loading'" class="space-y-2">
+              <span class="sr-only">Loading selected metadata</span>
+              <Skeleton class="h-3.5 w-2/3" />
+              <Skeleton class="h-3 w-1/2" />
+            </div>
             <template v-else-if="metadata.status === 'unavailable'">
               <p>{{ metadata.message }}</p>
               <p class="text-xs text-slate-500 dark:text-zinc-400">Choose another migration or registry source, or reload to try again.</p>

@@ -17,7 +17,9 @@
       <p>Token details could not be loaded. Check your connection and try again.</p>
       <button type="button" class="mt-3 underline rounded cursor-pointer focus-visible:outline-2 focus-visible:outline-emerald-500" @click="refetch()">Retry</button>
     </div>
-    <LoadingView v-else-if="authchainLoading" />
+    <div v-else-if="authchainLoading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <LoadingView />
+    </div>
     <div v-else-if="!authchainElement" class="max-w-7xl mx-auto px-4 py-16 text-center">
       <h1 class="text-xl font-bold text-slate-900 dark:text-white mb-2">{{ authchain?.transaction.length ? "Token details unavailable" : "Token not found" }}</h1>
       <p class="text-sm text-slate-500 dark:text-zinc-400">No token genesis was found for this ID on the selected network.</p>
@@ -59,10 +61,7 @@
             :loading="metadata.loading"
             :identity-snapshot="metadata.identitySnapshot"
           />
-          <p v-if="metadata.loading" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
-            Loading token metadata…
-          </p>
-          <p v-else-if="!metadata.identitySnapshot" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
+          <p v-if="!metadata.loading && !metadata.identitySnapshot" role="status" class="text-sm text-slate-500 dark:text-zinc-400">
             {{ metadata.failed ? 'Auth-chain metadata could not be loaded. You can choose another registry below.' : 'No token metadata is available from the selected registry.' }}
           </p>
           <TokenProvider
@@ -271,7 +270,10 @@ const metadata = computed(() => {
 		identitySnapshot: registryState?.identity,
 	};
 });
-const authchainLoading = authchainQueryLoading;
+// Only the first fetch replaces the page; a refetch keeps the loaded token on screen.
+const authchainLoading = computed(
+	() => authchainQueryLoading.value && !authchain.value,
+);
 const decimals = computed(
 	() => metadata.value.identitySnapshot?.token?.decimals || 0,
 );
@@ -287,8 +289,10 @@ const symbol = computed(
 const amountText = (amount: bigint) =>
 	`${formatTokenAmount(amount, decimals.value)}${symbol.value ? ` ${symbol.value}` : ""}`;
 const countText = (count: number) => count.toLocaleString("en-US");
+// Marks a value that is still loading; it is rendered as a skeleton, never as text.
+const PENDING = "\u0000pending";
 const pendingText = (state: LoadState<unknown>) =>
-	state.status === "loading" ? "Loading…" : "Unavailable";
+	state.status === "loading" ? PENDING : "Unavailable";
 
 const tokenInfo = computed(() => {
 	if (!authchainElement.value) return;
@@ -446,6 +450,8 @@ const tokenInfo = computed(() => {
 		});
 	}
 
-	return items;
+	return items.map((item) =>
+		item.text === PENDING ? { ...item, text: null, pending: true } : item,
+	);
 });
 </script>

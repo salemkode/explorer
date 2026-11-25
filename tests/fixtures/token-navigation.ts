@@ -493,12 +493,13 @@ describe("token and transaction navigation", () => {
 		cleanup.push(() => fetchMock.mockRestore());
 		await answerToken(tokenA);
 		expect(screen.text()).toContain("Genesis Transaction");
-		expect(screen.text()).toContain("Loading token metadata");
+		// Metadata is still loading: shown as a skeleton card, announced as "Loading".
+		expect(screen.text()).toContain("Loading");
 		deferred.resolve(new Response("Unavailable", { status: 503 }));
 		await settle();
 		expect(screen.text()).toContain("Genesis Transaction");
 		expect(screen.text()).toContain("Auth-chain metadata could not be loaded");
-		expect(screen.text()).not.toContain("Loading token metadata");
+		expect(screen.text()).not.toContain("Loading");
 	});
 
 	test("only a current successful empty token lookup shows token not found", async () => {

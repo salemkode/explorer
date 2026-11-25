@@ -113,9 +113,8 @@ const transactions = computed(() => {
 
 		return [
 			{
-				text: metadata?.loading
-					? "Loading..."
-					: metadata?.token?.name || "No name",
+				text: metadata?.loading ? "" : metadata?.token?.name || "No name",
+				pending: !!metadata?.loading,
 				token: {
 					category: category,
 					commitment: commitment,

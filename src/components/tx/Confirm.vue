@@ -7,7 +7,8 @@
       </div>
       <h4 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-0.5 mb-1 truncate">
         <template v-if="stateStore.lastBlockHeight === '0'">
-          Loading...
+          <span class="sr-only">Loading</span>
+          <Skeleton class="h-5 w-32 my-1" />
         </template>
         <template v-else-if="confirm >= 6">
           <span class="text-emerald-600 dark:text-emerald-400">Confirmed</span>

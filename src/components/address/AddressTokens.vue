@@ -115,7 +115,8 @@ const rows = computed<tableColumn[][]>(() =>
 		const name = metadata?.loading ? false : metadata?.token?.name || "N/A";
 		return [
 			{
-				text: name || "Loading...",
+				text: name || "",
+				pending: !name,
 				token: { category },
 				url: `/token/${category}`,
 			},
@@ -128,8 +129,9 @@ const rows = computed<tableColumn[][]>(() =>
 			{
 				// Without loaded metadata the decimals are unknown: show base units.
 				text: metadata?.loading
-					? "Loading..."
+					? ""
 					: formatTokenAmount(amount, metadata?.token?.decimals),
+				pending: !!metadata?.loading,
 			},
 		];
 	}),

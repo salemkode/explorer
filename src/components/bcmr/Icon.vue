@@ -29,7 +29,7 @@
       />
       <Transition name="popup">
         <Image
-          v-show="state.open"
+          v-if="state.open"
           :key="iconURL"
           :href="imageURL"
           :failure-href="iconURL"
